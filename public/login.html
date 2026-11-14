@@ -1,0 +1,13 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>تسجيل الدخول | TeacherM</title></head><body><div id="nav"></div><div class="wrap" style="max-width:460px">
+<div class="card"><h2 style="text-align:center">أهلاً بك في Teacher<b style="color:var(--acc)">M</b></h2><div class="tabs"><button class="btn" id="b1" onclick="tab(1)">دخول</button><button class="btn ghost" id="b2" onclick="tab(2)">حساب جديد</button></div>
+<form id="f1"><label>البريد</label><input name="email" type="email" required><label>كلمة المرور</label><input name="password" type="password" required><button class="btn" style="width:100%">دخول</button></form>
+<form id="f2" class="hide"><label>الاسم</label><input name="name" required><label>المادة</label><select name="subject" id="sj" required></select><label>الهاتف</label><input name="phone">
+<label>البريد</label><input name="email" type="email" required><label>كلمة المرور (8+)</label><input name="password" type="password" minlength="8" required>
+<label>رابطك (إنجليزي): teacherm.com/t/<b>slug</b></label><input name="slug" pattern="[a-z0-9-]{3,30}" dir="ltr" required><button class="btn" style="width:100%">إنشاء الحساب</button></form>
+<p style="text-align:center"><a href="/" class="mut">← العودة للرئيسية</a></p></div></div><div id="toast"></div>
+<script src="/app.js"></script><script>nav();sj.innerHTML=subjOpts();
+const go=m=>location.replace(m.role==='admin'?'/admin':'/dashboard');
+api('/api/me').then(go).catch(()=>{});
+function tab(n){f1.classList.toggle('hide',n!=1);f2.classList.toggle('hide',n!=2);b1.className='btn'+(n==1?'':' ghost');b2.className='btn'+(n==2?'':' ghost')}
+if(location.hash==='#register')tab(2);
+for(const [f,u] of [[f1,'/api/login'],[f2,'/api/register']])f.onsubmit=async e=>{e.preventDefault();try{go(await api(u,'POST',Object.fromEntries(new FormData(f))))}catch(x){toast(x.message)}};</script></body></html>

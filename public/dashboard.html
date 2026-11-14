@@ -19,7 +19,7 @@ function addQ(){faqs.push({q:'',a:''});drawQ()}
 async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
 async function saveMe(){try{me=await api('/api/me','PUT',{name:G('sn').value,subject:G('sjs').value});head();G('hi').textContent='أهلاً '+me.name+' — '+me.subject;toast('تم الحفظ وتغيّر الثيم')}catch(x){toast(x.message)}}
 api('/api/me').then(m=>{me=m;head();G('hi').textContent='أهلاً '+m.name+' — '+m.subject;G('lnk').value=location.origin+'/t/'+m.slug;G('pl').href='/t/'+m.slug;
-if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load()}).catch(()=>location='/');
+if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load()}).catch(x=>x.status===401?location='/login':toast(x.message));
 async function load(){const e=await api('/api/exams');G('es').innerHTML=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+'</option>').join('');
 G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>'}
 G('nf').onsubmit=async e=>{e.preventDefault();try{await api('/api/exams','POST',{title:G('nt').value});G('nt').value='';load()}catch(x){toast(x.message)}};

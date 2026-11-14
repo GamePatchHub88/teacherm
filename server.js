@@ -22,8 +22,8 @@ const SUB=['اللغة العربية','الرياضيات','اللغة الإن
 const an=s=>String(s||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase().trim().replace(/\s+/g,' ');
 const norm=s=>String(s??'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===11000?409:500).json({error:e.code===11000?'القيمة مستخدمة بالفعل':'خطأ في الخادم'}));
-const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'30d'});
-const setC=(s,u)=>s.cookie('tk',sign(u),{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:2592e6});
+const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'365d'});
+const setC=(s,u)=>s.cookie('tk',sign(u),{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:31536e6});
 const auth=wrap(async(q,s,n)=>{try{const d=jwt.verify(q.cookies.tk,process.env.JWT_SECRET);q.user=await User.findById(d.id)}catch{}
  if(!q.user)return s.status(401).json({error:'سجّل الدخول أولاً'});
  if(!q.user.active&&q.user.role!=='admin')return s.status(403).json({error:'حسابك قيد المراجعة أو موقوف'});n()});
@@ -82,7 +82,7 @@ app.patch('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{await User.updateO
 app.delete('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{const u=await User.findOneAndDelete({_id:q.params.id,role:'teacher'});
  if(u){await Exam.deleteMany({teacher:u._id});await Result.deleteMany({teacher:u._id})}s.json({ok:1})}));
 
-app.get('/t/:slug',P('t.html'));app.get('/dashboard',P('dashboard.html'));app.get('/admin',P('admin.html'));
+app.get('/t/:slug',P('t.html'));app.get('/dashboard',P('dashboard.html'));app.get('/admin',P('admin.html'));app.get('/login',P('login.html'));
 app.use(express.static(path.join(__dirname,'public')));
 app.use((q,s)=>s.status(404).sendFile(path.join(__dirname,'public','index.html')));
 

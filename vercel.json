@@ -1,5 +1,6 @@
 {"rewrites":[
 {"source":"/dashboard","destination":"/dashboard.html"},
+{"source":"/login","destination":"/login.html"},
 {"source":"/admin","destination":"/admin.html"},
 {"source":"/t/:slug","destination":"/t.html"},
 {"source":"/api/(.*)","destination":"/api/index.js"}]}
