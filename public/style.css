@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 :root{--bg:#f7f2e8;--card:#fffdf7;--ink:#13302b;--mut:#62766f;--pri:#0f766e;--on:#fff;--acc:#d9a21b;--line:#e5ddca;--bad:#c2410c}
 [data-theme=dark]{--bg:#0a1614;--card:#11231f;--ink:#e9f3f0;--mut:#8ea8a1;--pri:#2dd4bf;--on:#06201c;--acc:#f2c14e;--line:#1e3a34;--bad:#fb923c}
 *{box-sizing:border-box}body{margin:0;font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;
@@ -212,3 +213,118 @@ mark{background:color-mix(in srgb,var(--acc) 55%,transparent);color:inherit;bord
 .gpanel{animation:up .5s both}
 
 @media(prefers-reduced-motion:reduce){.rv,.up,.gpanel{opacity:1!important;transform:none!important}.sp-prog{display:none}}
+
+/* =====================================================================
+   v4 — ثيم كل مادة (رموز + أشكال + زخارف + خطوط) + الباقات + الفوتر
+   ===================================================================== */
+:root{--rad:20px;--hr:28px;--chk:"✓";--hf:Cairo;--orn:"✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦"}
+h1,h2,h3,.foot-title,.brand{font-family:var(--hf),Cairo,system-ui,sans-serif}
+.card,.sform,.gchip{border-radius:var(--rad)}.xc{border-radius:calc(var(--rad) - 2px)}.rcard{border-radius:var(--rad)}
+.hero,.sh-hero{border-radius:var(--hr)}
+
+/* رموز عائمة داخل الواجهة العلوية */
+.hero>.symfx{position:absolute;inset:0;animation:none;pointer-events:none;overflow:hidden;z-index:0}
+.hero>*:not(.symfx){z-index:1}
+.symfx span{position:absolute;color:#fff;opacity:.17;font-weight:800;font-family:Amiri,Cairo,serif;font-variant-emoji:text;user-select:none;animation:symf 9s ease-in-out infinite}
+@keyframes symf{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-16px) rotate(7deg)}}
+@media(prefers-reduced-motion:reduce){.symfx span{animation:none}}
+@media(max-width:640px){.symfx span:nth-child(n+7){display:none}}
+
+/* علامات القوائم والتعليمات برمز المادة */
+.sh-ol{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.sh-ol li{margin:0;display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:calc(var(--rad) - 8px);background:var(--bg);border:1px solid var(--line)}
+.sh-ol li::before{content:var(--chk);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:800;color:#fff;background:var(--pri);font-variant-emoji:text}
+.rcard .rh{position:relative;overflow:hidden}
+.rcard .rh::after{content:var(--chk);position:absolute;inset-inline-end:16px;top:50%;transform:translateY(-50%);font-size:3.4rem;line-height:1;opacity:.14;font-variant-emoji:text;pointer-events:none}
+.xc{position:relative}.xc::before{content:var(--chk);position:absolute;top:8px;inset-inline-end:10px;font-size:.9rem;color:var(--pri);opacity:.5;font-variant-emoji:text}
+
+/* ---------- العربية: مخطوطة بإطار مزدوج وخط أميري ---------- */
+[data-subject=ar]{--rad:22px;--hr:30px;--hf:Amiri;--chk:"❖";--orn:"❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖ ❖"}
+[data-subject=ar] .hero::after{content:"";position:absolute;inset:10px;border:2px double rgba(255,255,255,.4);border-radius:22px;pointer-events:none}
+[data-subject=ar] .card{border-top:4px double var(--acc)}
+[data-subject=ar] .sx-bar{width:auto;height:auto;background:none;color:var(--acc);text-align:center;line-height:1;font-size:1.05rem}[data-subject=ar] .sx-bar::before{content:"—— ❖ ——"}
+[data-subject=ar] .ib,[data-subject=ar] .sx-moon{border-radius:14px 14px 4px 14px}
+
+/* ---------- الرياضيات: ورقة رسم بياني ومحاور ---------- */
+[data-subject=math]{--rad:8px;--hr:10px;--chk:"∑";--orn:"+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +"}
+[data-subject=math] .card,[data-subject=math] .sform{background-image:linear-gradient(color-mix(in srgb,var(--pri) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--pri) 7%,transparent) 1px,transparent 1px);background-size:22px 22px}
+[data-subject=math] .hero::after{content:"";position:absolute;inset:14px;border-inline-start:2px solid rgba(255,255,255,.38);border-bottom:2px solid rgba(255,255,255,.38);pointer-events:none}
+[data-subject=math] .sx-bar{width:96px;height:10px;border-radius:0;background:repeating-linear-gradient(90deg,var(--pri) 0 2px,transparent 2px 12px);border-bottom:2px solid var(--pri)}
+[data-subject=math] .res b,[data-subject=math] .price b{font-family:ui-monospace,Consolas,"Courier New",monospace}
+[data-subject=math] .btn,[data-subject=math] input,[data-subject=math] select{border-radius:6px}
+[data-subject=math] .tag{border-radius:4px}[data-subject=math] .ib,[data-subject=math] .sx-moon{border-radius:6px}
+
+/* ---------- الإنجليزية: دفتر مسطّر وفقاعات حوار ---------- */
+[data-subject=en]{--rad:28px;--hr:44px 44px 44px 12px;--chk:"A";--orn:"A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A"}
+[data-subject=en] .hero::after{content:"“";position:absolute;top:-6px;inset-inline-start:18px;font:800 9rem/1 Georgia,serif;color:rgba(255,255,255,.14);pointer-events:none}
+[data-subject=en] .card{background-image:repeating-linear-gradient(transparent 0 33px,color-mix(in srgb,var(--pri) 9%,transparent) 33px 34px)}
+[data-subject=en] .sx-bar{width:88px;height:8px;border-radius:0;background:radial-gradient(circle,var(--acc) 3px,transparent 3.5px) 0 0/16px 8px repeat-x}
+[data-subject=en] .btn,[data-subject=en] .tag{border-radius:99px}[data-subject=en] .ib,[data-subject=en] .sx-moon{border-radius:50% 50% 50% 8px}
+
+/* ---------- العلوم: مختبر ومدارات وخلايا سداسية ---------- */
+[data-subject=sci]{--rad:18px;--hr:34px;--chk:"⚛";--orn:"✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺ ✺"}
+[data-subject=sci] .hero::after{content:"";position:absolute;width:380px;height:150px;border:2px dashed rgba(255,255,255,.26);border-radius:50%;inset-inline-end:-90px;bottom:-34px;transform:rotate(-24deg);pointer-events:none}
+[data-subject=sci] .card{background-image:radial-gradient(circle,color-mix(in srgb,var(--pri) 14%,transparent) 1.5px,transparent 2px);background-size:18px 18px;border-left:4px solid var(--acc)}
+[data-subject=sci] .sx-bar{width:92px;height:8px;border-radius:0;background:radial-gradient(circle,var(--pri) 2.5px,transparent 3px) 0 0/13px 8px repeat-x}
+[data-subject=sci] .ib,[data-subject=sci] .sx-moon{border-radius:0;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
+[data-subject=sci] .xc{border-style:dashed}
+
+/* ---------- الدراسات الاجتماعية: خريطة وخطوط طول ودبابيس ---------- */
+[data-subject=soc]{--rad:14px;--hr:18px;--chk:"◎";--orn:"◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈ ◈"}
+[data-subject=soc] .hero::after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;border:2px solid rgba(255,255,255,.22);inset-inline-start:-100px;bottom:-170px;box-shadow:0 0 0 24px rgba(255,255,255,.05),inset 0 0 0 44px rgba(255,255,255,.05);pointer-events:none}
+[data-subject=soc] .card{border-bottom:4px solid var(--acc)}
+[data-subject=soc] .sx-bar{position:relative;width:110px;height:3px;border-radius:0;background:repeating-linear-gradient(90deg,var(--pri) 0 8px,transparent 8px 14px)}
+[data-subject=soc] .sx-bar::after{content:"";position:absolute;inset-inline-end:-6px;top:-5px;width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--acc)}
+[data-subject=soc] .tag{border-radius:4px;border:1px dashed var(--pri);background:transparent}[data-subject=soc] .ib,[data-subject=soc] .sx-moon{border-radius:50%}
+
+/* ---------- المواد الشرعية: محراب وهلال ونجمة ثمانية ---------- */
+[data-subject=isl]{--rad:24px;--hr:90px 90px 28px 28px/60px 60px 28px 28px;--hf:Amiri;--chk:"✦";--orn:"✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦"}
+[data-subject=isl] .hero::after{content:"☪";position:absolute;top:10px;inset-inline-end:26px;font-size:2.6rem;line-height:1;color:rgba(255,255,255,.4);font-variant-emoji:text;pointer-events:none}
+[data-subject=isl] .card{border-top:3px solid var(--acc)}
+[data-subject=isl] .sx-bar{width:auto;height:auto;background:none;color:var(--acc);text-align:center;line-height:1}[data-subject=isl] .sx-bar::before{content:"﴾ ✦ ﴿"}
+[data-subject=isl] .ib,[data-subject=isl] .sx-moon{border-radius:0;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+[data-subject=isl] .btn{border-radius:14px}
+
+/* بطاقات المواد في الصفحة الرئيسية: شكل ورموز خاصة بكل مادة */
+.sc-sym{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0 10px;font:800 1.05rem Amiri,Cairo,serif;opacity:.92;font-variant-emoji:text}
+.sc-sym span{min-width:34px;padding:2px 8px;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26)}
+.sc[data-subject=ar]{border-radius:34px 34px 8px 34px}.sc[data-subject=math]{border-radius:6px}.sc[data-subject=en]{border-radius:38px 38px 38px 6px}
+.sc[data-subject=sci]{border-radius:26px;border:2px dashed rgba(255,255,255,.5)}.sc[data-subject=soc]{border-radius:14px;border-bottom:6px solid var(--acc)}.sc[data-subject=isl]{border-radius:80px 80px 20px 20px/56px 56px 20px 20px}
+.sc[data-subject=math] .sc-sym span{border-radius:3px}.sc[data-subject=en] .sc-sym span{border-radius:99px}
+
+/* ===================== الباقات ===================== */
+.card.plan{padding:24px 20px 20px;gap:10px;border-radius:24px;overflow:visible;transition:transform .3s,box-shadow .3s}
+.card.plan:hover{transform:translateY(-6px)}
+.plan::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,var(--pri),var(--acc))}
+.plan .ph{display:flex;align-items:center;gap:12px}.plan .ph .ib{width:46px;height:46px;border-radius:14px}.plan .ph h3{margin:0;font-size:1.12rem;line-height:1.3}.plan .pk{font-size:.78rem;color:var(--mut);font-weight:700}
+.plan .price{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin:2px 0}.plan .price b{font-size:2.5rem;line-height:1;font-weight:800;color:var(--pri)}
+.plan .price small{font-size:.88rem;color:var(--mut);font-weight:700}.plan .price small i{font-style:normal}.plan .price.ask{font-size:1.1rem;font-weight:800;color:var(--ink);padding:8px 0}
+.plan .save{display:inline-flex;gap:6px;align-items:center;align-self:flex-start;padding:3px 12px;border-radius:99px;background:color-mix(in srgb,var(--acc) 26%,transparent);color:var(--ink);font-weight:800;font-size:.82rem}
+.plan .pd{margin:0;font-size:.93rem}
+.plan ul{margin:6px 0 14px;padding:12px 0 0;border-top:1px dashed var(--line);gap:9px}
+.plan li{display:flex;align-items:center;gap:10px;font-size:.93rem}
+.plan li::before{content:var(--chk,"✓");flex:none;margin:0;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--pri);font-variant-emoji:text}
+.plan .btn{display:flex;align-items:center;justify-content:center;padding:12px 18px}
+.plan .ribbon{display:inline-flex;align-items:center;gap:5px;z-index:2;box-shadow:0 8px 16px -8px var(--acc)}.plan .ribbon svg{margin:0;vertical-align:0}
+.plan .ribbon.mine{background:var(--pri);color:var(--on);box-shadow:0 8px 16px -8px var(--pri)}
+.plan.mine{border:2px solid var(--pri);box-shadow:0 22px 44px -26px var(--pri)}
+.plan.hot{transform:translateY(-4px)}.plan.hot:hover{transform:translateY(-10px)}
+.p-exam::before{background:var(--acc)}.p-month::before{background:var(--pri)}
+.p-lifetime{background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 14%,var(--card)),var(--card) 55%)}
+.p-lifetime::before{background:linear-gradient(90deg,var(--acc),color-mix(in srgb,var(--acc) 45%,#fff),var(--acc))}.p-lifetime .ib{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#000))}
+@media(max-width:640px){.plan.hot{transform:none}}
+
+/* ===================== الفوتر ===================== */
+.foot{position:relative;margin-top:46px;border-top:0;overflow:hidden;background:linear-gradient(180deg,color-mix(in srgb,var(--pri) 7%,var(--card)),color-mix(in srgb,var(--pri) 14%,var(--bg)))}
+.foot-orn{height:28px;line-height:28px;overflow:hidden;white-space:nowrap;text-align:center;color:#fff;font-size:.85rem;letter-spacing:.7em;font-variant-emoji:text;background:linear-gradient(90deg,var(--pri),var(--acc),var(--pri))}.foot-orn::before{content:var(--orn)}
+.foot-in{max-width:1000px;margin:auto;padding:30px 18px 22px;display:grid;gap:18px;justify-items:stretch;text-align:right}
+.foot-top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.foot-brand{display:flex;gap:12px;align-items:center}.foot-brand .ib{width:50px;height:50px;border-radius:15px}
+.foot-title{font-weight:800;font-size:1.3rem;line-height:1.2;color:var(--pri)}.foot-sub{color:var(--mut);font-size:.9rem}
+.foot-links{display:flex;flex-wrap:wrap;gap:8px;padding:14px 0;margin:0;justify-content:flex-start;border-block:1px solid var(--line)}
+.foot-links a{padding:5px 15px;border-radius:99px;background:color-mix(in srgb,var(--pri) 9%,transparent);color:var(--ink);font-weight:700;font-size:.88rem;text-decoration:none;transition:background .2s,color .2s,transform .2s}
+.foot-links a:hover{background:var(--pri);color:var(--on);transform:translateY(-2px)}
+.foot-bot{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;justify-content:space-between}
+.foot-copy{color:var(--mut);font-size:.85rem}.foot-dev{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--mut)}.foot-dev a{color:var(--pri);font-weight:800;text-decoration:none}.foot-dev a:hover{text-decoration:underline}
+.totop{width:38px;height:38px;border-radius:12px;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 78%,#000),color-mix(in srgb,var(--pri) 42%,#000));box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);transition:transform .2s}.totop:hover{transform:translateY(-4px)}
+@media(max-width:640px){.foot-in{text-align:center}.foot-top{justify-content:center}.foot-brand{flex-direction:column;gap:8px}.foot-links{justify-content:center}.foot-bot{justify-content:center}}

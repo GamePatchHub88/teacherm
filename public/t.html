@@ -32,7 +32,9 @@ const vcls=(k,v)=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راس
 api('/api/public/'+slug).then(d=>{D=d;const x=applySubject(d.subject);IC_=x?x.k:'cap';S=SITE(d.name,d.subject,d.site);if(S.color&&S.color.pri)applyColors(S.color,'t');
  document.title=S.title+' | '+S.examTitle;
  document.querySelector('meta[name=description]').content=S.title+' — '+S.examTitle+': ابحث بالاسم عن رقم جلوسك واستعلم عن نتيجتك.';
- shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a><a href="#q" class="navlink">الاستعلام عن النتيجة</a>'+(S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'<a href="/dashboard" class="hbtn" aria-label="لوحة المدير" title="لوحة المدير">'+svg('shield',18)+'</a>','#top');
+ shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a><a href="#q" class="navlink">الاستعلام عن النتيجة</a>'+(S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'','#top');
+ /* زر لوحة المدرس يظهر لصاحب الصفحة فقط (بعد التحقق من الجلسة)، ولا يظهر للطلاب أو الزوار */
+ api('/api/me').then(m=>{if(m.role==='teacher'&&m.slug===slug){const t=document.querySelector('.tools');if(t)t.insertAdjacentHTML('afterbegin','<a href="/dashboard" class="hbtn" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a>')}}).catch(()=>{});
  splash(IC_,S.title,S.tagline,S.greet);
  tx('hg',S.greet);tx('ht',S.title);tx('he',S.examTitle);tx('hs',S.tagline);tx('hn',S.intro);tx('hh',S.searchHint);tx('it',S.instructionsTitle);
 

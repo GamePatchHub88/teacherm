@@ -9,7 +9,12 @@ async function logout(){await api('/api/logout','POST');location='/'}
 
 const SUBJECTS=[{k:'ar',n:'اللغة العربية',i:'📖'},{k:'math',n:'الرياضيات',i:'📐'},{k:'en',n:'اللغة الإنجليزية',i:'🔤'},{k:'sci',n:'العلوم',i:'🔬'},{k:'soc',n:'الدراسات الاجتماعية',i:'🌍'},{k:'isl',n:'المواد الشرعية',i:'🕌'}];
 const subjOpts=sel=>SUBJECTS.map(x=>`<option ${x.n===sel?'selected':''}>${x.n}</option>`).join('');
-function applySubject(n){const x=SUBJECTS.find(v=>v.n===n);if(x)document.documentElement.dataset.subject=x.k;else delete document.documentElement.dataset.subject;return x}
+/* رموز كل مادة: تظهر عائمة في الواجهة العلوية وفي الفوتر وفي بطاقات المواد (ليست ألواناً فقط) */
+const SYM={ar:['أ','ب','ج','ض','ق','ع','ح','ظ','ء','ط'],math:['∑','π','√','∞','÷','×','%','∫','±','x²'],en:['A','Z','&','?','Abc','“ ”','!','Aa','ABC','Q'],sci:['⚛','H₂O','Δ','λ','E=mc²','O₂','μ','β','CO₂','Ω'],soc:['◎','N','✦','⌖','◈','⟡','E','W','S','◉'],isl:['☪','۞','✦','﴾','﴿','☽','۩','✺','★','۞']};
+function symfx(k){const a=SYM[k];if(!a)return'';const P=[[4,16],[13,68],[23,30],[36,76],[50,12],[61,66],[73,28],[85,72],[92,14],[47,46]];
+ return '<div class="symfx" aria-hidden="true">'+P.map((q,i)=>'<span style="inset-inline-start:'+q[0]+'%;top:'+q[1]+'%;animation-delay:'+(-i*.9)+'s;font-size:'+(1.2+((i*7)%5)*.32)+'rem">'+a[i%a.length]+'</span>').join('')+'</div>'}
+function decorate(){const h=document.querySelector('.hero');if(!h)return;const o=h.querySelector('.symfx');if(o)o.remove();h.insertAdjacentHTML('afterbegin',symfx(document.documentElement.dataset.subject))}
+function applySubject(n){const x=SUBJECTS.find(v=>v.n===n);if(x)document.documentElement.dataset.subject=x.k;else delete document.documentElement.dataset.subject;decorate();return x}
 
 const DEF=(n,j)=>({greet:'بسم الله الرحمن الرحيم',title:'طلاب '+n,examTitle:'نتائج امتحان '+j,tagline:'مدرس '+j,
 intro:`موقع ${n}، مدرس ${j}، لعرض أرقام جلوس الطلاب والاستعلام عن نتائج الامتحانات.`,searchHint:'اكتب اسمك أو جزءاً منه لمعرفة رقم جلوسك، أو اكتب رقم الجلوس مباشرة',
@@ -49,16 +54,28 @@ IC.star='<path d="m12 2 3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>';
 Object.assign(IC,{menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',shield:'<path d="M12 3l8 3v6c0 4.5-3.2 7.9-8 9-4.8-1.1-8-4.5-8-9V6l8-3z"/><path d="M9.5 12l1.8 1.8 3.2-3.6"/>',plus:'<path d="M12 5v14M5 12h14"/>',useradd:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/>',trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',dl:'<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>',help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4M12 17h.01"/>',clip:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',phone:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',chart:'<path d="M3 3v16a2 2 0 0 0 2 2h16M18 17V9M13 17V5M8 17v-3"/>',award:'<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>',print:'<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/>',check:'<path d="M20 6 9 17l-5-5"/>'});
 const PNAME={exam:'امتحان واحد',month:'شهر',year:'سنة',lifetime:'مدى الحياة'},PER={exam:'للامتحان',month:'/ شهر',year:'/ سنة',lifetime:'دفعة واحدة'};
 const waLink=(n,t)=>'https://wa.me/'+n+'?text='+encodeURIComponent(t);
-function planCard(p,cur,wa,extra='',hot=false){const pr=p.price?'<div class="price">'+p.price+' <small>'+esc(cur)+' '+(PER[p.key]||'')+'</small></div>':'<div class="price" style="font-size:1.2rem">تواصل لمعرفة السعر</div>';
- const msg='مرحباً، أريد الاشتراك في "'+p.name+'"'+(p.price?' بسعر '+p.price+' '+cur:'')+'.'+extra;
- return '<div class="card plan'+(hot?' hot':'')+'">'+(hot?'<span class="ribbon">الأكثر طلباً</span>':'')+badge({exam:'pen',month:'sun',year:'cap',lifetime:'star'}[p.key]||'cap')+'<h3 style="margin:.3em 0">'+esc(p.name)+'</h3>'+pr+'<p class="mut" style="margin:0">'+esc(p.desc)+'</p><ul>'+(p.features||[]).map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul><a class="btn" target="_blank" rel="noopener" href="'+waLink(wa,msg)+'">'+svg('wa',16)+'اشترك عبر واتساب</a></div>'}
+const PICON={exam:'clip',month:'cal',year:'award',lifetime:'crown'},PTAG={exam:'تجربة سريعة',month:'مرونة كاملة',year:'الأوفر سعراً',lifetime:'دفعة واحدة'};
+function planCard(p,cur,wa,extra='',hot=false,o={}){const k=p.key,
+ pr=p.price?'<div class="price"><b>'+p.price+'</b><small>'+esc(cur)+' <i>'+(PER[k]||'')+'</i></small></div>':'<div class="price ask">تواصل لمعرفة السعر</div>',
+ msg='مرحباً، أريد الاشتراك في "'+p.name+'"'+(p.price?' بسعر '+p.price+' '+cur:'')+'.'+extra,
+ rb=o.mine?'<span class="ribbon mine">'+svg('check',13)+' باقتك الحالية</span>':hot?'<span class="ribbon">'+svg('star',13)+' الأكثر طلباً</span>':'';
+ return '<article class="card plan p-'+k+(hot?' hot':'')+(o.mine?' mine':'')+'" data-plan="'+k+'">'+rb+'<div class="ph">'+badge(PICON[k]||'cap',24)+'<div><h3>'+esc(p.name)+'</h3><span class="pk">'+(PTAG[k]||'')+'</span></div></div>'+pr+
+ (o.save?'<div class="save">'+svg('bolt',14)+' وفّر '+o.save+'%'+(o.perMonth?' • ≈ '+o.perMonth+' '+esc(cur)+' / شهر':'')+'</div>':'')+
+ '<p class="mut pd">'+esc(p.desc)+'</p><ul>'+(p.features||[]).map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul><a class="btn" target="_blank" rel="noopener" href="'+waLink(wa,msg)+'">'+svg('wa',16)+(o.mine?'تجديد / ترقية عبر واتساب':'اشترك عبر واتساب')+'</a></article>'}
+/* كل الباقات: يحسب نسبة التوفير للسنة مقارنة بالشهر، ويميّز باقة المدرس الحالية */
+function plansHTML(d,o={}){const by=Object.fromEntries(d.plans.map(p=>[p.key,p])),m=by.month&&by.month.price,y=by.year&&by.year.price,
+ save=m&&y&&m*12>y?Math.round((1-y/(m*12))*100):0;
+ return d.plans.map(p=>planCard(p,d.currency,d.whatsapp,o.extra||'',p.key===(o.hot||'year'),{mine:o.mine===p.key,save:p.key==='year'?save:0,perMonth:p.key==='year'&&y?Math.round(y/12):0})).join('')}
 const faqHTML=l=>l.map((f,i)=>'<details class="sx-q"><summary><span class="sx-qn" aria-hidden="true">'+(i+1)+'</span><span class="sx-qt">'+esc(f.q)+'</span></summary><p>'+esc(f.a)+'</p></details>').join('');
 const fmtWa=n=>'+'+String(n).replace(/^(20)(\d{2})(\d+)$/,'$1 $2 $3');
-function foot(o){const L=(o.links||[]).map(l=>'<a href="'+l[0]+'">'+esc(l[1])+'</a>').join('');
- return '<div class="foot-in"><div class="foot-title">'+esc(o.title)+'</div>'+(o.sub?'<div class="foot-sub">'+esc(o.sub)+'</div>':'')+(L?'<nav class="foot-links" aria-label="روابط الموقع">'+L+'</nav>':'')+
- (o.wa?'<a class="wa" href="https://wa.me/'+esc(o.wa)+'" target="_blank" rel="noopener noreferrer">'+svg('wa',22)+'<span>'+esc(o.waText||'تواصل عبر واتساب')+'</span><bdi dir="ltr" class="wa-num">'+esc(fmtWa(o.wa))+'</bdi></a>':'')+
- '<div class="foot-copy">© '+new Date().getFullYear()+' '+esc(o.copy||'')+'</div><div class="foot-dev"><a href="https://mohamedahmedhelmi.vercel.app/" target="_blank" rel="noopener noreferrer">المطور</a></div></div>'}
+function foot(o){const k=document.documentElement.dataset.subject,L=(o.links||[]).map(l=>'<a href="'+l[0]+'">'+esc(l[1])+'</a>').join('');
+ return '<div class="foot-orn" aria-hidden="true"></div><div class="foot-in"><div class="foot-top"><div class="foot-brand">'+badge(o.icon||k||'cap',26)+'<div><div class="foot-title">'+esc(o.title)+'</div>'+(o.sub?'<div class="foot-sub">'+esc(o.sub)+'</div>':'')+'</div></div>'+
+ (o.wa?'<a class="wa" href="https://wa.me/'+esc(o.wa)+'" target="_blank" rel="noopener noreferrer">'+svg('wa',22)+'<span>'+esc(o.waText||'تواصل عبر واتساب')+'</span><bdi dir="ltr" class="wa-num">'+esc(fmtWa(o.wa))+'</bdi></a>':'')+'</div>'+
+ (L?'<nav class="foot-links" aria-label="روابط الموقع">'+L+'</nav>':'')+
+ '<div class="foot-bot"><div class="foot-copy">© '+new Date().getFullYear()+' '+esc(o.copy||'')+'</div><div class="foot-dev"><span>تطوير</span><a href="https://mohamedahmedhelmi.vercel.app/" target="_blank" rel="noopener noreferrer">محمد أحمد حلمي</a></div>'+
+ '<button class="totop" type="button" onclick="scrollTo({top:0,behavior:\'smooth\'})" aria-label="العودة للأعلى" title="العودة للأعلى">'+svg('top',18)+'</button></div></div>'}
 
+Object.assign(IC,{cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',crown:'<path d="M3 7l4 4 5-7 5 7 4-4-2 12H5z"/><path d="M5 22h14"/>',top:'<path d="M12 19V5M5 12l7-7 7 7"/>',dash:'<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>'});
 Object.assign(IC,{users:'<circle cx="9" cy="8" r="4"/><path d="M1 21a8 8 0 0 1 16 0M17 4a4 4 0 0 1 0 8M23 21a8 8 0 0 0-5-7.4"/>',bolt:'<path d="M13 2 3 14h8l-1 8 10-12h-8z"/>'});
 
 /* ===== ألوان المنصة / ألوان موقع المدرس =====

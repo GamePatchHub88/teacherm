@@ -1,0 +1,138 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>لوحة المدرس | TeacherM</title><meta name="robots" content="noindex, nofollow, nocache"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head><body><div id="nav"></div><main class="wrap"><section class="hero"><div class="bismillah">بسم الله الرحمن الرحيم</div><h1>لوحة المدرس</h1><div class="exam" id="hs">...</div><div class="sub" id="hi">جاري التحميل...</div></section><div id="imp"></div>
+<div class="card"><p class="mut" id="stat" style="margin:0 0 8px"></p><label>رابط موقع طلابك</label><div class="row"><input id="lnk" readonly dir="ltr" style="flex:1;margin:0"><button class="btn" onclick="navigator.clipboard.writeText(lnk.value);toast('تم النسخ')">نسخ الرابط</button><a class="btn ghost" id="pl" target="_blank">معاينة الموقع</a></div></div>
+<div class="atabs" id="tabs" role="tablist"></div>
+
+<section id="t1"><div class="card"><h2>الامتحانات</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان" style="flex:1;min-width:160px;margin:0" required><select id="ng" aria-label="المجموعة" style="flex:1;min-width:170px;margin:0"></select><button class="btn">إضافة</button></form><p class="mut" style="font-size:.85rem;margin:6px 0 0">اختر مجموعة ليُنشأ الامتحان لها وتُضاف أسماء طلابها تلقائياً — أو اتركه بدون مجموعة.</p><div style="overflow:auto"><table id="ex"></table></div></div>
+
+<div class="card" id="stc"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">الطلاب <span class="tag" id="stn">0</span></h2><button class="btn" id="addb" type="button"></button></div>
+<div class="row"><div style="flex:1;min-width:180px"><label>الامتحان</label><select id="se"></select></div><div style="flex:1;min-width:180px"><label>بحث في الطلاب</label><input id="sq" placeholder="الاسم أو رقم الجلوس"></div></div>
+<form id="sf" class="sform hide"><h3 id="sft" style="margin:0 0 8px"></h3><div class="row"><div style="flex:1;min-width:160px"><label>رقم الجلوس *</label><input id="ss" dir="ltr" required></div><div style="flex:2;min-width:200px"><label>اسم الطالب *</label><input id="sname" required minlength="2"></div></div>
+<label>بيانات الطالب (الدرجة والنسبة وغيرها — اسم الحقل وقيمته)</label><div id="sfd"></div>
+<div class="row"><button class="btn ghost sm" type="button" id="addf"></button></div>
+<div class="row" style="margin-top:12px"><button class="btn">حفظ الطالب</button><button class="btn ghost" type="button" id="sc2">إلغاء</button></div></form>
+<div style="overflow:auto"><table id="stt"></table></div><p class="mut" style="font-size:.85rem;margin:8px 0 0" id="stm"></p></div>
+
+<div class="card"><h2>رفع النتائج (Excel / CSV)</h2><label>الامتحان</label><select id="es"></select><input type="file" id="fl" accept=".xlsx,.xls,.csv">
+<div id="map" class="hide"><label>عمود رقم الجلوس</label><select id="cs"></select><label>عمود اسم الطالب</label><select id="cn"></select><p class="mut" id="pv"></p><label style="display:block;margin:6px 0 10px"><input type="checkbox" id="mg" style="width:auto;margin:0 0 0 8px">دمج الدرجات مع الطلاب الموجودين (لا يحذف من ليس في الملف) — يُنصح به لامتحانات المجموعات</label><button class="btn" id="up">نشر النتائج</button></div></div></section>
+
+<section id="t5" class="hide"><div class="card"><h2>المجموعات</h2><p class="mut" style="margin:0">أنشئ مجموعة (فصل / سنتر / دفعة)، أضف طلابك إليها مرة واحدة، ثم أعطِ أي امتحان لهذه المجموعة.</p>
+<div class="flow"><span>١. أنشئ مجموعة</span><b>←</b><span>٢. أضف الطلاب</span><b>←</b><span>٣. أنشئ امتحاناً للمجموعة</span><b>←</b><span>٤. أدخل الدرجات</span></div>
+<form class="row" id="g_form" style="margin-top:12px"><input id="g_name" placeholder="اسم المجموعة (مثال: 3/أ — سنتر النور)" style="flex:1;min-width:200px;margin:0" required maxlength="60"><button class="btn">إنشاء مجموعة</button></form><div class="gchips" id="g_list"></div></div>
+<div class="card gpanel hide" id="g_panel"><div class="row between"><h2 style="margin:0" id="g_title"></h2><div class="row"><button class="btn ghost sm" type="button" onclick="renG()">تعديل الاسم</button><button class="btn bad sm" type="button" onclick="delG()">حذف المجموعة</button></div></div>
+<h3 style="margin:16px 0 6px">إعطاء امتحان لهذه المجموعة</h3><form class="row" id="g_exf"><input id="g_ext" placeholder="اسم الامتحان (مثال: امتحان الشهر الأول)" style="flex:1;min-width:200px;margin:0" required><button class="btn">إنشاء الامتحان للمجموعة</button></form>
+<div class="gx" id="g_exams"></div>
+<h3 style="margin:16px 0 6px">طلاب المجموعة <span class="tag" id="g_cnt">0</span></h3>
+<form class="sform" id="g_addf"><div class="row"><div style="flex:1;min-width:140px"><label>رقم الجلوس *</label><input id="g_seat" dir="ltr" required></div><div style="flex:2;min-width:200px"><label>اسم الطالب *</label><input id="g_sname" required minlength="2"></div></div><button class="btn">إضافة طالب للمجموعة</button></form>
+<div class="row" style="margin-bottom:6px"><input id="g_q" placeholder="بحث في طلاب المجموعة" style="flex:1;min-width:180px;margin:0"></div>
+<div style="overflow:auto"><table id="g_tbl"></table></div>
+<details style="margin-top:12px"><summary>استيراد طلاب المجموعة من Excel / CSV</summary><input type="file" id="g_file" accept=".xlsx,.xls,.csv"><div id="g_map" class="hide"><label>عمود رقم الجلوس</label><select id="g_cs"></select><label>عمود اسم الطالب</label><select id="g_cn"></select><p class="mut" id="g_pv"></p><button class="btn" id="g_imp" type="button">استيراد الطلاب</button></div></details></div></section>
+<section id="t2" class="hide"><div class="card"><h2>نصوص الموقع</h2><p class="mut">كل ما يظهر لطلابك قابل للتعديل. النصوص الحالية افتراضية، عدّلها كما تريد. ترك الحقل فارغاً يعيد النص الافتراضي.</p><div id="ff"></div>
+<label><input type="checkbox" id="ns" style="width:auto;margin:0 0 0 8px">السماح للطلاب بالبحث بالاسم (يُظهر رقم الجلوس)</label>
+<h2 style="margin-top:18px">الأسئلة الشائعة</h2><div id="fq"></div><button class="btn ghost sm" onclick="addQ()">+ سؤال</button>
+<div class="row" style="margin-top:16px"><button class="btn" onclick="saveSite()">حفظ النصوص</button><button class="btn ghost" onclick="fill(DEF(me.name,me.subject));toast('تم تحميل النصوص الافتراضية، اضغط حفظ')">استعادة الافتراضي</button></div></div></section>
+<section id="t3" class="hide"><div class="card"><h2>الإعدادات</h2><label>الاسم</label><input id="sn"><label>المادة (تحدد ثيم الموقع)</label><select id="sjs"></select><button class="btn" onclick="saveMe()">حفظ</button></div>
+<div class="card" id="clc"><h2>لون موقعك</h2><p class="mut">اختر ألواناً مميزة لموقع طلابك، أو عُد لثيم المادة الافتراضي. المعاينة تظهر فوراً هنا، ولا تُطبّق على الطلاب إلا بعد الحفظ.</p>
+<div class="swatches" id="c_sw"></div><div class="cpick"><div><label>اللون الأساسي</label><input type="color" id="c_pri" value="#0f766e"></div><div><label>اللون الثانوي</label><input type="color" id="c_acc" value="#d9a21b"></div></div>
+<div class="row"><button class="btn" onclick="saveColor()">حفظ لون الموقع</button><button class="btn ghost" onclick="resetColor()">العودة لثيم المادة</button></div><p class="mut" id="c_note" style="margin:8px 0 0"></p></div></section>
+<section id="t4" class="hide"><div class="card" id="sub"></div><div class="g3" id="pg" style="margin-top:18px"></div></section></main>
+<footer class="foot" id="ft"></footer><div id="toast"></div>
+<script src="/app.js"></script><script>
+const DFK=['الدرجة','النسبة','الحالة'];let me,faqs=[],rows=[],cols=[],SR=[],FK=DFK,ED=null,sqt;const G=id=>document.getElementById(id);
+const F=[['greet','العبارة الافتتاحية'],['title','عنوان الموقع'],['examTitle','عنوان النتائج'],['tagline','الوصف تحت العنوان'],['intro','نص تعريفي','t'],['searchHint','تلميح خانة البحث'],['instructionsTitle','عنوان قسم التعليمات'],['instructions','التعليمات (كل سطر بند مستقل)','t'],['footer','نص الحقوق أسفل الموقع'],['notFound','رسالة عدم العثور على الاسم'],['whatsapp','رقم واتساب بصيغة دولية (مثال 201001234567)']];
+G('ff').innerHTML=F.map(f=>'<label>'+f[1]+'</label>'+(f[2]?'<textarea id="f_'+f[0]+'"></textarea>':'<input id="f_'+f[0]+'">')).join('');
+G('tabs').innerHTML=[[1,'chart','النتائج والطلاب'],[5,'users','المجموعات'],[2,'pen','نصوص الموقع'],[4,'star','الباقات'],[3,'palette','الإعدادات']].map((t,i)=>'<button data-t="'+t[0]+'" class="'+(i?'':'on')+'" role="tab">'+svg(t[1],18)+t[2]+'</button>').join('');
+G('addb').innerHTML=svg('useradd',18)+' إضافة طالب يدوياً';G('addf').innerHTML=svg('plus',16)+'حقل جديد';
+function head(){const x=applySubject(me.subject);applyColors(me.site&&me.site.color,'t');shell(badge(x?x.k:'cap')+'<span>'+esc(me.name)+'</span>','<a class="navlink" href="/">الرئيسية</a><a class="navlink" href="/t/'+esc(me.slug)+'" target="_blank">موقع الطلاب</a>','<a class="hbtn on" href="/dashboard" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent=me.subject;G('hi').textContent='أهلاً '+me.name+'، من هنا تدير نتائج طلابك وموقعك'}
+function tab(n){[1,2,3,4,5].forEach(i=>G('t'+i).classList.toggle('hide',i!=n));document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t==n))}
+G('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b)tab(+b.dataset.t)};
+function fill(S){F.forEach(f=>G('f_'+f[0]).value=S[f[0]]||'');G('ns').checked=S.nameSearch!==false;faqs=(S.faq||[]).map(x=>({...x}));drawQ()}
+function drawQ(){G('fq').innerHTML=faqs.map((f,i)=>'<div class="faqrow"><input value="'+esc(f.q)+'" placeholder="السؤال" oninput="faqs['+i+'].q=this.value"><textarea placeholder="الإجابة" style="min-height:48px" oninput="faqs['+i+'].a=this.value">'+esc(f.a)+'</textarea><button class="btn bad sm" onclick="faqs.splice('+i+',1);drawQ()">حذف</button></div>').join('')}
+function addQ(){faqs.push({q:'',a:''});drawQ()}
+async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
+async function saveMe(){try{me=await api('/api/me','PUT',{name:G('sn').value,subject:G('sjs').value});head();toast('تم الحفظ وتغيّر الثيم')}catch(x){toast(x.message)}}
+api('/api/me').then(m=>{me=m;head();if(m.imp)G('imp').innerHTML='<div class="card" style="border-color:var(--acc)"><div class="row" style="justify-content:space-between"><b>أنت تتصفح هذا الحساب بصلاحية المدير</b><button class="btn sm" onclick="back()">العودة للوحة الأدمن</button></div></div>';G('lnk').value=location.origin+'/t/'+m.slug;G('pl').href='/t/'+m.slug;
+if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load();loadPlans();initColor()}).catch(x=>{if(x.status===401)return location='/login';
+ if(x.status===403){shell(badge('cap')+'<span>TeacherM</span>','<a class="navlink" href="/">الرئيسية</a>','<button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent='حسابك قيد المراجعة';G('hi').textContent='سيتم تفعيل حسابك من الإدارة، وتستطيع استخدام اللوحة فور التفعيل.';
+  document.querySelectorAll('main>.card,main>.atabs,main>section').forEach(e=>e.classList.add('hide'));
+  G('imp').innerHTML='<div class="card" style="text-align:center"><h2>الحساب غير مفعّل بعد</h2><p class="mut">إن تأخر التفعيل تواصل مع الإدارة عبر واتساب.</p><button class="btn" onclick="logout()">تسجيل الخروج</button></div>';return}
+ toast(x.message)});
+
+/* الامتحانات */
+async function load(){try{GR=await api('/api/groups')}catch{}
+ const e=await api('/api/exams');EX=e;const a=G('es').value,b=G('se').value,o=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+(x.groupName?' — '+esc(x.groupName):'')+'</option>').join('');
+ G('es').innerHTML=o;G('se').innerHTML=o;if(e.some(x=>x._id===a))G('es').value=a;if(e.some(x=>x._id===b))G('se').value=b;
+ G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><select onchange="setG(\''+x._id+'\',this.value)" style="margin:0;width:auto;min-width:140px" aria-label="مجموعة الامتحان">'+gopts(x.group)+'</select></td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>';
+ drawG();mgDef();loadSt()}
+G('nf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('nt').value,group:G('ng').value||null});G('nt').value='';toast(r.added?'تم إنشاء الامتحان وإضافة '+r.added+' طالب من المجموعة':'تمت إضافة الامتحان');load()}catch(x){toast(x.message)}};
+async function del(id){if(confirm('حذف الامتحان وكل نتائجه؟')){await api('/api/exams/'+id,'DELETE');closeF();load()}}
+
+/* الطلاب: عرض / إضافة يدوية / تعديل / حذف */
+async function loadSt(){const id=G('se').value;
+ if(!id){SR=[];G('stn').textContent='0';G('stt').innerHTML='<tr><td class="mut">أضف امتحاناً أولاً ثم أضف طلابك</td></tr>';G('stm').textContent='';return}
+ try{const r=await api('/api/exams/'+id+'/results?q='+encodeURIComponent(G('sq').value.trim()));SR=r.rows;G('stn').textContent=r.total+' طالب';
+ const ks=[];SR.forEach(x=>Object.keys(x.data||{}).forEach(k=>{if(!ks.includes(k))ks.push(k)}));FK=ks.length?ks.slice(0,8):DFK;
+ G('stt').innerHTML=SR.length?'<tr><th>رقم الجلوس</th><th>الاسم</th><th>البيانات</th><th></th></tr>'+SR.map((x,i)=>'<tr><td><b>'+esc(x.seat)+'</b></td><td>'+esc(x.name)+'</td><td class="mut" style="font-size:.82rem">'+esc(Object.entries(x.data||{}).map(([k,v])=>k+': '+v).join(' • '))+'</td><td class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" onclick="openF('+i+')">تعديل</button><button class="btn bad sm" onclick="delSt('+i+')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">'+(G('sq').value.trim()?'لا توجد نتائج مطابقة':'لا يوجد طلاب في هذا الامتحان بعد — أضف طالباً يدوياً أو ارفع ملف Excel')+'</td></tr>';
+ G('stm').textContent=r.total>SR.length&&!G('sq').value.trim()?'يعرض أحدث '+SR.length+' طالب فقط — استخدم البحث للوصول لأي طالب.':''}catch(x){toast(x.message)}}
+G('se').onchange=()=>{closeF();loadSt()};G('sq').oninput=()=>{clearTimeout(sqt);sqt=setTimeout(loadSt,300)};
+const frow=(k='',v='')=>'<div class="frow"><input class="fk" value="'+esc(k)+'" placeholder="اسم الحقل (مثال: الدرجة)"><input class="fv" value="'+esc(v)+'" placeholder="القيمة"></div>';
+function drawF(v={}){const keys=[...FK];Object.keys(v).forEach(k=>{if(!keys.includes(k))keys.push(k)});G('sfd').innerHTML=keys.map(k=>frow(k,v[k]??'')).join('')}
+function openF(i){if(!G('se').value)return toast('أضف امتحاناً أولاً');ED=i==null?null:SR[i];G('sf').classList.remove('hide');G('sft').textContent=ED?'تعديل بيانات الطالب':'إضافة طالب جديد';
+ G('ss').value=ED?ED.seat:'';G('ss').readOnly=!!ED;G('sname').value=ED?ED.name:'';drawF(ED?ED.data:{});G('sf').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>G(ED?'sname':'ss').focus({preventScroll:true}),250)}
+function closeF(){G('sf').classList.add('hide');ED=null}
+G('addb').onclick=()=>openF();G('sc2').onclick=closeF;G('addf').onclick=()=>G('sfd').insertAdjacentHTML('beforeend',frow());
+G('sf').onsubmit=async e=>{e.preventDefault();const data={};document.querySelectorAll('#sfd .frow').forEach(r=>{const k=r.querySelector('.fk').value.trim(),v=r.querySelector('.fv').value.trim();if(k&&v)data[k]=v});
+ try{const r=await api('/api/exams/'+G('se').value+'/student','POST',{seat:G('ss').value,name:G('sname').value,data});toast(r.added?'تمت إضافة الطالب ✔':'تم تحديث بيانات الطالب ✔');
+ if(r.added){G('ss').value='';G('sname').value='';drawF({});G('ss').focus()}else closeF();ED=null;G('ss').readOnly=false;load()}catch(x){toast(x.message)}};
+async function delSt(i){const x=SR[i];if(confirm('حذف الطالب "'+x.name+'" نهائياً؟')){try{await api('/api/exams/'+G('se').value+'/student/'+encodeURIComponent(x.seat),'DELETE');toast('تم الحذف');load()}catch(e){toast(e.message)}}}
+
+/* رفع Excel */
+G('fl').onchange=async()=>{const f=G('fl').files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+ if(!rows.length)return toast('الملف فارغ');cols=Object.keys(rows[0]);const o=cols.map(c=>'<option>'+esc(c)+'</option>').join('');G('cs').innerHTML=o;G('cn').innerHTML='<option value="">— بدون —</option>'+o;G('map').classList.remove('hide');G('pv').textContent='تم قراءة '+rows.length+' صف'};
+G('up').onclick=async()=>{if(!G('es').value)return toast('أضف امتحاناً أولاً');const cs=G('cs').value,cn=G('cn').value;const out=rows.map(r=>{const d={};cols.forEach(c=>{if(c!==cs&&c!==cn&&r[c]!=='')d[c]=r[c]});return{seat:r[cs],name:cn?r[cn]:'',data:d}});
+ try{const r=await api('/api/exams/'+G('es').value+'/results','POST',{rows:out,merge:G('mg').checked});toast('تم نشر '+r.count+' نتيجة');G('fl').value='';G('map').classList.add('hide');load()}catch(x){toast(x.message)}};
+
+/* الباقات */
+async function loadPlans(){try{const d=await api('/api/plans');const nm=Object.fromEntries(d.plans.map(p=>[p.key,p.name])),p=me.plan;
+ let t='لا يوجد اشتراك فعّال حالياً';
+ if(p&&me.planOk){t='اشتراكك الحالي: '+(nm[p.type]||PNAME[p.type]);if(p.expiresAt)t+=' — ينتهي '+new Date(p.expiresAt).toLocaleDateString('ar-EG');if(p.type==='exam')t+=' — المتبقي '+p.examsLeft+' امتحان'}
+ else if(p)t='انتهى اشتراكك السابق ('+(nm[p.type]||PNAME[p.type])+')';
+ G('sub').innerHTML='<h2>اشتراكي</h2><p style="margin:0">'+esc(t)+'</p><p class="mut" style="margin:6px 0 0">اختر باقة واضغط اشتراك لمراسلة الإدارة عبر واتساب، وسيتم تفعيل اشتراكك بعد التواصل.</p>';
+ G('pg').innerHTML=plansHTML(d,{extra:'\nالاسم: '+me.name+' | المادة: '+me.subject+'\nالبريد: '+me.email+'\nرابطي: '+location.origin+'/t/'+me.slug,mine:p&&me.planOk?p.type:''});
+ G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة المدرس',links:[['/','الرئيسية'],['/t/'+me.slug,'موقع الطلاب']],wa:d.whatsapp,waText:'تواصل مع الإدارة',copy:'جميع الحقوق محفوظة'});reveal()}catch(x){toast(x.message)}}
+/* ===== المجموعات ===== */
+let GR=[],EX=[],GS=null,GSR=[],grows=[],gcols=[],gqt;
+const gopts=sel=>'<option value="">— بدون مجموعة —</option>'+GR.map(g=>'<option value="'+g._id+'"'+(g._id===sel?' selected':'')+'>'+esc(g.name)+'</option>').join('');
+function mgDef(){const x=EX.find(v=>v._id===G('es').value);G('mg').checked=!!(x&&x.group)}
+G('es').addEventListener('change',mgDef);
+async function setG(id,g){try{const r=await api('/api/exams/'+id+'/group','POST',{group:g||null});toast(g?'تم ربط الامتحان بالمجموعة'+(r.added?' وإضافة '+r.added+' طالب':''):'تم فصل الامتحان عن المجموعة');load()}catch(x){toast(x.message);load()}}
+function drawG(){const cur=G('ng').value;G('ng').innerHTML=gopts(cur);
+ G('g_list').innerHTML=GR.map(g=>'<button type="button" class="gchip'+(GS===g._id?' on':'')+'" data-g="'+g._id+'">'+badge('users',20)+'<b>'+esc(g.name)+'</b><span class="s">'+g.students+' طالب • '+g.exams+' امتحان</span></button>').join('')||'<p class="mut" style="grid-column:1/-1">لا توجد مجموعات بعد — أنشئ أول مجموعة من الأعلى.</p>';
+ if(GS&&!GR.some(g=>g._id===GS))GS=null;G('g_panel').classList.toggle('hide',!GS);if(!GS)return;
+ const g=GR.find(x=>x._id===GS);G('g_title').textContent=g.name;G('g_cnt').textContent=g.students+' طالب';
+ const ex=EX.filter(x=>x.group===GS);G('g_exams').innerHTML=ex.length?'<span class="mut" style="font-size:.85rem">امتحانات المجموعة:</span>'+ex.map(x=>'<span class="tag g">'+esc(x.title)+'</span>').join(''):'<span class="mut" style="font-size:.85rem">لا توجد امتحانات لهذه المجموعة بعد.</span>'}
+async function loadGS(){if(!GS)return;try{const r=await api('/api/groups/'+GS+'/students?q='+encodeURIComponent(G('g_q').value.trim()));GSR=r.rows;G('g_cnt').textContent=r.total+' طالب';
+ G('g_tbl').innerHTML=GSR.length?'<tr><th>رقم الجلوس</th><th>الاسم</th><th></th></tr>'+GSR.map((x,i)=>'<tr><td><b>'+esc(x.seat)+'</b></td><td>'+esc(x.name)+'</td><td><button class="btn bad sm" onclick="delGS('+i+')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">'+(G('g_q').value.trim()?'لا توجد نتائج مطابقة':'لا يوجد طلاب في المجموعة — أضف طالباً أو استورد من Excel')+'</td></tr>'}catch(x){toast(x.message)}}
+G('g_form').onsubmit=async e=>{e.preventDefault();try{const g=await api('/api/groups','POST',{name:G('g_name').value});G('g_name').value='';GS=g._id;await load();loadGS();toast('تم إنشاء المجموعة — أضف طلابك الآن')}catch(x){toast(x.message)}};
+G('g_list').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;GS=b.dataset.g;G('g_q').value='';drawG();loadGS();G('g_panel').scrollIntoView({behavior:'smooth',block:'start'})};
+async function renG(){const g=GR.find(x=>x._id===GS),n=prompt('اسم المجموعة',g.name);if(n&&n.trim().length>1){try{await api('/api/groups/'+GS,'PUT',{name:n});toast('تم التعديل');load()}catch(x){toast(x.message)}}}
+async function delG(){const g=GR.find(x=>x._id===GS);if(confirm('حذف المجموعة "'+g.name+'" وقائمة طلابها؟ (الامتحانات ونتائجها تبقى كما هي)')){try{await api('/api/groups/'+GS,'DELETE');GS=null;toast('تم حذف المجموعة');load()}catch(x){toast(x.message)}}}
+G('g_exf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('g_ext').value,group:GS});G('g_ext').value='';await load();G('se').value=r._id;G('es').value=r._id;mgDef();loadSt();tab(1);toast('تم إنشاء الامتحان للمجموعة ('+(r.added||0)+' طالب) — أدخل الدرجات الآن')}catch(x){toast(x.message)}};
+G('g_addf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/groups/'+GS+'/students','POST',{seat:G('g_seat').value,name:G('g_sname').value});toast(r.added?'تمت إضافة الطالب ✔':'تم تحديث الطالب ✔');G('g_seat').value='';G('g_sname').value='';G('g_seat').focus();await load();loadGS()}catch(x){toast(x.message)}};
+G('g_q').oninput=()=>{clearTimeout(gqt);gqt=setTimeout(loadGS,300)};
+async function delGS(i){const x=GSR[i];if(confirm('حذف "'+x.name+'" من المجموعة؟ (لا تُحذف نتائجه من الامتحانات القديمة)')){try{await api('/api/groups/'+GS+'/students/'+encodeURIComponent(x.seat),'DELETE');toast('تم الحذف');await load();loadGS()}catch(e){toast(e.message)}}}
+G('g_file').onchange=async()=>{const f=G('g_file').files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());grows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!grows.length)return toast('الملف فارغ');gcols=Object.keys(grows[0]);const o=gcols.map(c=>'<option>'+esc(c)+'</option>').join('');G('g_cs').innerHTML=o;G('g_cn').innerHTML=o;if(gcols[1])G('g_cn').selectedIndex=1;G('g_map').classList.remove('hide');G('g_pv').textContent='تم قراءة '+grows.length+' صف'};
+G('g_imp').onclick=async()=>{const cs=G('g_cs').value,cn=G('g_cn').value;try{const r=await api('/api/groups/'+GS+'/students/bulk','POST',{rows:grows.map(r=>({seat:r[cs],name:r[cn]}))});toast('تم استيراد '+r.count+' طالب ('+r.added+' جديد)');G('g_file').value='';G('g_map').classList.add('hide');await load();loadGS()}catch(x){toast(x.message)}};
+
+/* ===== لون موقع المدرس ===== */
+const cur=()=>({pri:G('c_pri').value,acc:G('c_acc').value});
+function markSw(){const c=cur();document.querySelectorAll('#c_sw .sw').forEach((b,i)=>b.classList.toggle('on',TPAL[i].pri===c.pri&&TPAL[i].acc===c.acc))}
+function initColor(){const c=me.site&&me.site.color;G('c_sw').innerHTML=TPAL.map((p,i)=>'<button type="button" class="sw" data-i="'+i+'" style="--a:'+p.pri+';--b:'+p.acc+'"><i></i>'+p.n+'</button>').join('');
+ if(c){G('c_pri').value=c.pri;G('c_acc').value=c.acc;G('c_note').textContent='لون موقعك الحالي مفعّل.'}else G('c_note').textContent='موقعك يستخدم حالياً ثيم المادة.';markSw();
+ api('/api/theme').then(t=>{if(t.allowTeacher===false&&!me.imp)G('clc').innerHTML='<h2>لون موقعك</h2><p class="mut">تغيير الألوان متوقف حالياً من الإدارة.</p>'}).catch(()=>{})}
+G('c_sw').onclick=e=>{const b=e.target.closest('.sw');if(!b)return;const p=TPAL[+b.dataset.i];G('c_pri').value=p.pri;G('c_acc').value=p.acc;applyColors(cur(),'t');markSw()};
+['c_pri','c_acc'].forEach(id=>G(id).oninput=()=>{applyColors(cur(),'t');markSw()});
+async function saveColor(){try{const r=await api('/api/site/color','PUT',cur());me.site={...(me.site||{}),color:r.color};G('c_note').textContent='تم الحفظ — اللون ظاهر الآن لطلابك.';toast('تم حفظ لون الموقع')}catch(x){toast(x.message)}}
+async function resetColor(){try{await api('/api/site/color','PUT',{});me.site={...(me.site||{}),color:null};applyColors(null,'t');G('c_note').textContent='عاد موقعك لثيم المادة.';toast('تمت العودة لثيم المادة');markSw()}catch(x){toast(x.message)}}
+function back(){api('/api/admin/stop','POST').then(()=>location='/admin').catch(x=>toast(x.message))}
+G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة المدرس',links:[['/','الرئيسية']],copy:'جميع الحقوق محفوظة'});reveal();
+</script></body></html>

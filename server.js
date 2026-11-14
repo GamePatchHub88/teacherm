@@ -12,8 +12,20 @@ function db(){return conn||(conn=(async()=>{
 
  if(!await Plan.countDocuments())await Plan.insertMany([['exam','باقة امتحان واحد','نشر نتائج امتحان واحد',['امتحان واحد','رفع ملف Excel','رابط خاص بك']],['month','باقة شهر','اشتراك لمدة 30 يوماً',['امتحانات غير محدودة','رفع ملف Excel','تعديل نصوص الموقع']],['year','باقة سنة','اشتراك لمدة 365 يوماً',['امتحانات غير محدودة','رفع ملف Excel','تعديل نصوص الموقع','أفضل قيمة']],['lifetime','باقة مدى الحياة','اشتراك مفتوح بلا تجديد',['امتحانات غير محدودة','بدون تجديد أبداً','أولوية في الدعم']]].map((x,i)=>({key:x[0],name:x[1],desc:x[2],features:x[3],order:i,price:null})));
 })().catch(x=>{conn=null;throw x}))}
+app.use('/api',(q,s,n)=>{s.set('Cache-Control','no-store');n()});
 app.use('/api',(q,s,n)=>db().then(()=>n()).catch(x=>{console.error(x);s.status(500).json({error:/missing/.test(x.message)?'متغير MONGODB_URI غير مضبوط في Vercel':/ServerSelection/.test(x.name)?'تعذر الوصول لقاعدة البيانات: فعّل 0.0.0.0/0 في Atlas Network Access':/auth/i.test(x.message)?'كلمة مرور قاعدة البيانات غير صحيحة':'خطأ اتصال: '+x.name})}));
 const P=f=>(q,s)=>s.sendFile(path.join(__dirname,'public',f));
+/* صفحات محمية: تُخدَم من مجلد views (خارج public) بعد التحقق من الجلسة والدور على الخادم */
+const guard=(f,need)=>async(q,s)=>{
+ try{await db();let u=null,imp=false;
+  try{u=await User.findById(jwt.verify(q.cookies.tk,process.env.JWT_SECRET).id)}catch{}
+  try{imp=jwt.verify(q.cookies.adm,process.env.JWT_SECRET).adm===1}catch{}
+  if(!u)return s.redirect('/login');
+  if(need==='admin'&&u.role!=='admin')return s.redirect('/dashboard');
+  if(need==='teacher'&&u.role==='admin'&&!imp)return s.redirect('/admin');
+  s.set('Cache-Control','no-store');s.set('X-Robots-Tag','noindex, nofollow');
+  s.sendFile(path.join(__dirname,'views',f))
+ }catch(e){console.error(e);s.status(503).type('text/plain; charset=utf-8').send('تعذر الاتصال بقاعدة البيانات حالياً، حاول بعد قليل.')}};
 const S=mongoose.Schema,T=mongoose.Types.ObjectId;
 const User=mongoose.model('User',new S({name:String,subject:String,phone:String,email:{type:String,unique:true,lowercase:true},
  password:String,slug:{type:String,unique:true,sparse:true},role:{type:String,default:'teacher'},site:S.Types.Mixed,plan:S.Types.Mixed,active:{type:Boolean,default:true}},{timestamps:true}));
@@ -42,7 +54,7 @@ const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===1100
 const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'365d'});
 const setC=(s,u)=>s.cookie('tk',sign(u),{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:31536e6});
 const auth=wrap(async(q,s,n)=>{try{const d=jwt.verify(q.cookies.tk,process.env.JWT_SECRET);q.user=await User.findById(d.id)}catch{}
- try{q.imp=!!jwt.verify(q.cookies.adm,process.env.JWT_SECRET)}catch{}
+ try{q.imp=jwt.verify(q.cookies.adm,process.env.JWT_SECRET).adm===1}catch{}
  if(!q.user)return s.status(401).json({error:'سجّل الدخول أولاً'});
  if(!q.user.active&&q.user.role!=='admin'&&!q.imp)return s.status(403).json({error:'حسابك قيد المراجعة أو موقوف'});n()});
 const admin=(q,s,n)=>q.user.role==='admin'?n():s.status(403).json({error:'غير مصرح'});
@@ -110,9 +122,9 @@ app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s
 app.post('/api/admin/impersonate/:id',auth,admin,wrap(async(q,s)=>{
  const u=await User.findOne({_id:q.params.id,role:'teacher'});if(!u)return s.status(404).json({error:'غير موجود'});
  const o={httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:864e5};
- s.cookie('adm',sign(q.user),o);s.cookie('tk',jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'1d'}),o);s.json({ok:1})}));
+ s.cookie('adm',jwt.sign({id:q.user.id,adm:1},process.env.JWT_SECRET,{expiresIn:'1d'}),o);s.cookie('tk',jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'1d'}),o);s.json({ok:1})}));
 app.post('/api/admin/stop',wrap(async(q,s)=>{
- let a;try{a=await User.findById(jwt.verify(q.cookies.adm,process.env.JWT_SECRET).id)}catch{}
+ let a;try{const d=jwt.verify(q.cookies.adm,process.env.JWT_SECRET);if(d.adm===1)a=await User.findById(d.id)}catch{}
  if(!a||a.role!=='admin')return s.status(401).json({error:'لا توجد جلسة مدير'});
  s.clearCookie('adm');setC(s,a);s.json({ok:1})}));
 app.get('/api/plans',wrap(async(q,s)=>{const c=await getS();s.json({plans:await Plan.find({active:true}).sort('order').lean(),whatsapp:c.whatsapp,currency:c.currency})}));
@@ -200,7 +212,9 @@ app.post('/api/exams/:id/group',auth,wrap(async(q,s)=>{const e=await own(q);if(!
  let g=null;if(q.body.group){if(!T.isValid(q.body.group))return s.status(400).json({error:'مجموعة غير صحيحة'});g=await Group.findOne({_id:q.body.group,teacher:q.user._id});if(!g)return s.status(404).json({error:'المجموعة غير موجودة'})}
  e.group=g?g._id:null;await e.save();const added=g?await fillFromGroup(e,g):0;s.json({ok:1,added})}));
 
-app.get('/t/:slug',P('t.html'));app.get('/dashboard',P('dashboard.html'));app.get('/admin',P('admin.html'));app.get('/login',P('login.html'));
+app.get('/t/:slug',P('t.html'));app.get('/login',P('login.html'));
+app.get('/dashboard',guard('dashboard.html','teacher'));app.get('/admin',guard('admin.html','admin'));
+app.get(['/dashboard.html','/admin.html'],(q,s)=>s.redirect(q.path==='/admin.html'?'/admin':'/dashboard'));
 app.use(express.static(path.join(__dirname,'public')));
 app.use((q,s)=>s.status(404).sendFile(path.join(__dirname,'public','index.html')));
 
