@@ -20,3 +20,16 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 .res div{background:var(--bg);border:1px dashed var(--acc);border-radius:14px;padding:12px;text-align:center}.res b{display:block;font-size:1.3rem;color:var(--pri)}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:99px;display:none;z-index:9}
 .hide{display:none}
+[data-subject=ar]{--pri:#9f1239;--acc:#e0a526}
+[data-theme=dark][data-subject=ar]{--pri:#fb7185;--acc:#f2c14e}
+[data-subject=math]{--pri:#1d4ed8;--acc:#ea580c}
+[data-theme=dark][data-subject=math]{--pri:#60a5fa;--acc:#fb923c}
+[data-subject=en]{--pri:#6d28d9;--acc:#db2777}
+[data-theme=dark][data-subject=en]{--pri:#a78bfa;--acc:#f472b6}
+[data-subject=sci]{--pri:#15803d;--acc:#0891b2}
+[data-theme=dark][data-subject=sci]{--pri:#4ade80;--acc:#22d3ee}
+[data-subject=soc]{--pri:#b45309;--acc:#0f766e}
+[data-theme=dark][data-subject=soc]{--pri:#fbbf24;--acc:#2dd4bf}
+[data-subject=isl]{--pri:#047857;--acc:#c9a227}
+[data-theme=dark][data-subject=isl]{--pri:#34d399;--acc:#f2c14e}
+.banner{display:flex;align-items:center;gap:14px;padding:18px;border-radius:18px;margin:6px 0 4px;background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--acc) 70%,var(--pri)));color:var(--on)}.banner span{font-size:2.6rem}.banner h2{margin:0}.banner p{margin:0;opacity:.9}

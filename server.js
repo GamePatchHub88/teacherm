@@ -18,6 +18,7 @@ const User=mongoose.model('User',new S({name:String,subject:String,phone:String,
 const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String},{timestamps:true}));
 const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,data:S.Types.Mixed}));
 Result.schema.index({exam:1,seat:1},{unique:true});
+const SUB=['اللغة العربية','الرياضيات','اللغة الإنجليزية','العلوم','الدراسات الاجتماعية','المواد الشرعية'];
 const norm=s=>String(s??'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===11000?409:500).json({error:e.code===11000?'القيمة مستخدمة بالفعل':'خطأ في الخادم'}));
 const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'30d'});
@@ -30,6 +31,7 @@ const pub=u=>({id:u.id,name:u.name,subject:u.subject,slug:u.slug,role:u.role,act
 
 app.post('/api/register',rate({windowMs:36e5,limit:20}),wrap(async(q,s)=>{
  const{name,subject,phone,email,password,slug}=q.body;
+ if(!SUB.includes(subject))return s.status(400).json({error:'اختر المادة من القائمة'});
  if(!name||!subject||!email||!(password&&password.length>=8))return s.status(400).json({error:'أكمل البيانات (كلمة المرور 8 أحرف على الأقل)'});
  if(!/^[a-z0-9-]{3,30}$/.test(slug||''))return s.status(400).json({error:'الرابط: حروف إنجليزية صغيرة وأرقام وشرطة (3-30)'});
  const u=await User.create({name,subject,phone,email,slug,password:await bcrypt.hash(password,10),active:process.env.AUTO_APPROVE!=='false'});
@@ -40,7 +42,7 @@ app.post('/api/login',rate({windowMs:9e5,limit:30}),wrap(async(q,s)=>{
  setC(s,u);s.json(pub(u))}));
 app.post('/api/logout',(q,s)=>{s.clearCookie('tk');s.json({ok:1})});
 app.get('/api/me',auth,(q,s)=>s.json(pub(q.user)));
-app.put('/api/me',auth,wrap(async(q,s)=>{const{name,subject}=q.body;Object.assign(q.user,{name:name||q.user.name,subject:subject||q.user.subject});await q.user.save();s.json(pub(q.user))}));
+app.put('/api/me',auth,wrap(async(q,s)=>{const{name,subject}=q.body;if(subject&&!SUB.includes(subject))return s.status(400).json({error:'مادة غير صحيحة'});Object.assign(q.user,{name:name||q.user.name,subject:subject||q.user.subject});await q.user.save();s.json(pub(q.user))}));
 
 app.get('/api/exams',auth,wrap(async(q,s)=>{
  const ex=await Exam.find({teacher:q.user.id}).sort('-createdAt').lean();

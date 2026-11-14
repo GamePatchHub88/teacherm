@@ -3,10 +3,10 @@
 <p class="mut">سجّل، ارفع ملف Excel، وخذ رابطك الخاص teacherm.com/t/اسمك. الطالب يكتب رقم جلوسه ويرى نتيجته فوراً من الموبايل.</p></div>
 <div class="card"><div class="tabs"><button class="btn" id="b1" onclick="tab(1)">دخول</button><button class="btn ghost" id="b2" onclick="tab(2)">حساب جديد</button></div>
 <form id="f1"><label>البريد</label><input name="email" type="email" required><label>كلمة المرور</label><input name="password" type="password" required><button class="btn" style="width:100%">دخول</button></form>
-<form id="f2" class="hide"><label>الاسم</label><input name="name" required><label>المادة</label><input name="subject" required><label>الهاتف</label><input name="phone">
+<form id="f2" class="hide"><label>الاسم</label><input name="name" required><label>المادة</label><select name="subject" id="sj" required></select><label>الهاتف</label><input name="phone">
 <label>البريد</label><input name="email" type="email" required><label>كلمة المرور (8+)</label><input name="password" type="password" minlength="8" required>
 <label>رابطك (إنجليزي): teacherm.com/t/<b>slug</b></label><input name="slug" pattern="[a-z0-9-]{3,30}" dir="ltr" required><button class="btn" style="width:100%">إنشاء الحساب</button></form></div></div></div><div id="toast"></div>
-<script src="/app.js"></script><script>nav();
+<script src="/app.js"></script><script>nav();sj.innerHTML=subjOpts();
 function tab(n){f1.classList.toggle('hide',n!=1);f2.classList.toggle('hide',n!=2);b1.className='btn'+(n==1?'':' ghost');b2.className='btn'+(n==2?'':' ghost')}
 for(const [f,u] of [[f1,'/api/login'],[f2,'/api/register']])f.onsubmit=async e=>{e.preventDefault();try{const me=await api(u,'POST',Object.fromEntries(new FormData(f)));location=me.role==='admin'?'/admin':'/dashboard'}catch(x){toast(x.message)}};
 api('/api/me').then(m=>nav('<a class="btn sm" href="'+(m.role==='admin'?'/admin':'/dashboard')+'">لوحتي</a>')).catch(()=>{});</script></body></html>
