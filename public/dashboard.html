@@ -1,0 +1,17 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>لوحة المدرس</title><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head><body><div class="wrap"><div id="nav"></div>
+<div class="card"><h2 id="hi"></h2><p class="mut" id="stat"></p><div class="row"><input id="lnk" readonly dir="ltr" style="flex:1"><button class="btn" onclick="navigator.clipboard.writeText(lnk.value);toast('تم النسخ')">نسخ الرابط</button></div></div>
+<div class="card"><h2>امتحاناتي</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان (مثال: امتحان شهر أكتوبر)" style="flex:1" required><button class="btn">إضافة</button></form><table id="ex"></table></div>
+<div class="card"><h2>رفع النتائج (Excel / CSV)</h2><label>الامتحان</label><select id="es"></select><input type="file" id="fl" accept=".xlsx,.xls,.csv">
+<div id="map" class="hide"><label>عمود رقم الجلوس</label><select id="cs"></select><label>عمود اسم الطالب (اختياري)</label><select id="cn"></select><p class="mut" id="pv"></p><button class="btn" id="up">نشر النتائج (يستبدل القديمة)</button></div></div></div><div id="toast"></div>
+<script src="/app.js"></script><script>let rows=[],cols=[];
+api('/api/me').then(m=>{nav('<button class="btn ghost sm" onclick="logout()">خروج</button>');hi.textContent='أهلاً '+m.name+' — '+m.subject;
+lnk.value=location.origin+'/t/'+m.slug;if(!m.active)stat.textContent='حسابك قيد المراجعة'}).catch(()=>location='/');
+async function load(){const e=await api('/api/exams');es.innerHTML=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+'</option>').join('');
+ex.innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>'}
+load();nf.onsubmit=async e=>{e.preventDefault();try{await api('/api/exams','POST',{title:nt.value});nt.value='';load()}catch(x){toast(x.message)}};
+async function del(id){if(confirm('حذف الامتحان وكل نتائجه؟')){await api('/api/exams/'+id,'DELETE');load()}}
+fl.onchange=async()=>{const f=fl.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+if(!rows.length)return toast('الملف فارغ');cols=Object.keys(rows[0]);const o=cols.map(c=>'<option>'+esc(c)+'</option>').join('');
+cs.innerHTML=o;cn.innerHTML='<option value="">— بدون —</option>'+o;map.classList.remove('hide');pv.textContent='تم قراءة '+rows.length+' صف'};
+up.onclick=async()=>{if(!es.value)return toast('أضف امتحاناً أولاً');const out=rows.map(r=>{const d={};cols.forEach(c=>{if(c!==cs.value&&c!==cn.value&&r[c]!=='')d[c]=r[c]});return{seat:r[cs.value],name:cn.value?r[cn.value]:'',data:d}});
+try{const r=await api('/api/exams/'+es.value+'/results','POST',{rows:out});toast('تم نشر '+r.count+' نتيجة');load();fl.value='';map.classList.add('hide')}catch(x){toast(x.message)}};</script></body></html>
