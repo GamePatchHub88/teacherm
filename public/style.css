@@ -328,3 +328,35 @@ h1,h2,h3,.foot-title,.brand{font-family:var(--hf),Cairo,system-ui,sans-serif}
 .foot-copy{color:var(--mut);font-size:.85rem}.foot-dev{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--mut)}.foot-dev a{color:var(--pri);font-weight:800;text-decoration:none}.foot-dev a:hover{text-decoration:underline}
 .totop{width:38px;height:38px;border-radius:12px;border:0;cursor:pointer;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 78%,#000),color-mix(in srgb,var(--pri) 42%,#000));box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);transition:transform .2s}.totop:hover{transform:translateY(-4px)}
 @media(max-width:640px){.foot-in{text-align:center}.foot-top{justify-content:center}.foot-brand{flex-direction:column;gap:8px}.foot-links{justify-content:center}.foot-bot{justify-content:center}}
+
+/* ===== v4.1 — إصلاحات الهاتف: منع التمرير الأفقي وضبط العناصر الزخرفية ===== */
+html,body{max-width:100%;overflow-x:clip}
+img,svg,video,canvas{max-width:100%}
+@media(max-width:760px){
+ .fxl .a{right:0;width:150px;height:150px}.fxl .b{left:0;width:120px;height:120px}
+ .c1{left:4px}.c2{right:4px}.c3{left:4px}
+ .cta-bg .o1{right:-40px}.cta-bg .o2{left:-40px}
+ .wrap{padding:0 14px}
+ .hero{padding:30px 14px;margin:14px 0 10px;border-radius:min(var(--hr),28px)}
+ [data-subject=isl] .hero{border-radius:60px 60px 24px 24px/44px 44px 24px 24px}
+ [data-subject=en] .hero{border-radius:32px 32px 32px 10px}
+ .hero h1{font-size:clamp(1.6rem,8vw,2.2rem)}
+ [data-subject=sci] .hero::after{width:260px;height:110px;inset-inline-end:-70px}
+ [data-subject=soc] .hero::after{width:230px;height:230px;inset-inline-start:-80px;bottom:-130px}
+ .card{padding:18px 14px}
+ .card.plan{padding:22px 16px 18px}
+ .plan .price b{font-size:2.1rem}
+ .tools{gap:4px}.hbtn{width:36px;height:36px}
+ .brand{min-width:0}.brand span:not(.ib){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}
+ .topin{gap:8px}
+ .sh-in2{flex-wrap:wrap}.sh-in2 input{flex:1 1 100%}.sh-in2 .btn{flex:1 1 100%}
+ .row>.btn,.row>a.btn{flex:1 1 auto;text-align:center}
+ table{font-size:.85rem}
+ .foot-orn{letter-spacing:.45em}
+ [data-subject=en] .card,[data-subject=math] .card{background-size:auto,auto}
+}
+@media(max-width:760px){
+ .row>input,.row>select{min-width:150px}
+ #lnk{flex:1 1 100%!important}
+ .row>.btn,.row>a.btn{min-width:0}
+}
