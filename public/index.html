@@ -11,35 +11,92 @@ section{padding:46px 0}.c{text-align:center}.lh{display:grid;grid-template-colum
 .fd{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:26px;padding:28px}@media(max-width:640px){.fd{grid-template-columns:1fr;text-align:center}.fd .row{justify-content:center!important}}
 .ringw{position:relative;width:150px;height:150px;margin:auto}.ringw::before{content:"";position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(var(--pri),var(--acc),var(--pri));animation:spin 6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .ringw img{position:relative;width:100%;height:100%;border-radius:50%;object-fit:cover;border:5px solid var(--card);background:#fff}
-.cta{background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 55%,#000),color-mix(in srgb,var(--pri) 30%,#000));color:#fff;border-radius:28px;padding:44px 18px}.cta .btn{background:var(--acc);color:#1a1a1a}
 #plans .g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:18px;padding-top:10px}
 .pill{display:inline-flex;gap:6px;align-items:center;padding:6px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:.85rem;color:var(--ink)}
 .pill svg{color:var(--pri)}.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 @media(max-width:760px){.trust{justify-content:center}.lh>div:first-child{text-align:center}.lh .row{justify-content:center}}
+
+/* ===== v3 : حركة الشاشة الرئيسية ===== */
+.lh{position:relative}.fxl{position:absolute;inset:0;pointer-events:none;z-index:-1}
+.fxl i{position:absolute;display:block}
+.fxl .a{width:200px;height:200px;border-radius:50%;top:0;right:-4%;background:radial-gradient(circle,color-mix(in srgb,var(--pri) 38%,transparent),transparent 70%);animation:drift 12s ease-in-out infinite alternate}
+.fxl .b{width:160px;height:160px;border-radius:50%;bottom:4%;left:-3%;background:radial-gradient(circle,color-mix(in srgb,var(--acc) 40%,transparent),transparent 70%);animation:drift 9s -3s ease-in-out infinite alternate}
+.fxl .c{width:24px;height:24px;border-radius:7px;border:3px solid var(--acc);top:16%;left:46%;animation:spinfl 9s linear infinite}
+.fxl .d{width:14px;height:14px;border-radius:50%;background:var(--pri);top:72%;right:48%;animation:fl2 5s ease-in-out infinite}
+.fxl .e{width:18px;height:18px;border-radius:50%;border:3px solid var(--pri);top:8%;right:40%;animation:fl2 6s -2s ease-in-out infinite}
+@keyframes drift{to{transform:translate(34px,-28px) scale(1.18)}}@keyframes spinfl{to{transform:rotate(360deg) translateY(-12px)}}
+.rw{display:inline-block;transition:opacity .35s,transform .35s}.rw.o{opacity:0;transform:translateY(14px)}
+.tag.up{animation:up .8s cubic-bezier(.2,.7,.2,1) both,tagp 3s 1s ease-in-out infinite}@keyframes tagp{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--pri) 14%,transparent)}}
+.mw{perspective:1000px}.tilt{transform-style:preserve-3d;transition:transform .2s ease-out}
+.mock .bar.sh{background:linear-gradient(90deg,var(--line) 30%,color-mix(in srgb,var(--pri) 25%,var(--line)) 50%,var(--line) 70%);background-size:200% 100%;animation:sk 2s linear infinite}
+.pbar{height:10px;border-radius:9px;background:var(--line);overflow:hidden;margin:14px 0 4px}
+.pbar b{display:block;height:100%;width:0;border-radius:9px;position:relative;background:linear-gradient(90deg,var(--pri),var(--acc));animation:fill 1.6s .9s cubic-bezier(.2,.7,.2,1) forwards}@keyframes fill{to{width:92%}}
+.eq{display:flex;align-items:flex-end;gap:6px;height:48px;margin-top:12px}.eq i{flex:1;height:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(var(--acc),var(--pri));transform-origin:bottom;opacity:.85;animation:eq 1.8s ease-in-out infinite}
+.eq i:nth-child(odd){animation-duration:2.3s}.eq i:nth-child(3n){animation-delay:-.7s}@keyframes eq{0%,100%{transform:scaleY(var(--h,.4))}50%{transform:scaleY(calc(var(--h,.4) + .45))}}
+.c3{bottom:32%;left:-16px;animation:fl2 4.5s .4s ease-in-out infinite}
+.mq{overflow:hidden;direction:ltr;padding:14px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.mqt{display:flex;gap:14px;width:max-content;animation:mq 30s linear infinite}.mq:hover .mqt{animation-play-state:paused}@keyframes mq{to{transform:translateX(-50%)}}
+.mi{direction:rtl;display:inline-flex;gap:8px;align-items:center;padding:8px 18px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:800;white-space:nowrap}.mi svg{color:var(--pri)}
+section>h2.c::after{content:"";display:block;width:0;height:5px;border-radius:9px;margin:8px auto 0;background:linear-gradient(90deg,var(--pri),var(--acc));transition:width .9s .25s cubic-bezier(.2,.7,.2,1)}section>h2.c.in::after{width:64px}
+.sc svg{animation:fl3 4.5s ease-in-out infinite}.sc:nth-child(2n) svg{animation-delay:-1.4s}.sc:nth-child(3n) svg{animation-delay:-2.6s}@keyframes fl3{50%{translate:0 -8px}}
+.st b.n{animation:np 2.4s ease-out infinite}@keyframes np{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 60%,transparent)}70%,100%{box-shadow:0 0 0 12px transparent}}
+.plan.hot{animation:glow 3s ease-in-out infinite}@keyframes glow{50%{box-shadow:0 26px 56px -20px var(--acc)}}
+
+/* ===== CTA: جاهز تنشر نتائج طلابك؟ ===== */
+.ctas{padding:46px 0 30px}
+.cta2{position:relative;border-radius:36px;padding:3px;overflow:hidden;isolation:isolate;box-shadow:0 40px 80px -40px var(--pri)}
+.cta2::before{content:"";position:absolute;inset:-80%;z-index:-1;background:conic-gradient(from 0deg,var(--pri),var(--acc),transparent 28%,var(--acc) 55%,transparent 76%,var(--pri));animation:spin 6s linear infinite}
+.cta-in{position:relative;overflow:hidden;border-radius:33px;padding:70px 22px;text-align:center;color:#fff;
+ background:radial-gradient(520px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.17),transparent 60%),radial-gradient(60% 80% at 88% 0%,color-mix(in srgb,var(--acc) 42%,transparent),transparent 60%),linear-gradient(135deg,color-mix(in srgb,var(--pri) 62%,#000),color-mix(in srgb,var(--pri) 22%,#000))}
+.cta-bg{position:absolute;inset:0;pointer-events:none}.cta-bg i{position:absolute;display:block;border-radius:50%}
+.cta-bg .o1{width:340px;height:340px;top:-130px;right:-90px;background:radial-gradient(circle,color-mix(in srgb,var(--acc) 55%,transparent),transparent 70%);animation:drift 10s ease-in-out infinite alternate}
+.cta-bg .o2{width:300px;height:300px;bottom:-130px;left:-70px;background:radial-gradient(circle,rgba(255,255,255,.26),transparent 70%);animation:drift 12s -4s ease-in-out infinite alternate}
+.cta-bg .o3{width:180px;height:180px;top:34%;left:38%;opacity:.5;background:radial-gradient(circle,color-mix(in srgb,var(--pri) 70%,#fff),transparent 70%);animation:drift 8s -2s ease-in-out infinite alternate}
+.cta-bg .gl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:38px 38px;-webkit-mask-image:radial-gradient(ellipse at center,#000 25%,transparent 75%);mask-image:radial-gradient(ellipse at center,#000 25%,transparent 75%);animation:gridm 14s linear infinite}@keyframes gridm{to{background-position:38px 38px}}
+.pt b{position:absolute;bottom:-12px;width:var(--s);height:var(--s);border-radius:50%;background:var(--acc);opacity:0;animation:rise linear infinite}@keyframes rise{10%{opacity:.9}100%{transform:translate(26px,-380px);opacity:0}}
+.fi{position:absolute;width:56px;height:56px;border-radius:17px;display:grid;place-items:center;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);box-shadow:0 14px 28px -14px #0009;animation:fl2 5s ease-in-out infinite}
+.cta-c{position:relative;z-index:2;max-width:660px;margin:auto}
+.cta-eye{display:inline-block;padding:4px 18px;border-radius:99px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);font-weight:800;letter-spacing:.08em;font-size:.85rem;backdrop-filter:blur(6px)}
+.cta2 h2{font-size:clamp(2rem,6vw,3.4rem);line-height:1.25;margin:.4em 0 .15em;background:linear-gradient(90deg,#fff 20%,var(--acc) 50%,#fff 80%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes tshine{to{background-position:-220% 0}}
+.cta-c p{font-size:1.18rem;opacity:.93;margin:0 0 26px}
+.cta2.in .cta-c>*{animation:up .8s cubic-bezier(.2,.7,.2,1) both}.cta2.in .cta-c>h2{animation:up .8s .1s both,tshine 5s 1s linear infinite}
+.cta2.in .cta-c>p{animation-delay:.2s}.cta2.in .cta-c>.cta-act{animation-delay:.3s}.cta2.in .cta-c>.cta-pills{animation-delay:.45s}
+.cta2 .cta-btn{display:inline-flex;align-items:center;gap:12px;font-size:1.2rem;font-weight:800;padding:16px 42px;border-radius:18px;color:#1a1a1a;background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#fff));animation:bp 2.4s ease-in-out infinite}
+.cta2 .cta-btn:hover{transform:translateY(-3px) scale(1.05);filter:none}
+.cta-btn::after{content:"";position:absolute;top:0;bottom:0;width:36%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.8),transparent);transform:skewX(-22deg);animation:sweep 3.2s ease-in-out infinite}
+@keyframes sweep{0%,55%{left:-60%}100%{left:130%}}
+@keyframes bp{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 65%,transparent),0 18px 36px -14px rgba(0,0,0,.6)}50%{box-shadow:0 0 0 18px transparent,0 18px 36px -14px rgba(0,0,0,.6)}}
+.cta-ar{display:inline-block;font-size:1.35rem;animation:arr 1.2s ease-in-out infinite}@keyframes arr{50%{transform:translateX(-8px)}}
+.cta-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px}
+.cta-pills span{display:inline-flex;gap:6px;align-items:center;padding:6px 15px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);font-weight:700;font-size:.85rem;backdrop-filter:blur(6px)}
+@media(max-width:760px){.fi{display:none}.cta-in{padding:52px 16px}.fxl .c,.fxl .e{display:none}}
 </style></head><body><div id="nav"></div><div class="wrap">
-<div class="lh"><div><span class="tag up">منصة للمدرسين</span><h1 class="up" style="--d:.1s">انشر نتائج طلابك <span class="hl">برقم الجلوس</span> في دقيقتين</h1>
+<div class="lh"><div class="fxl" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i></div><div><span class="tag up">منصة للمدرسين</span><h1 class="up" style="--d:.1s">انشر نتائج طلابك <span class="hl"><span class="rw" id="rot">برقم الجلوس</span></span> في دقيقتين</h1>
 <p class="mut up" style="font-size:1.1rem;--d:.2s">سجّل، ارفع ملف Excel أو أضف طلابك يدوياً، وخذ رابطك الخاص teacherm.com/t/اسمك. الطالب يكتب اسمه أو رقم جلوسه ويرى نتيجته فوراً من الموبايل.</p>
 <div class="row up" style="--d:.3s"><a class="btn" href="/login#register">ابدأ الآن</a><a class="btn ghost" href="#plans">شاهد الباقات</a></div><div class="trust up" style="--d:.4s" id="tr"></div></div>
-<div class="mw up" style="--d:.2s"><div class="chip c1" id="c1"></div><div class="mock"><div class="row" style="justify-content:space-between"><b>نتائج الأستاذ أحمد</b><span class="tag">رياضيات</span></div><div class="bar" style="width:70%"></div>
-<div class="res"><div><span class="mut">رقم الجلوس</span><b>2417</b></div><div><span class="mut">الدرجة</span><b>46/50</b></div><div><span class="mut">النسبة</span><b>92%</b></div></div><div class="bar" style="width:50%"></div></div><div class="chip c2" id="c2"></div></div></div>
+<div class="mw up" style="--d:.2s"><div class="chip c1" id="c1"></div><div class="tilt" id="tilt"><div class="mock"><div class="row" style="justify-content:space-between"><b>نتائج الأستاذ أحمد</b><span class="tag">رياضيات</span></div><div class="bar sh" style="width:70%"></div>
+<div class="res"><div><span class="mut">رقم الجلوس</span><b>2417</b></div><div><span class="mut">الدرجة</span><b><span data-cnt="46">46</span>/50</b></div><div><span class="mut">النسبة</span><b><span data-cnt="92">92</span>%</b></div></div><div class="pbar"><b></b></div><div class="eq" aria-hidden="true"><i style="--h:.35"></i><i style="--h:.5"></i><i style="--h:.3"></i><i style="--h:.55"></i><i style="--h:.4"></i><i style="--h:.5"></i><i style="--h:.32"></i></div></div></div><div class="chip c2" id="c2"></div><div class="chip c3" id="c3"></div></div></div>
+<div class="mq" aria-hidden="true"><div class="mqt" id="mqt"></div></div>
 <section id="features"><h2 class="c">كل ما يحتاجه المدرس في مكان واحد</h2><div class="g3" id="fg"></div></section>
-<section id="steps"><h2 class="c">ثلاث خطوات فقط</h2><div class="g3"><div class="st"><b class="n">1</b><h3>سجّل حسابك</h3><p class="mut">اختر مادتك واسم رابطك.</p></div>
-<div class="st"><b class="n">2</b><h3>ارفع النتائج</h3><p class="mut">ملف Excel أو CSV، أو أضف طالباً يدوياً.</p></div><div class="st"><b class="n">3</b><h3>شارك الرابط</h3><p class="mut">أرسله لطلابك على واتساب.</p></div></div></section>
+<section id="steps"><h2 class="c">ثلاث خطوات فقط</h2><div class="g3"><div class="st" data-rv="a"><b class="n">1</b><h3>سجّل حسابك</h3><p class="mut">اختر مادتك واسم رابطك.</p></div>
+<div class="st" data-rv="z"><b class="n">2</b><h3>ارفع النتائج</h3><p class="mut">ملف Excel أو CSV، أو أضف طالباً يدوياً.</p></div><div class="st" data-rv="b"><b class="n">3</b><h3>شارك الرابط</h3><p class="mut">أرسله لطلابك على واتساب.</p></div></div></section>
 <section id="subjects"><h2 class="c">تصميم يناسب مادتك</h2><div class="g3" id="sg"></div></section>
 <section id="plans"><h2 class="c">الباقات والأسعار</h2><p class="sec-sub">اختر الباقة المناسبة لك، والتفعيل يتم عبر واتساب خلال دقائق.</p><div class="g3" id="pl"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><p class="note">جميع الباقات تتضمن رابطاً خاصاً بك، ورفع النتائج من Excel، وإضافة الطلاب يدوياً.</p></section>
 <section id="faq"><h2 class="c">أسئلة شائعة</h2><div class="sx-qs" id="fq" style="max-width:760px;margin:auto"></div></section>
-<section id="founder"><div class="fd"><div class="ringw"><img src="/founder.jpg" alt="محمد أحمد حلمي" width="150" height="150"></div><div><span class="tag">المؤسس</span><h2 style="margin:.2em 0">محمد أحمد حلمي</h2>
+<section id="founder"><div class="fd" data-rv="z"><div class="ringw"><img src="/founder.jpg" alt="محمد أحمد حلمي" width="150" height="150"></div><div><span class="tag">المؤسس</span><h2 style="margin:.2em 0">محمد أحمد حلمي</h2>
 <p class="mut">مطوّر ويب، أسّس TeacherM ليسهّل على المدرسين نشر النتائج دون جداول مرسلة أو رسائل متفرقة. للاستفسار أو الاشتراك تواصل معي مباشرة.</p>
 <div class="row" id="fl"></div></div></div></section>
-<section><div class="cta c"><h2 style="margin:0 0 8px">جاهز تنشر نتائج طلابك؟</h2><p>أنشئ حسابك الآن وابدأ بالنشر خلال دقائق.</p><a class="btn" href="/login#register">ابدأ الآن</a></div></section></div>
+<section class="ctas"><div class="cta2" data-rv="z"><div class="cta-in"><div class="cta-bg" aria-hidden="true"><i class="o1"></i><i class="o2"></i><i class="o3"></i><span class="gl"></span><div class="pt" id="pt"></div></div><div id="cfl" aria-hidden="true"></div>
+<div class="cta-c"><span class="cta-eye">TeacherM</span><h2>جاهز تنشر نتائج طلابك؟</h2><p>أنشئ حسابك الآن وابدأ بالنشر خلال دقائق.</p><div class="cta-act"><a class="btn cta-btn" href="/login#register"><span>ابدأ الآن</span><b class="cta-ar" aria-hidden="true">←</b></a></div><div class="cta-pills" id="cps"></div></div></div></div></section></div>
 <footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>
 shell(badge('cap')+'<span>Teacher<b style="color:var(--acc)">M</b></span>','<a class="navlink" href="#features">المميزات</a><a class="navlink" href="#steps">كيف يعمل</a><a class="navlink" href="#subjects">المواد</a><a class="navlink" href="#plans">الباقات</a><a class="navlink" href="#faq">الأسئلة</a><a class="navlink" href="#founder">المؤسس</a>','<a class="btn sm" id="lg" href="/login">'+svg('login',16)+'<span>تسجيل الدخول</span></a>');
-c1.innerHTML=svg('cap',16)+' 92%';c2.innerHTML=svg('search',16)+' رقم الجلوس';
+c1.innerHTML=svg('cap',16)+' 92%';c2.innerHTML=svg('search',16)+' رقم الجلوس';c3.innerHTML=svg('check',16)+' ناجح';
 tr.innerHTML=[['check','بدون تثبيت'],['phone','يعمل على الموبايل'],['sun','فاتح وداكن']].map(x=>'<span class="pill">'+svg(x[0],16)+x[1]+'</span>').join('');
 const FT=[['up','رفع من Excel','ارفع الملف، اختر عمود رقم الجلوس، وانشر مئات النتائج دفعة واحدة.'],['useradd','إضافة طالب يدوياً','أضف أو عدّل أو احذف أي طالب بنفسك بدون رفع ملف جديد.'],['search','بحث بالاسم والرقم','الطالب يعرف رقم جلوسه من اسمه ثم يستعلم عن نتيجته.'],['share','مشاركة وتحميل النتيجة','يشارك الطالب بطاقة نتيجته أو يحمّلها كصورة.'],['palette','ثيم لكل مادة','ألوان وتصميم خاص بكل مادة دراسية.'],['pen','نصوصك أنت','عدّل العناوين والتعليمات والأسئلة الشائعة ورقم واتساب كما تريد.'],['sun','فاتح وداكن','يناسب كل الأجهزة ويعمل بسلاسة على الموبايل.'],['lock','بياناتك معزولة','كل مدرس يرى نتائجه فقط، مع حد للمحاولات يحمي الصفحة.']];
-fg.innerHTML=FT.map(f=>'<div class="ft">'+badge(f[0],22)+'<h3>'+f[1]+'</h3><p>'+f[2]+'</p></div>').join('');
-sg.innerHTML=SUBJECTS.map(x=>'<div class="sc" data-subject="'+x.k+'">'+svg(x.k,46)+'<h3 style="margin:.4em 0">'+x.n+'</h3><i></i></div>').join('');
+fg.innerHTML=FT.map(f=>'<div class="ft" data-rv="z">'+badge(f[0],22)+'<h3>'+f[1]+'</h3><p>'+f[2]+'</p></div>').join('');
+sg.innerHTML=SUBJECTS.map(x=>'<div class="sc" data-rv="z" data-subject="'+x.k+'">'+svg(x.k,46)+'<h3 style="margin:.4em 0">'+x.n+'</h3><i></i></div>').join('');
 fl.innerHTML=[['wa','واتساب','https://wa.me/201110742678',1],['link','معرض أعمالي','https://mohamedahmedhelmi.vercel.app/'],['link','لينكد إن','https://www.linkedin.com/in/mohammad-ahmed-helmy-aboura-6ab350370/'],['link','فيسبوك','https://www.facebook.com/mohamed.dev27']].map(l=>'<a class="btn'+(l[3]?'':' ghost')+'" href="'+l[2]+'" target="_blank" rel="noopener">'+svg(l[0],16)+l[1]+'</a>').join('');
 
 const QA=[{q:'كم يستغرق إنشاء موقع النتائج؟',a:'دقيقتان تقريباً: سجّل حسابك، ارفع ملف Excel أو أضف الطلاب يدوياً، وخذ رابطك الخاص مباشرة.'},{q:'هل أحتاج خبرة تقنية؟',a:'لا. كل شيء من لوحة بسيطة: تضيف الامتحان وتنشر النتائج وتعدّل النصوص بضغطة زر.'},{q:'هل يمكنني إضافة طالب واحد فقط؟',a:'نعم، من لوحة المدير تضيف طالباً يدوياً برقم جلوسه واسمه ودرجاته، وتستطيع تعديله أو حذفه في أي وقت.'},{q:'كيف يستعلم الطالب عن نتيجته؟',a:'يفتح رابطك، يختار الامتحان، ثم يكتب اسمه أو رقم جلوسه فتظهر نتيجته فوراً، ويمكنه مشاركتها أو تحميلها.'},{q:'كيف أشترك في إحدى الباقات؟',a:'اضغط زر "اشترك عبر واتساب" في الباقة المناسبة وسنفعّل اشتراكك بعد التواصل.'},{q:'هل بيانات طلابي آمنة؟',a:'نعم، كل مدرس يرى نتائجه فقط، وهناك حد للمحاولات يحمي صفحة الاستعلام من الإساءة.'}];
@@ -53,4 +110,17 @@ api('/api/me').then(m=>{lg.lastChild.textContent='لوحتي';lg.href=m.role==='
 const DP={currency:'ج.م',whatsapp:'201110742678',plans:[{key:'exam',name:'باقة امتحان واحد',desc:'نشر نتائج امتحان واحد',features:['امتحان واحد','رفع ملف Excel','رابط خاص بك']},{key:'month',name:'باقة شهر',desc:'اشتراك لمدة 30 يوماً',features:['امتحانات غير محدودة','رفع ملف Excel','تعديل نصوص الموقع']},{key:'year',name:'باقة سنة',desc:'اشتراك لمدة 365 يوماً',features:['امتحانات غير محدودة','رفع ملف Excel','تعديل نصوص الموقع','أفضل قيمة']},{key:'lifetime',name:'باقة مدى الحياة',desc:'اشتراك مفتوح بلا تجديد',features:['امتحانات غير محدودة','بدون تجديد أبداً','أولوية في الدعم']}]};
 function showPlans(d){pl.innerHTML=d.plans.map(p=>planCard(p,d.currency,d.whatsapp,'',p.key==='year')).join('');reveal()}
 api('/api/plans').then(d=>d.plans.length?showPlans(d):pl.innerHTML='<div class="card c" style="grid-column:1/-1"><h3>للاشتراك تواصل معنا</h3><p class="mut">اكتب لنا على واتساب وسنختار لك الباقة المناسبة.</p><a class="btn" target="_blank" rel="noopener" href="https://wa.me/'+d.whatsapp+'">'+svg('wa',16)+'تواصل عبر واتساب</a></div>').catch(()=>showPlans(DP));
-splash('cap','TeacherM','نتائج طلابك برابط واحد');reveal();</script></body></html>
+splash('cap','TeacherM','نتائج طلابك برابط واحد');
+
+/* ===== حركة الشاشة الرئيسية ===== */
+(function(){const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ mqt.innerHTML=[0,1].map(()=>SUBJECTS.map(x=>'<span class="mi">'+svg(x.k,18)+x.n+'</span>').join('')).join('');
+ cps.innerHTML=[['bolt','دقيقتان فقط'],['phone','يعمل على الموبايل'],['link','رابط خاص بك']].map(x=>'<span>'+svg(x[0],15)+x[1]+'</span>').join('');
+ cfl.innerHTML=[['cap','top:14%;right:7%'],['chart','top:58%;right:13%;animation-delay:-1.5s'],['award','top:16%;left:8%;animation-delay:-3s'],['check','top:60%;left:11%;animation-delay:-2s']].map(x=>'<div class="fi" style="'+x[1]+'">'+svg(x[0],26)+'</div>').join('');
+ if(RM)return;
+ const W=['برقم الجلوس','بالاسم','من الموبايل','بكل سهولة'];let wi=0;setInterval(()=>{rot.classList.add('o');setTimeout(()=>{wi=(wi+1)%W.length;rot.textContent=W[wi];rot.classList.remove('o')},350)},2800);
+ document.querySelectorAll('[data-cnt]').forEach(el=>{const t=+el.dataset.cnt,t0=performance.now()+900;el.textContent='0';(function f(n){const p=Math.max(0,Math.min(1,(n-t0)/1400));el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(performance.now())});
+ const lh=document.querySelector('.lh');if(matchMedia('(hover:hover)').matches){lh.addEventListener('pointermove',e=>{const r=lh.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;tilt.style.transform='rotateY('+(-x*14)+'deg) rotateX('+(y*10)+'deg)'});lh.addEventListener('pointerleave',()=>tilt.style.transform='')}
+ for(let i=0;i<16;i++){const b=document.createElement('b');b.style.cssText='left:'+(Math.random()*100)+'%;--s:'+(4+Math.random()*7)+'px;animation-duration:'+(5+Math.random()*6)+'s;animation-delay:'+(-Math.random()*8)+'s';pt.appendChild(b)}
+})();
+reveal();</script></body></html>

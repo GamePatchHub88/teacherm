@@ -182,3 +182,33 @@ mark{background:color-mix(in srgb,var(--acc) 55%,transparent);color:inherit;bord
 .btn.sm svg{margin-inline-end:4px}
 
 @media print{.topbar,.mobmenu,.foot,.hero,.hbtn,.sx-about,.sx-feats,.sx-faq,#ins,.intro,#xg,#srch,.noprint,.splash{display:none!important}}
+
+
+/* ===== v3: حركة + ألوان + مجموعات ===== */
+.btn{position:relative;overflow:hidden}
+.rp{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rpl .65s ease-out forwards;pointer-events:none}@keyframes rpl{to{transform:scale(1);opacity:0}}
+.sp-prog{position:fixed;top:0;inset-inline:0;height:3px;z-index:120;transform-origin:right;transform:scaleX(0);background:linear-gradient(90deg,var(--pri),var(--acc));box-shadow:0 0 12px var(--acc);pointer-events:none}
+.topbar{transition:box-shadow .3s,background .3s}.topbar.sc{box-shadow:0 12px 30px -22px #000c}
+.rv.rv-a:not(.in){transform:translateX(46px) scale(.98)}.rv.rv-b:not(.in){transform:translateX(-46px) scale(.98)}.rv.rv-z:not(.in){transform:scale(.86)}
+.ft,.sc{position:relative}
+.ft::after,.sc::after,.plan::after,.gchip::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--pri) 20%,transparent),transparent 70%)}
+.ft:hover::after,.sc:hover::after,.plan:hover::after,.gchip:hover::after{opacity:1}
+.ft .ib{transition:transform .35s}.ft:hover .ib{transform:rotate(-8deg) scale(1.12)}
+
+/* ألوان: لوحة الاختيار */
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.sw{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 .85rem Cairo;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
+.sw i{display:block;width:46px;height:22px;border-radius:8px;background:linear-gradient(90deg,var(--a) 50%,var(--b) 50%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
+.sw:hover{transform:translateY(-2px)}.sw.on{border-color:var(--pri);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 22%,transparent)}
+.cpick{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 12px}.cpick input[type=color]{width:74px;height:46px;padding:3px;cursor:pointer}
+.cprev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border:1px dashed var(--acc);border-radius:14px;margin:6px 0 14px;background:var(--bg)}
+
+/* مجموعات الطلاب */
+.gchips{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:14px}
+.gchip{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 10px;border-radius:18px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;text-align:center;transition:transform .25s,box-shadow .25s,border-color .25s}
+.gchip .s{font-size:.8rem;color:var(--mut)}.gchip:hover,.gchip.on{border-color:var(--pri);transform:translateY(-3px);box-shadow:0 14px 28px -18px var(--pri)}.gchip.on{background:color-mix(in srgb,var(--pri) 10%,var(--card))}
+.gx{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}.tag.g{background:color-mix(in srgb,var(--acc) 30%,transparent)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}.flow span{padding:5px 12px;border-radius:99px;background:color-mix(in srgb,var(--pri) 14%,transparent);font-weight:700;font-size:.85rem}.flow b{color:var(--acc)}
+.gpanel{animation:up .5s both}
+
+@media(prefers-reduced-motion:reduce){.rv,.up,.gpanel{opacity:1!important;transform:none!important}.sp-prog{display:none}}

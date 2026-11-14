@@ -21,9 +21,20 @@ const Plan=mongoose.model('Plan',new S({key:{type:String,unique:true},name:Strin
 const Setting=mongoose.model('Setting',new S({k:{type:String,unique:true},v:S.Types.Mixed}));
 const getS=async()=>{const o={whatsapp:'201110742678',currency:'ج.م',enforce:false};(await Setting.find().lean()).forEach(x=>o[x.k]=x.v);return o};
 const planOk=u=>{const p=u&&u.plan;if(!p||!p.type)return false;if(p.type==='lifetime')return true;if(p.type==='exam')return (p.examsLeft||0)>0;return !!p.expiresAt&&new Date(p.expiresAt)>new Date()};
-const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String},{timestamps:true}));
+const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String,group:{type:T,default:null}},{timestamps:true}));
 const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,nameN:String,data:S.Types.Mixed}));
 Result.schema.index({exam:1,seat:1},{unique:true});
+const Group=mongoose.model('Group',new S({teacher:{type:T,index:true},name:String},{timestamps:true}));
+const StudentS=new S({teacher:{type:T,index:true},group:{type:T,index:true},seat:String,name:String,nameN:String},{timestamps:true});
+StudentS.index({group:1,seat:1},{unique:true});
+const Student=mongoose.model('Student',StudentS);
+const rxe=w=>String(w).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const hex=v=>/^#[0-9a-f]{6}$/i.test(String(v||''))?String(v).toLowerCase():null;
+const DEFT={mode:'green',pri:'#0f766e',acc:'#d9a21b'},PALS={green:['#0f766e','#d9a21b'],red:['#b91c1c','#d9a21b'],both:['#0f766e','#dc2626']};
+/* نسخ طلاب المجموعة إلى نتائج الامتحان (بدون استبدال الموجود) */
+const fillFromGroup=async(e,g)=>{const st=await Student.find({group:g._id}).lean();if(!st.length)return 0;
+ const r=await Result.bulkWrite(st.map(x=>({updateOne:{filter:{exam:e._id,seat:x.seat},update:{$setOnInsert:{teacher:e.teacher,name:x.name,nameN:x.nameN,data:{}}},upsert:true}})),{ordered:false});return r.upsertedCount||0};
+const syncG=async g=>{const exs=await Exam.find({group:g._id}).lean();for(const e of exs)await fillFromGroup(e,g)};
 const SUB=['اللغة العربية','الرياضيات','اللغة الإنجليزية','العلوم','الدراسات الاجتماعية','المواد الشرعية'];
 const an=s=>String(s||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase().trim().replace(/\s+/g,' ');
 const norm=s=>String(s??'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
@@ -55,15 +66,21 @@ app.put('/api/me',auth,wrap(async(q,s)=>{const{name,subject}=q.body;if(subject&&
 app.get('/api/exams',auth,wrap(async(q,s)=>{
  const ex=await Exam.find({teacher:q.user.id}).sort('-createdAt').lean();
  const c=await Result.aggregate([{$match:{teacher:q.user._id}},{$group:{_id:'$exam',n:{$sum:1}}}]);
- const m=Object.fromEntries(c.map(x=>[x._id,x.n]));s.json(ex.map(e=>({...e,count:m[e._id]||0})))}));
+ const m=Object.fromEntries(c.map(x=>[x._id,x.n]));
+ const gs=await Group.find({teacher:q.user._id}).select('name').lean(),gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name]));
+ s.json(ex.map(e=>({...e,count:m[e._id]||0,groupName:e.group?gm[String(e.group)]||'':''})))}));
 app.post('/api/exams',auth,wrap(async(q,s)=>{if(!q.body.title)return s.status(400).json({error:'اكتب اسم الامتحان'});
+ let g=null;if(q.body.group){if(!T.isValid(q.body.group))return s.status(400).json({error:'مجموعة غير صحيحة'});g=await Group.findOne({_id:q.body.group,teacher:q.user._id});if(!g)return s.status(404).json({error:'المجموعة غير موجودة'})}
  if(!q.imp&&(await getS()).enforce){if(!planOk(q.user))return s.status(402).json({error:'اشترك في إحدى الباقات لإضافة امتحانات جديدة (تبويب الباقات)'});
   if(q.user.plan.type==='exam'){q.user.plan.examsLeft--;q.user.markModified('plan');await q.user.save()}}
- s.json(await Exam.create({teacher:q.user.id,title:q.body.title}))}));
+ const ex=await Exam.create({teacher:q.user.id,title:String(q.body.title).slice(0,120),group:g?g._id:null});
+ const added=g?await fillFromGroup(ex,g):0;s.json({...ex.toObject(),added})}));
 app.delete('/api/exams/:id',auth,wrap(async(q,s)=>{const e=await Exam.findOneAndDelete({_id:q.params.id,teacher:q.user.id});if(e)await Result.deleteMany({exam:e.id});s.json({ok:1})}));
 app.post('/api/exams/:id/results',auth,wrap(async(q,s)=>{
  const e=await Exam.findOne({_id:q.params.id,teacher:q.user.id});if(!e)return s.status(404).json({error:'غير موجود'});
  const m=new Map();for(const r of q.body.rows||[]){const seat=norm(r.seat);if(seat)m.set(seat,{teacher:q.user._id,exam:e._id,seat,name:r.name||'',nameN:an(r.name),data:r.data||{}})}
+ if(q.body.merge){const ops=[...m.values()].map(r=>{const set={teacher:r.teacher,data:r.data};if(r.name){set.name=r.name;set.nameN=r.nameN}return{updateOne:{filter:{exam:e._id,seat:r.seat},update:{$set:set},upsert:true}}});
+  if(ops.length)await Result.bulkWrite(ops,{ordered:false});return s.json({count:m.size,merged:true})}
  await Result.deleteMany({exam:e._id});if(m.size)await Result.insertMany([...m.values()],{ordered:false});s.json({count:m.size})}));
 
 const own=q=>T.isValid(q.params.id)?Exam.findOne({_id:q.params.id,teacher:q.user.id}):null;
@@ -82,11 +99,13 @@ app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await o
 
 app.get('/api/public/:slug',wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'الصفحة غير موجودة'});
- s.json({name:u.name,subject:u.subject,site:u.site||{},exams:await Exam.find({teacher:u.id}).sort('-createdAt').select('title')})}));
+ const [ex,gs,cfg]=await Promise.all([Exam.find({teacher:u.id}).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean(),getS()]);
+ const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};if(cfg.allowTeacherColor===false)delete site.color;
+ s.json({name:u.name,subject:u.subject,site,exams:ex.map(e=>({_id:e._id,title:e.title,groupName:e.group?gm[String(e.group)]||'':''}))})}));
 app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
  const r=await Result.findOne({teacher:u._id,exam:q.body.examId,seat:norm(q.body.seat)}).lean();
- if(!r)return s.status(404).json({error:'لا توجد نتيجة بهذا الرقم'});s.json({name:r.name,data:r.data})}));
+ if(!r)return s.status(404).json({error:'لا توجد نتيجة بهذا الرقم'});s.json({name:r.name,data:r.data||{}})}));
 
 app.post('/api/admin/impersonate/:id',auth,admin,wrap(async(q,s)=>{
  const u=await User.findOne({_id:q.params.id,role:'teacher'});if(!u)return s.status(404).json({error:'غير موجود'});
@@ -121,7 +140,7 @@ app.post('/api/admin/users/:id/plan',auth,admin,wrap(async(q,s)=>{
 app.put('/api/site',auth,wrap(async(q,s)=>{
  const b=q.body||{},o={};
  ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
- o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;
+ o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;o.color=(q.user.site&&q.user.site.color)||null;
  o.faq=(Array.isArray(b.faq)?b.faq:[]).slice(0,20).map(f=>({q:String(f.q||'').slice(0,300),a:String(f.a||'').slice(0,1500)})).filter(f=>f.q&&f.a);
  q.user.site=o;q.user.markModified('site');await q.user.save();s.json(o)}));
 app.post('/api/public/:slug/search',rate({windowMs:6e4,limit:30}),wrap(async(q,s)=>{
@@ -135,6 +154,51 @@ app.get('/api/admin/users',auth,admin,wrap(async(q,s)=>s.json((await User.find({
 app.patch('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{await User.updateOne({_id:q.params.id,role:'teacher'},{active:!!q.body.active});s.json({ok:1})}));
 app.delete('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{const u=await User.findOneAndDelete({_id:q.params.id,role:'teacher'});
  if(u){await Exam.deleteMany({teacher:u._id});await Result.deleteMany({teacher:u._id})}s.json({ok:1})}));
+
+
+/* ===== ألوان المنصة (المدير) وألوان موقع المدرس ===== */
+app.get('/api/theme',wrap(async(q,s)=>{const c=await getS();s.json({...DEFT,...(c.theme||{}),allowTeacher:c.allowTeacherColor!==false})}));
+app.put('/api/admin/theme',auth,admin,wrap(async(q,s)=>{const b=q.body||{},mode=['green','red','both','custom'].includes(b.mode)?b.mode:'custom';let pri,acc;
+ if(mode==='custom'){pri=hex(b.pri);acc=hex(b.acc);if(!pri||!acc)return s.status(400).json({error:'اختر لونين صحيحين'})}else[pri,acc]=PALS[mode];
+ const v={mode,pri,acc},at=b.allowTeacher!==false;await Setting.updateOne({k:'theme'},{v},{upsert:true});await Setting.updateOne({k:'allowTeacherColor'},{v:at},{upsert:true});s.json({...v,allowTeacher:at})}));
+app.put('/api/site/color',auth,wrap(async(q,s)=>{
+ if(!q.imp&&(await getS()).allowTeacherColor===false)return s.status(403).json({error:'تغيير الألوان متوقف من الإدارة'});
+ const b=q.body||{};let c=null;if(b.pri||b.acc){const pri=hex(b.pri),acc=hex(b.acc);if(!pri||!acc)return s.status(400).json({error:'لون غير صحيح'});c={pri,acc}}
+ q.user.site={...(q.user.site||{}),color:c};q.user.markModified('site');await q.user.save();s.json({color:c})}));
+
+/* ===== المجموعات والطلاب ===== */
+const ownG=q=>T.isValid(q.params.id)?Group.findOne({_id:q.params.id,teacher:q.user._id}):null;
+const gName=v=>String(v||'').trim().slice(0,60);
+app.get('/api/groups',auth,wrap(async(q,s)=>{
+ const gs=await Group.find({teacher:q.user._id}).sort('_id').lean();
+ const [sc,ec]=await Promise.all([Student.aggregate([{$match:{teacher:q.user._id}},{$group:{_id:'$group',n:{$sum:1}}}]),Exam.aggregate([{$match:{teacher:q.user._id,group:{$ne:null}}},{$group:{_id:'$group',n:{$sum:1}}}])]);
+ const a=Object.fromEntries(sc.map(x=>[String(x._id),x.n])),b=Object.fromEntries(ec.map(x=>[String(x._id),x.n]));
+ s.json(gs.map(g=>({_id:g._id,name:g.name,students:a[String(g._id)]||0,exams:b[String(g._id)]||0})))}));
+app.post('/api/groups',auth,wrap(async(q,s)=>{const name=gName(q.body.name);if(name.length<2)return s.status(400).json({error:'اكتب اسم المجموعة'});
+ if(await Group.countDocuments({teacher:q.user._id})>=50)return s.status(400).json({error:'وصلت للحد الأقصى من المجموعات (50)'});
+ const g=await Group.create({teacher:q.user._id,name});s.json({_id:g._id,name:g.name,students:0,exams:0})}));
+app.put('/api/groups/:id',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});const name=gName(q.body.name);if(name.length<2)return s.status(400).json({error:'اكتب اسم المجموعة'});g.name=name;await g.save();s.json({ok:1})}));
+app.delete('/api/groups/:id',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});
+ await Student.deleteMany({group:g._id});await Exam.updateMany({group:g._id},{$set:{group:null}});await g.deleteOne();s.json({ok:1})}));
+app.get('/api/groups/:id/students',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});
+ const t=String(q.query.q||'').trim(),f={group:g._id};
+ if(t){const n=norm(t);if(/^[0-9]+$/.test(n))f.seat=new RegExp('^'+n);else f.nameN=new RegExp(an(t).split(' ').map(rxe).join('.*'))}
+ const[rows,total]=await Promise.all([Student.find(f).sort('_id').limit(300).select('seat name -_id').lean(),Student.countDocuments({group:g._id})]);s.json({rows,total})}));
+app.post('/api/groups/:id/students',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});
+ const seat=norm(q.body.seat).slice(0,30),name=String(q.body.name||'').trim().slice(0,120);
+ if(!seat)return s.status(400).json({error:'اكتب رقم الجلوس'});if(name.length<2)return s.status(400).json({error:'اكتب اسم الطالب'});
+ if(!await Student.exists({group:g._id,seat})&&await Student.countDocuments({group:g._id})>=2000)return s.status(400).json({error:'وصلت للحد الأقصى للمجموعة (2000 طالب)'});
+ const r=await Student.updateOne({group:g._id,seat},{$set:{teacher:q.user._id,name,nameN:an(name)}},{upsert:true});await syncG(g);s.json({ok:1,added:!!r.upsertedCount})}));
+app.post('/api/groups/:id/students/bulk',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});
+ const m=new Map();for(const r of (q.body.rows||[]).slice(0,2000)){const seat=norm(r.seat).slice(0,30),name=String(r.name??'').trim().slice(0,120);if(seat&&name.length>=2)m.set(seat,name)}
+ if(!m.size)return s.status(400).json({error:'لا توجد بيانات صالحة: اختر عمود رقم الجلوس وعمود الاسم'});
+ const r=await Student.bulkWrite([...m].map(([seat,name])=>({updateOne:{filter:{group:g._id,seat},update:{$set:{teacher:q.user._id,name,nameN:an(name)}},upsert:true}})),{ordered:false});
+ await syncG(g);s.json({count:m.size,added:r.upsertedCount||0})}));
+app.delete('/api/groups/:id/students/:seat',auth,wrap(async(q,s)=>{const g=await ownG(q);if(!g)return s.status(404).json({error:'غير موجود'});
+ await Student.deleteOne({group:g._id,seat:norm(q.params.seat)});s.json({ok:1})}));
+app.post('/api/exams/:id/group',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ let g=null;if(q.body.group){if(!T.isValid(q.body.group))return s.status(400).json({error:'مجموعة غير صحيحة'});g=await Group.findOne({_id:q.body.group,teacher:q.user._id});if(!g)return s.status(404).json({error:'المجموعة غير موجودة'})}
+ e.group=g?g._id:null;await e.save();const added=g?await fillFromGroup(e,g):0;s.json({ok:1,added})}));
 
 app.get('/t/:slug',P('t.html'));app.get('/dashboard',P('dashboard.html'));app.get('/admin',P('admin.html'));app.get('/login',P('login.html'));
 app.use(express.static(path.join(__dirname,'public')));

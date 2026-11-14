@@ -2,6 +2,11 @@
 <title>لوحة الإدارة | TeacherM</title><meta name="robots" content="noindex, nofollow, nocache"></head><body><div id="nav"></div><main class="wrap"><section class="hero"><div class="bismillah">بسم الله الرحمن الرحيم</div><h1>لوحة الإدارة</h1><div class="exam">TeacherM</div><div class="sub">إدارة المدرسين والباقات والاشتراكات</div></section>
 <div class="card"><h2>إعدادات الاشتراك</h2><div class="row"><div style="flex:1;min-width:200px"><label>رقم واتساب الإدارة (بصيغة دولية)</label><input id="wa" dir="ltr"></div><div style="width:120px"><label>العملة</label><input id="cu"></div></div>
 <label><input type="checkbox" id="en2" style="width:auto;margin:0 0 0 8px">إلزام المدرسين بالاشتراك لإضافة امتحانات جديدة (اتركه مغلقاً أثناء التجربة)</label><button class="btn" onclick="ss()">حفظ الإعدادات</button></div>
+<div class="card" id="thc"><h2>ألوان المنصة</h2><p class="mut">غيّر لون المنصة (الصفحة الرئيسية وتسجيل الدخول ولوحة الإدارة) من الأخضر إلى الأحمر، أو أبقِ الاثنين معاً، أو اختر ألواناً مخصصة. المعاينة فورية ولا تُطبّق على الزوار إلا بعد الحفظ.</p>
+<div class="swatches" id="th_sw"></div><div class="cpick"><div><label>اللون الأساسي</label><input type="color" id="th_pri" value="#0f766e"></div><div><label>اللون الثانوي</label><input type="color" id="th_acc" value="#d9a21b"></div></div>
+<div class="cprev"><span class="mut">معاينة:</span><button class="btn sm" type="button">زر أساسي</button><span class="tag">وسم</span><span class="hl">نص مميز</span></div>
+<label><input type="checkbox" id="th_at" checked style="width:auto;margin:0 0 0 8px">السماح للمدرسين بتغيير لون موقعهم من لوحتهم</label><p class="mut" style="font-size:.85rem;margin:0 0 10px">ملاحظة: مواقع المدرسين تبقى بثيم مادتها الخاص إلا إذا اختار المدرس لوناً لموقعه.</p>
+<button class="btn" onclick="saveTheme()">حفظ ألوان المنصة</button></div>
 <h2 class="sx-title" style="text-align:right;margin-top:18px">الباقات</h2><div class="g3" id="pl" style="margin-top:12px"></div>
 <div class="card"><h2>المدرسون <span class="tag" id="n"></span></h2><div style="overflow:auto"><table id="t"></table></div></div></main><footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>const G=id=>document.getElementById(id);let PLANS=[];
@@ -20,4 +25,12 @@ async function ap(i){try{await api('/api/admin/users/'+i+'/plan','POST',{type:G(
 async function en(i){try{await api('/api/admin/impersonate/'+i,'POST');location='/dashboard'}catch(x){toast(x.message)}}
 async function tg(i,a){await api('/api/admin/users/'+i,'PATCH',{active:a});load()}
 async function rm(i){if(confirm('حذف المدرس وكل بياناته نهائياً؟')){await api('/api/admin/users/'+i,'DELETE');load()}}
+let TH={mode:'green'};const TM=[['green','أخضر'],['red','أحمر'],['both','أخضر + أحمر'],['custom','مخصص']];
+function drawTh(){G('th_sw').innerHTML=TM.map(([k,n])=>{const p=k==='custom'?{pri:G('th_pri').value,acc:G('th_acc').value}:PAL[k];return '<button type="button" class="sw'+(TH.mode===k?' on':'')+'" data-m="'+k+'" style="--a:'+p.pri+';--b:'+p.acc+'"><i></i>'+n+'</button>'}).join('')}
+function prevTh(){applyColors({pri:G('th_pri').value,acc:G('th_acc').value},'g');drawTh()}
+G('th_sw').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;TH.mode=b.dataset.m;if(TH.mode!=='custom'){G('th_pri').value=PAL[TH.mode].pri;G('th_acc').value=PAL[TH.mode].acc}prevTh()};
+['th_pri','th_acc'].forEach(id=>G(id).oninput=()=>{TH.mode='custom';prevTh()});
+async function loadTh(){try{const t=await api('/api/theme');TH={mode:t.mode||'green'};G('th_pri').value=t.pri;G('th_acc').value=t.acc;G('th_at').checked=t.allowTeacher!==false;drawTh()}catch(x){drawTh()}}
+async function saveTheme(){try{const r=await api('/api/admin/theme','PUT',{mode:TH.mode,pri:G('th_pri').value,acc:G('th_acc').value,allowTeacher:G('th_at').checked});try{localStorage.cg=JSON.stringify(r)}catch{}TH.mode=r.mode;drawTh();toast('تم حفظ ألوان المنصة')}catch(x){toast(x.message)}}
+loadTh();
 loadS().then(load).then(reveal).catch(x=>toast(x.message));</script></body></html>
