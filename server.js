@@ -66,6 +66,20 @@ app.post('/api/exams/:id/results',auth,wrap(async(q,s)=>{
  const m=new Map();for(const r of q.body.rows||[]){const seat=norm(r.seat);if(seat)m.set(seat,{teacher:q.user._id,exam:e._id,seat,name:r.name||'',nameN:an(r.name),data:r.data||{}})}
  await Result.deleteMany({exam:e._id});if(m.size)await Result.insertMany([...m.values()],{ordered:false});s.json({count:m.size})}));
 
+const own=q=>T.isValid(q.params.id)?Exam.findOne({_id:q.params.id,teacher:q.user.id}):null;
+const cleanD=d=>{const o={};if(d&&typeof d==='object')for(const k of Object.keys(d).slice(0,30)){const kk=String(k).replace(/[.$]/g,'').trim().slice(0,40),v=String(d[k]??'').trim().slice(0,200);if(kk&&v!=='')o[kk]=v}return o};
+app.get('/api/exams/:id/results',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ const t=String(q.query.q||'').trim(),f={exam:e._id};
+ if(t){const n=norm(t);if(/^[0-9]+$/.test(n))f.seat=new RegExp('^'+n);else f.nameN=new RegExp(an(t).split(' ').map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.*'))}
+ const[rows,total]=await Promise.all([Result.find(f).sort('-_id').limit(100).select('seat name data -_id').lean(),Result.countDocuments({exam:e._id})]);s.json({rows,total})}));
+app.post('/api/exams/:id/student',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ const seat=norm(q.body.seat).slice(0,30),name=String(q.body.name||'').trim().slice(0,120);
+ if(!seat)return s.status(400).json({error:'اكتب رقم الجلوس'});if(name.length<2)return s.status(400).json({error:'اكتب اسم الطالب'});
+ const r=await Result.updateOne({exam:e._id,seat},{$set:{teacher:q.user._id,name,nameN:an(name),data:cleanD(q.body.data)}},{upsert:true});
+ s.json({ok:1,added:!!r.upsertedCount})}));
+app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ await Result.deleteOne({exam:e._id,seat:norm(q.params.seat)});s.json({ok:1})}));
+
 app.get('/api/public/:slug',wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'الصفحة غير موجودة'});
  s.json({name:u.name,subject:u.subject,site:u.site||{},exams:await Exam.find({teacher:u.id}).sort('-createdAt').select('title')})}));
