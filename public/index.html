@@ -22,17 +22,19 @@ section{padding:46px 0}.c{text-align:center}.lh{display:grid;grid-template-colum
 <section id="steps"><h2 class="c">ثلاث خطوات فقط</h2><div class="g3"><div class="st"><b class="n">1</b><h3>سجّل حسابك</h3><p class="mut">اختر مادتك واسم رابطك.</p></div>
 <div class="st"><b class="n">2</b><h3>ارفع النتائج</h3><p class="mut">ملف Excel أو CSV وتنتهي.</p></div><div class="st"><b class="n">3</b><h3>شارك الرابط</h3><p class="mut">أرسله لطلابك على واتساب.</p></div></div></section>
 <section id="subjects"><h2 class="c">تصميم يناسب مادتك</h2><div class="g3" id="sg"></div></section>
+<section id="plans"><h2 class="c">الباقات</h2><div class="g3" id="pl"></div></section>
 <section id="founder"><div class="fd"><div class="ringw"><img src="/founder.jpg" alt="محمد أحمد حلمي" width="150" height="150"></div><div><span class="tag">المؤسس</span><h2 style="margin:.2em 0">محمد أحمد حلمي</h2>
 <p class="mut">مطوّر ويب، أسّس TeacherM ليسهّل على المدرسين نشر النتائج دون جداول مرسلة أو رسائل متفرقة. للاستفسار أو الاشتراك تواصل معي مباشرة.</p>
 <div class="row" id="fl"></div></div></div></section>
 <section><div class="cta c"><h2 style="margin:0 0 8px">جاهز تنشر نتائج طلابك؟</h2><p>أنشئ حسابك الآن وابدأ بالنشر خلال دقائق.</p><a class="btn" href="/login#register">ابدأ الآن</a></div></section></div>
 <footer class="sh-foot"><b>Teacher<span style="color:var(--acc)">M</span></b> — teacherm.com<br>© <span id="yr"></span> جميع الحقوق محفوظة — محمد أحمد حلمي</footer><div id="toast"></div>
 <script src="/app.js"></script><script>yr.textContent=new Date().getFullYear();
-shell(badge('cap')+'Teacher<b style="color:var(--acc)">M</b>','<a href="#features">المميزات</a><a href="#steps">كيف يعمل</a><a href="#subjects">المواد</a><a href="#founder">المؤسس</a>','<a class="btn sm" id="lg" href="/login">'+svg('login',16)+'تسجيل الدخول</a>');
+shell(badge('cap')+'Teacher<b style="color:var(--acc)">M</b>','<a href="#features">المميزات</a><a href="#steps">كيف يعمل</a><a href="#subjects">المواد</a><a href="#plans">الباقات</a><a href="#founder">المؤسس</a>','<a class="btn sm" id="lg" href="/login">'+svg('login',16)+'تسجيل الدخول</a>');
 c1.innerHTML=svg('cap',16)+' 92%';c2.innerHTML=svg('search',16)+' رقم الجلوس';
 const FT=[['up','رفع من Excel','ارفع الملف، اختر عمود رقم الجلوس، وانشر مئات النتائج دفعة واحدة.'],['search','بحث بالاسم والرقم','الطالب يعرف رقم جلوسه من اسمه ثم يستعلم عن نتيجته.'],['palette','ثيم لكل مادة','ألوان وتصميم خاص بكل مادة دراسية.'],['pen','نصوصك أنت','عدّل العناوين والتعليمات والأسئلة الشائعة ورقم واتساب كما تريد.'],['sun','فاتح وداكن','يناسب كل الأجهزة ويعمل بسلاسة على الموبايل.'],['lock','بياناتك معزولة','كل مدرس يرى نتائجه فقط، مع حد للمحاولات يحمي الصفحة.']];
 fg.innerHTML=FT.map(f=>'<div class="ft">'+badge(f[0],22)+'<h3>'+f[1]+'</h3><p>'+f[2]+'</p></div>').join('');
 sg.innerHTML=SUBJECTS.map(x=>'<div class="sc" data-subject="'+x.k+'">'+svg(x.k,46)+'<h3 style="margin:.4em 0">'+x.n+'</h3><i></i></div>').join('');
 fl.innerHTML=[['wa','واتساب','https://wa.me/201110742678',1],['link','معرض أعمالي','https://mohamedahmedhelmi.vercel.app/'],['link','لينكد إن','https://www.linkedin.com/in/mohammad-ahmed-helmy-aboura-6ab350370/'],['link','فيسبوك','https://www.facebook.com/mohamed.dev27']].map(l=>'<a class="btn'+(l[3]?'':' ghost')+'" href="'+l[2]+'" target="_blank" rel="noopener">'+svg(l[0],16)+l[1]+'</a>').join('');
 api('/api/me').then(m=>{lg.lastChild.textContent='لوحتي';lg.href=m.role==='admin'?'/admin':'/dashboard'}).catch(()=>{});
+api('/api/plans').then(d=>{if(!d.plans.length)return plans.remove();pl.innerHTML=d.plans.map(p=>planCard(p,d.currency,d.whatsapp)).join('');reveal()}).catch(()=>plans.remove());
 splash('cap','TeacherM','نتائج طلابك برابط واحد');reveal();</script></body></html>

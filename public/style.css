@@ -88,3 +88,7 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--pri);box-sh
 .sh-splash .ib{display:grid;width:88px;height:88px;border-radius:28px;margin:auto;animation:pop .8s}.sh-splash h1{animation:up .8s .3s both}.sh-splash p{animation:up .8s .5s both}
 .sh-splash::after{content:"";position:absolute;bottom:0;right:0;height:4px;background:var(--acc);animation:bar 1.2s linear forwards}@keyframes bar{from{width:0}to{width:100%}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv,.up,.sh-hero>*{opacity:1;transform:none}}
+
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.plan{display:flex;flex-direction:column;gap:8px;margin:0}.plan .price{font-size:2rem;font-weight:800;color:var(--pri)}.plan .price small{font-size:.9rem;color:var(--mut)}
+.plan ul{padding-inline-start:18px;color:var(--mut);margin:4px 0 10px}.plan .btn{margin-top:auto;text-align:center}

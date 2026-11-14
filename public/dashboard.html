@@ -7,19 +7,19 @@
 <label><input type="checkbox" id="ns" style="width:auto;margin:0 0 0 8px">السماح للطلاب بالبحث بالاسم (يُظهر رقم الجلوس)</label>
 <h2 style="margin-top:18px">الأسئلة الشائعة</h2><div id="fq"></div><button class="btn ghost sm" onclick="addQ()">+ سؤال</button>
 <div class="row" style="margin-top:16px"><button class="btn" onclick="saveSite()">حفظ النصوص</button><button class="btn ghost" onclick="fill(DEF(me.name,me.subject));toast('تم تحميل النصوص الافتراضية، اضغط حفظ')">استعادة الافتراضي</button></div></div></section>
-<section id="t3" class="hide"><div class="card"><h2>الإعدادات</h2><label>الاسم</label><input id="sn"><label>المادة (تحدد ثيم الموقع)</label><select id="sjs"></select><button class="btn" onclick="saveMe()">حفظ</button></div></section></main><div id="toast"></div>
+<section id="t3" class="hide"><div class="card"><h2>الإعدادات</h2><label>الاسم</label><input id="sn"><label>المادة (تحدد ثيم الموقع)</label><select id="sjs"></select><button class="btn" onclick="saveMe()">حفظ</button></div></section><section id="t4" class="hide"><div class="card" id="sub"></div><div class="g3" id="pg"></div></section></main><div id="toast"></div>
 <script src="/app.js"></script><script>let me,faqs=[],rows=[],cols=[];const G=id=>document.getElementById(id);
 const F=[['greet','العبارة الافتتاحية'],['title','عنوان الموقع'],['examTitle','عنوان النتائج'],['tagline','الوصف تحت العنوان'],['intro','نص تعريفي','t'],['searchHint','تلميح خانة البحث'],['instructionsTitle','عنوان قسم التعليمات'],['instructions','التعليمات (كل سطر بند مستقل)','t'],['footer','نص الحقوق أسفل الموقع'],['notFound','رسالة عدم العثور على الاسم'],['whatsapp','رقم واتساب بصيغة دولية (مثال 201001234567)']];
 G('ff').innerHTML=F.map(f=>'<label>'+f[1]+'</label>'+(f[2]?'<textarea id="f_'+f[0]+'"></textarea>':'<input id="f_'+f[0]+'">')).join('');
-function head(){const x=applySubject(me.subject);shell(badge(x?x.k:'cap')+esc(me.name),'<button id="n1" onclick="tab(1)" class="on">النتائج</button><button id="n2" onclick="tab(2)">نصوص الموقع</button><button id="n3" onclick="tab(3)">الإعدادات</button>','<button class="sh-btn" onclick="logout()" title="خروج">'+svg('out',18)+'</button>')}
-function tab(n){[1,2,3].forEach(i=>{G('t'+i).classList.toggle('hide',i!=n);G('n'+i).classList.toggle('on',i==n)})}
+function head(){const x=applySubject(me.subject);shell(badge(x?x.k:'cap')+esc(me.name),'<button id="n1" onclick="tab(1)" class="on">النتائج</button><button id="n2" onclick="tab(2)">نصوص الموقع</button><button id="n4" onclick="tab(4)">الباقات</button><button id="n3" onclick="tab(3)">الإعدادات</button>','<button class="sh-btn" onclick="logout()" title="خروج">'+svg('out',18)+'</button>')}
+function tab(n){[1,2,3,4].forEach(i=>{G('t'+i).classList.toggle('hide',i!=n);G('n'+i).classList.toggle('on',i==n)})}
 function fill(S){F.forEach(f=>G('f_'+f[0]).value=S[f[0]]||'');G('ns').checked=S.nameSearch!==false;faqs=(S.faq||[]).map(x=>({...x}));drawQ()}
 function drawQ(){G('fq').innerHTML=faqs.map((f,i)=>'<div class="faqrow"><input value="'+esc(f.q)+'" placeholder="السؤال" oninput="faqs['+i+'].q=this.value"><textarea placeholder="الإجابة" style="min-height:48px" oninput="faqs['+i+'].a=this.value">'+esc(f.a)+'</textarea><button class="btn bad sm" onclick="faqs.splice('+i+',1);drawQ()">حذف</button></div>').join('')}
 function addQ(){faqs.push({q:'',a:''});drawQ()}
 async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
 async function saveMe(){try{me=await api('/api/me','PUT',{name:G('sn').value,subject:G('sjs').value});head();G('hi').textContent='أهلاً '+me.name+' — '+me.subject;toast('تم الحفظ وتغيّر الثيم')}catch(x){toast(x.message)}}
 api('/api/me').then(m=>{me=m;head();G('hi').textContent='أهلاً '+m.name+' — '+m.subject;if(m.imp)G('imp').innerHTML='<div class="card" style="border-color:var(--acc)"><div class="row" style="justify-content:space-between"><b>أنت تتصفح هذا الحساب بصلاحية المدير</b><button class="btn sm" onclick="back()">العودة للوحة الأدمن</button></div></div>';G('lnk').value=location.origin+'/t/'+m.slug;G('pl').href='/t/'+m.slug;
-if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load()}).catch(x=>x.status===401?location='/login':toast(x.message));
+if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load();loadPlans()}).catch(x=>x.status===401?location='/login':toast(x.message));
 async function load(){const e=await api('/api/exams');G('es').innerHTML=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+'</option>').join('');
 G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>'}
 G('nf').onsubmit=async e=>{e.preventDefault();try{await api('/api/exams','POST',{title:G('nt').value});G('nt').value='';load()}catch(x){toast(x.message)}};
@@ -28,5 +28,11 @@ G('fl').onchange=async()=>{const f=G('fl').files[0];if(!f)return;const wb=XLSX.r
 if(!rows.length)return toast('الملف فارغ');cols=Object.keys(rows[0]);const o=cols.map(c=>'<option>'+esc(c)+'</option>').join('');G('cs').innerHTML=o;G('cn').innerHTML='<option value="">— بدون —</option>'+o;G('map').classList.remove('hide');G('pv').textContent='تم قراءة '+rows.length+' صف'};
 G('up').onclick=async()=>{if(!G('es').value)return toast('أضف امتحاناً أولاً');const cs=G('cs').value,cn=G('cn').value;const out=rows.map(r=>{const d={};cols.forEach(c=>{if(c!==cs&&c!==cn&&r[c]!=='')d[c]=r[c]});return{seat:r[cs],name:cn?r[cn]:'',data:d}});
 try{const r=await api('/api/exams/'+G('es').value+'/results','POST',{rows:out});toast('تم نشر '+r.count+' نتيجة');load();G('fl').value='';G('map').classList.add('hide')}catch(x){toast(x.message)}};
+async function loadPlans(){try{const d=await api('/api/plans');const nm=Object.fromEntries(d.plans.map(p=>[p.key,p.name])),p=me.plan;
+let t='لا يوجد اشتراك فعّال حالياً';
+if(p&&me.planOk){t='اشتراكك الحالي: '+(nm[p.type]||PNAME[p.type]);if(p.expiresAt)t+=' — ينتهي '+new Date(p.expiresAt).toLocaleDateString('ar-EG');if(p.type==='exam')t+=' — المتبقي '+p.examsLeft+' امتحان'}
+else if(p)t='انتهى اشتراكك السابق ('+(nm[p.type]||PNAME[p.type])+')';
+G('sub').innerHTML='<h2>اشتراكي</h2><p style="margin:0">'+esc(t)+'</p><p class="mut" style="margin:6px 0 0">اختر باقة واضغط اشتراك لمراسلة الإدارة عبر واتساب، وسيتم تفعيل اشتراكك بعد التواصل.</p>';
+G('pg').innerHTML=d.plans.map(x=>planCard(x,d.currency,d.whatsapp,'\nالاسم: '+me.name+' | المادة: '+me.subject+'\nالبريد: '+me.email+'\nرابطي: '+location.origin+'/t/'+me.slug)).join('');reveal()}catch(x){toast(x.message)}}
 function back(){api('/api/admin/stop','POST').then(()=>location='/admin').catch(x=>toast(x.message))}
 reveal();</script></body></html>

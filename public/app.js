@@ -42,3 +42,10 @@ const badge=(k,s=22)=>`<span class="ib">${svg(k,s)}</span>`;
 function reveal(sel='.card,.ft,.st,.sc,.fd,.cta'){if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.1});
  [...document.querySelectorAll(sel)].filter(e=>!e.classList.contains('rv')).forEach((e,i)=>{e.classList.add('rv');e.style.setProperty('--d',(i%4)*90+'ms');io.observe(e)})}
+
+IC.star='<path d="m12 2 3 7h7l-5.5 4.5 2 7.5L12 17l-6.5 4 2-7.5L2 9h7z"/>';
+const PNAME={exam:'امتحان واحد',month:'شهر',year:'سنة',lifetime:'مدى الحياة'};
+const waLink=(n,t)=>'https://wa.me/'+n+'?text='+encodeURIComponent(t);
+function planCard(p,cur,wa,extra=''){const pr=p.price?'<div class="price">'+p.price+' <small>'+esc(cur)+'</small></div>':'<div class="price" style="font-size:1.2rem">تواصل لمعرفة السعر</div>';
+ const msg='مرحباً، أريد الاشتراك في "'+p.name+'"'+(p.price?' بسعر '+p.price+' '+cur:'')+'.'+extra;
+ return '<div class="card plan">'+badge({exam:'pen',month:'sun',year:'cap',lifetime:'star'}[p.key]||'cap')+'<h3 style="margin:.3em 0">'+esc(p.name)+'</h3>'+pr+'<p class="mut" style="margin:0">'+esc(p.desc)+'</p><ul>'+(p.features||[]).map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul><a class="btn" target="_blank" rel="noopener" href="'+waLink(wa,msg)+'">'+svg('wa',16)+'اشترك عبر واتساب</a></div>'}
