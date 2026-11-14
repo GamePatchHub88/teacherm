@@ -6,11 +6,11 @@ app.use(helmet({contentSecurityPolicy:false}),express.json({limit:'8mb'}),cookie
 let conn;
 function db(){return conn||(conn=(async()=>{
  if(!/^mongodb/.test(process.env.MONGODB_URI||''))throw new Error('MONGODB_URI missing');
- await mongoose.connect(process.env.MONGODB_URI);
+ await mongoose.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:8000});
  const{ADMIN_EMAIL:e,ADMIN_PASSWORD:p}=process.env;
  if(e&&p&&!await User.findOne({role:'admin'}))await User.create({name:'مدير المنصة',email:e,password:await bcrypt.hash(p,10),role:'admin'});
 })().catch(x=>{conn=null;throw x}))}
-app.use('/api',(q,s,n)=>db().then(()=>n()).catch(x=>{console.error(x);s.status(500).json({error:'تعذر الاتصال بقاعدة البيانات'})}));
+app.use('/api',(q,s,n)=>db().then(()=>n()).catch(x=>{console.error(x);s.status(500).json({error:/missing/.test(x.message)?'متغير MONGODB_URI غير مضبوط في Vercel':/ServerSelection/.test(x.name)?'تعذر الوصول لقاعدة البيانات: فعّل 0.0.0.0/0 في Atlas Network Access':/auth/i.test(x.message)?'كلمة مرور قاعدة البيانات غير صحيحة':'خطأ اتصال: '+x.name})}));
 const P=f=>(q,s)=>s.sendFile(path.join(__dirname,'public',f));
 const S=mongoose.Schema,T=mongoose.Types.ObjectId;
 const User=mongoose.model('User',new S({name:String,subject:String,phone:String,email:{type:String,unique:true,lowercase:true},
