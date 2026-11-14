@@ -25,8 +25,9 @@ const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===1100
 const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'365d'});
 const setC=(s,u)=>s.cookie('tk',sign(u),{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:31536e6});
 const auth=wrap(async(q,s,n)=>{try{const d=jwt.verify(q.cookies.tk,process.env.JWT_SECRET);q.user=await User.findById(d.id)}catch{}
+ try{q.imp=!!jwt.verify(q.cookies.adm,process.env.JWT_SECRET)}catch{}
  if(!q.user)return s.status(401).json({error:'سجّل الدخول أولاً'});
- if(!q.user.active&&q.user.role!=='admin')return s.status(403).json({error:'حسابك قيد المراجعة أو موقوف'});n()});
+ if(!q.user.active&&q.user.role!=='admin'&&!q.imp)return s.status(403).json({error:'حسابك قيد المراجعة أو موقوف'});n()});
 const admin=(q,s,n)=>q.user.role==='admin'?n():s.status(403).json({error:'غير مصرح'});
 const pub=u=>({id:u.id,name:u.name,subject:u.subject,slug:u.slug,role:u.role,active:u.active,email:u.email,site:u.site||{}});
 
@@ -41,8 +42,8 @@ app.post('/api/login',rate({windowMs:9e5,limit:30}),wrap(async(q,s)=>{
  const u=await User.findOne({email:String(q.body.email||'').toLowerCase()});
  if(!u||!await bcrypt.compare(q.body.password||'',u.password))return s.status(401).json({error:'بيانات الدخول غير صحيحة'});
  setC(s,u);s.json(pub(u))}));
-app.post('/api/logout',(q,s)=>{s.clearCookie('tk');s.json({ok:1})});
-app.get('/api/me',auth,(q,s)=>s.json(pub(q.user)));
+app.post('/api/logout',(q,s)=>{s.clearCookie('tk');s.clearCookie('adm');s.json({ok:1})});
+app.get('/api/me',auth,(q,s)=>s.json({...pub(q.user),imp:!!q.imp}));
 app.put('/api/me',auth,wrap(async(q,s)=>{const{name,subject}=q.body;if(subject&&!SUB.includes(subject))return s.status(400).json({error:'مادة غير صحيحة'});Object.assign(q.user,{name:name||q.user.name,subject:subject||q.user.subject});await q.user.save();s.json(pub(q.user))}));
 
 app.get('/api/exams',auth,wrap(async(q,s)=>{
@@ -64,6 +65,14 @@ app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s
  const r=await Result.findOne({teacher:u._id,exam:q.body.examId,seat:norm(q.body.seat)}).lean();
  if(!r)return s.status(404).json({error:'لا توجد نتيجة بهذا الرقم'});s.json({name:r.name,data:r.data})}));
 
+app.post('/api/admin/impersonate/:id',auth,admin,wrap(async(q,s)=>{
+ const u=await User.findOne({_id:q.params.id,role:'teacher'});if(!u)return s.status(404).json({error:'غير موجود'});
+ const o={httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:864e5};
+ s.cookie('adm',sign(q.user),o);s.cookie('tk',jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'1d'}),o);s.json({ok:1})}));
+app.post('/api/admin/stop',wrap(async(q,s)=>{
+ let a;try{a=await User.findById(jwt.verify(q.cookies.adm,process.env.JWT_SECRET).id)}catch{}
+ if(!a||a.role!=='admin')return s.status(401).json({error:'لا توجد جلسة مدير'});
+ s.clearCookie('adm');setC(s,a);s.json({ok:1})}));
 app.put('/api/site',auth,wrap(async(q,s)=>{
  const b=q.body||{},o={};
  ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
