@@ -1,9 +1,29 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>نتيجة الطالب</title></head><body><div class="wrap" style="max-width:560px"><div id="nav"></div>
-<div class="card"><div class="banner"><span id="ti">🎓</span><div><h2 id="tn">...</h2><p id="ts"></p></div></div><label>الامتحان</label><select id="es"></select><label>رقم الجلوس</label><input id="seat" inputmode="numeric" placeholder="اكتب رقم الجلوس">
-<button class="btn" style="width:100%" id="go">عرض النتيجة</button><div id="out"></div></div></div><div id="toast"></div><script src="/app.js"></script><script>nav();
-const slug=location.pathname.split('/')[2];
-api('/api/public/'+slug).then(d=>{const x=applySubject(d.subject);if(x)ti.textContent=x.i;tn.textContent='نتائج '+d.name;ts.textContent='مادة '+d.subject;document.title='نتائج '+d.name;
-es.innerHTML=d.exams.map(x=>'<option value="'+x._id+'">'+esc(x.title)+'</option>').join('')}).catch(()=>{tn.textContent='الصفحة غير موجودة'});
-go.onclick=async()=>{out.innerHTML='';try{const r=await api('/api/public/'+slug+'/lookup','POST',{examId:es.value,seat:seat.value});
-out.innerHTML='<h2 style="margin-top:16px">'+esc(r.name)+'</h2><div class="res">'+Object.entries(r.data).map(([k,v])=>'<div><span class="mut">'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('')+'</div>'}catch(x){toast(x.message)}};
-seat.onkeydown=e=>e.key==='Enter'&&go.click();</script></body></html>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>نتائج الطلاب</title></head><body><div id="nav"></div>
+<main class="sh-wrap"><section class="sh-hero"><div id="hg"></div><div class="sh-ico" id="hi">🎓</div><h1 id="ht">...</h1><div class="sh-exam" id="he"></div><p id="hs" style="margin:.6em 0 0"></p></section>
+<p class="sh-intro" id="hn"></p>
+<section class="card" id="q"><h2>الاستعلام عن النتيجة</h2><label>الامتحان</label><select id="es"></select><label id="hh"></label>
+<div class="sh-in2" id="srch"><input id="sx" placeholder="الاسم أو رقم الجلوس" autocomplete="off"><button class="btn" id="go">بحث</button></div><div id="out"></div></section>
+<section class="card" id="ins"><h2 id="it"></h2><ol class="sh-ol" id="il"></ol></section>
+<section class="card" id="faq"><h2>أسئلة شائعة</h2><div id="fl"></div></section></main>
+<footer class="sh-foot"><div id="fw"></div><div id="fc"></div></footer><div id="toast"></div><script src="/app.js"></script><script>
+const slug=location.pathname.split('/')[2];let S,tm;const G=id=>document.getElementById(id),tx=(id,v)=>G(id).textContent=v;
+api('/api/public/'+slug).then(d=>{const x=applySubject(d.subject),ic=x?x.i:'🎓';S=SITE(d.name,d.subject,d.site);
+document.title=S.title+' | '+S.examTitle;
+shell('<span>'+ic+'</span>'+esc(S.title),'<a href="#q" class="on">الاستعلام</a><a href="#ins">'+esc(S.instructionsTitle)+'</a>'+(S.faq.length?'<a href="#faq">أسئلة شائعة</a>':''));
+splash(ic,S.title,S.tagline);tx('hg',S.greet);tx('hi',ic);tx('ht',S.title);tx('he',S.examTitle);tx('hs',S.tagline);tx('hn',S.intro);tx('hh',S.searchHint);tx('it',S.instructionsTitle);
+G('es').innerHTML=d.exams.map(e=>'<option value="'+e._id+'">'+esc(e.title)+'</option>').join('');
+const L=S.instructions.split('\n').map(l=>l.replace(/^\s*[\d٠-٩]+[.\-)]\s*/,'').trim()).filter(Boolean);
+G('il').innerHTML=L.map(l=>'<li>'+esc(l)+'</li>').join('');if(!L.length)G('ins').remove();
+G('fl').innerHTML=S.faq.map(f=>'<details><summary>'+esc(f.q)+'</summary><p>'+esc(f.a)+'</p></details>').join('');if(!S.faq.length)G('faq').remove();
+G('fw').innerHTML=S.whatsapp?'<a class="sh-wa" target="_blank" rel="noopener" href="https://wa.me/'+esc(S.whatsapp)+'">تواصل عبر واتساب</a>':'';
+tx('fc','© '+new Date().getFullYear()+' '+S.footer)}).catch(()=>{tx('ht','الصفحة غير موجودة')});
+const isNum=v=>/^[0-9٠-٩]+$/.test(v);
+async function byName(v){if(v.length<3)return;try{const r=await api('/api/public/'+slug+'/search','POST',{examId:G('es').value,q:v});
+G('out').innerHTML=r.length?'<div class="sh-list">'+r.map(x=>'<button class="sh-item" data-seat="'+esc(x.seat)+'" onclick="show(this.dataset.seat)"><span>'+esc(x.name)+'</span><b>'+esc(x.seat)+'</b></button>').join('')+'</div>':'<p class="mut">'+esc(S.notFound)+'</p>'}catch(x){G('out').innerHTML='<p class="mut">'+esc(x.message)+'</p>'}}
+async function show(seat){try{const r=await api('/api/public/'+slug+'/lookup','POST',{examId:G('es').value,seat});
+G('out').innerHTML='<div class="sh-res"><div class="sh-rh"><h2>'+esc(r.name)+'</h2><span class="tag">رقم الجلوس '+esc(seat)+'</span></div><div class="res">'+Object.entries(r.data).map(([k,v])=>'<div><span class="mut">'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('')+'</div><div class="row" style="margin-top:12px"><button class="btn sm" onclick="share()">مشاركة</button><button class="btn ghost sm" onclick="print()">طباعة</button></div></div>'}catch(x){toast(x.message)}}
+function share(){const t=G('out').innerText;navigator.share?navigator.share({title:document.title,text:t}).catch(()=>{}):navigator.clipboard.writeText(t).then(()=>toast('تم نسخ النتيجة'))}
+function run(){const v=G('sx').value.trim();if(!v)return;isNum(v)?show(v):byName(v)}
+G('go').onclick=run;G('sx').onkeydown=e=>e.key==='Enter'&&run();
+G('sx').oninput=()=>{clearTimeout(tm);const v=G('sx').value.trim();G('out').innerHTML='';if(v&&!isNum(v))tm=setTimeout(()=>byName(v),350)};
+</script></body></html>

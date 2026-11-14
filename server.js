@@ -14,11 +14,12 @@ app.use('/api',(q,s,n)=>db().then(()=>n()).catch(x=>{console.error(x);s.status(5
 const P=f=>(q,s)=>s.sendFile(path.join(__dirname,'public',f));
 const S=mongoose.Schema,T=mongoose.Types.ObjectId;
 const User=mongoose.model('User',new S({name:String,subject:String,phone:String,email:{type:String,unique:true,lowercase:true},
- password:String,slug:{type:String,unique:true,sparse:true},role:{type:String,default:'teacher'},active:{type:Boolean,default:true}},{timestamps:true}));
+ password:String,slug:{type:String,unique:true,sparse:true},role:{type:String,default:'teacher'},site:S.Types.Mixed,active:{type:Boolean,default:true}},{timestamps:true}));
 const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String},{timestamps:true}));
-const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,data:S.Types.Mixed}));
+const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,nameN:String,data:S.Types.Mixed}));
 Result.schema.index({exam:1,seat:1},{unique:true});
 const SUB=['اللغة العربية','الرياضيات','اللغة الإنجليزية','العلوم','الدراسات الاجتماعية','المواد الشرعية'];
+const an=s=>String(s||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase().trim().replace(/\s+/g,' ');
 const norm=s=>String(s??'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
 const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===11000?409:500).json({error:e.code===11000?'القيمة مستخدمة بالفعل':'خطأ في الخادم'}));
 const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'30d'});
@@ -27,7 +28,7 @@ const auth=wrap(async(q,s,n)=>{try{const d=jwt.verify(q.cookies.tk,process.env.J
  if(!q.user)return s.status(401).json({error:'سجّل الدخول أولاً'});
  if(!q.user.active&&q.user.role!=='admin')return s.status(403).json({error:'حسابك قيد المراجعة أو موقوف'});n()});
 const admin=(q,s,n)=>q.user.role==='admin'?n():s.status(403).json({error:'غير مصرح'});
-const pub=u=>({id:u.id,name:u.name,subject:u.subject,slug:u.slug,role:u.role,active:u.active,email:u.email});
+const pub=u=>({id:u.id,name:u.name,subject:u.subject,slug:u.slug,role:u.role,active:u.active,email:u.email,site:u.site||{}});
 
 app.post('/api/register',rate({windowMs:36e5,limit:20}),wrap(async(q,s)=>{
  const{name,subject,phone,email,password,slug}=q.body;
@@ -52,17 +53,30 @@ app.post('/api/exams',auth,wrap(async(q,s)=>{if(!q.body.title)return s.status(40
 app.delete('/api/exams/:id',auth,wrap(async(q,s)=>{const e=await Exam.findOneAndDelete({_id:q.params.id,teacher:q.user.id});if(e)await Result.deleteMany({exam:e.id});s.json({ok:1})}));
 app.post('/api/exams/:id/results',auth,wrap(async(q,s)=>{
  const e=await Exam.findOne({_id:q.params.id,teacher:q.user.id});if(!e)return s.status(404).json({error:'غير موجود'});
- const m=new Map();for(const r of q.body.rows||[]){const seat=norm(r.seat);if(seat)m.set(seat,{teacher:q.user._id,exam:e._id,seat,name:r.name||'',data:r.data||{}})}
+ const m=new Map();for(const r of q.body.rows||[]){const seat=norm(r.seat);if(seat)m.set(seat,{teacher:q.user._id,exam:e._id,seat,name:r.name||'',nameN:an(r.name),data:r.data||{}})}
  await Result.deleteMany({exam:e._id});if(m.size)await Result.insertMany([...m.values()],{ordered:false});s.json({count:m.size})}));
 
 app.get('/api/public/:slug',wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'الصفحة غير موجودة'});
- s.json({name:u.name,subject:u.subject,exams:await Exam.find({teacher:u.id}).sort('-createdAt').select('title')})}));
+ s.json({name:u.name,subject:u.subject,site:u.site||{},exams:await Exam.find({teacher:u.id}).sort('-createdAt').select('title')})}));
 app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
  const r=await Result.findOne({teacher:u._id,exam:q.body.examId,seat:norm(q.body.seat)}).lean();
  if(!r)return s.status(404).json({error:'لا توجد نتيجة بهذا الرقم'});s.json({name:r.name,data:r.data})}));
 
+app.put('/api/site',auth,wrap(async(q,s)=>{
+ const b=q.body||{},o={};
+ ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
+ o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;
+ o.faq=(Array.isArray(b.faq)?b.faq:[]).slice(0,20).map(f=>({q:String(f.q||'').slice(0,300),a:String(f.a||'').slice(0,1500)})).filter(f=>f.q&&f.a);
+ q.user.site=o;q.user.markModified('site');await q.user.save();s.json(o)}));
+app.post('/api/public/:slug/search',rate({windowMs:6e4,limit:30}),wrap(async(q,s)=>{
+ const u=await User.findOne({slug:q.params.slug,active:true});
+ if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
+ if(u.site&&u.site.nameSearch===false)return s.status(403).json({error:'البحث بالاسم غير متاح، استخدم رقم الجلوس'});
+ const t=an(q.body.q);if(t.length<3)return s.json([]);
+ const re=new RegExp(t.split(' ').map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.*'));
+ s.json(await Result.find({teacher:u._id,exam:q.body.examId,nameN:re}).limit(15).select('name seat -_id').lean())}));
 app.get('/api/admin/users',auth,admin,wrap(async(q,s)=>s.json((await User.find({role:'teacher'}).sort('-createdAt').lean()).map(u=>({...u,password:undefined})))));
 app.patch('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{await User.updateOne({_id:q.params.id,role:'teacher'},{active:!!q.body.active});s.json({ok:1})}));
 app.delete('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{const u=await User.findOneAndDelete({_id:q.params.id,role:'teacher'});
