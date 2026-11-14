@@ -19,7 +19,7 @@ const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String
 const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,data:S.Types.Mixed}));
 Result.schema.index({exam:1,seat:1},{unique:true});
 const norm=s=>String(s??'').trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-const wrap=f=>(q,s)=>Promise.resolve(f(q,s)).catch(e=>s.status(e.code===11000?409:500).json({error:e.code===11000?'القيمة مستخدمة بالفعل':'خطأ في الخادم'}));
+const wrap=f=>(q,s,n)=>Promise.resolve(f(q,s,n)).catch(e=>s.status(e.code===11000?409:500).json({error:e.code===11000?'القيمة مستخدمة بالفعل':'خطأ في الخادم'}));
 const sign=u=>jwt.sign({id:u.id},process.env.JWT_SECRET,{expiresIn:'30d'});
 const setC=(s,u)=>s.cookie('tk',sign(u),{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:2592e6});
 const auth=wrap(async(q,s,n)=>{try{const d=jwt.verify(q.cookies.tk,process.env.JWT_SECRET);q.user=await User.findById(d.id)}catch{}
