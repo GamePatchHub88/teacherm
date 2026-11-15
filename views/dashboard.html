@@ -37,9 +37,7 @@
 <h2 style="margin-top:18px">الأسئلة الشائعة</h2><div id="fq"></div><button class="btn ghost sm" onclick="addQ()">+ سؤال</button>
 <div class="row" style="margin-top:16px"><button class="btn" onclick="saveSite()">حفظ النصوص</button><button class="btn ghost" onclick="fill(DEF(me.name,me.subject));toast('تم تحميل النصوص الافتراضية، اضغط حفظ')">استعادة الافتراضي</button></div></div></section>
 <section id="t3" class="hide"><div class="card"><h2>الإعدادات</h2><label>الاسم</label><input id="sn"><label>المادة (تحدد ثيم الموقع)</label><select id="sjs"></select><button class="btn" onclick="saveMe()">حفظ</button></div>
-<div class="card" id="clc"><h2>لون موقعك</h2><p class="mut">اختر ألواناً مميزة لموقع طلابك، أو عُد لثيم المادة الافتراضي. المعاينة تظهر فوراً هنا، ولا تُطبّق على الطلاب إلا بعد الحفظ.</p>
-<div class="swatches" id="c_sw"></div><div class="cpick"><div><label>اللون الأساسي</label><input type="color" id="c_pri" value="#0f766e"></div><div><label>اللون الثانوي</label><input type="color" id="c_acc" value="#d9a21b"></div></div>
-<div class="row"><button class="btn" onclick="saveColor()">حفظ لون الموقع</button><button class="btn ghost" onclick="resetColor()">العودة لثيم المادة</button></div><p class="mut" id="c_note" style="margin:8px 0 0"></p></div></section>
+</section>
 <section id="t4" class="hide"><div class="card" id="sub"></div><div class="g3" id="pg" style="margin-top:18px"></div></section></main>
 <footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>
@@ -48,7 +46,7 @@ const F=[['greet','العبارة الافتتاحية'],['title','عنوان ا
 G('ff').innerHTML=F.map(f=>'<label>'+f[1]+'</label>'+(f[2]?'<textarea id="f_'+f[0]+'"></textarea>':'<input id="f_'+f[0]+'">')).join('');
 G('tabs').innerHTML=[[1,'chart','النتائج والطلاب'],[5,'users','المجموعات'],[2,'pen','نصوص الموقع'],[4,'star','الباقات'],[3,'palette','الإعدادات']].map((t,i)=>'<button data-t="'+t[0]+'" class="'+(i?'':'on')+'" role="tab">'+svg(t[1],18)+t[2]+'</button>').join('');
 G('addb').innerHTML=svg('useradd',18)+' إضافة طالب يدوياً';G('addf').innerHTML=svg('plus',16)+'حقل جديد';
-function head(){const x=applySubject(me.subject);applyColors(me.site&&me.site.color,'t');shell(badge(x?x.k:'cap')+'<span>'+esc(me.name)+'</span>','<a class="navlink" href="/">الرئيسية</a><a class="navlink" href="/t/'+esc(me.slug)+'" target="_blank">موقع الطلاب</a>','<a class="hbtn on" href="/dashboard" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent=me.subject;G('hi').textContent='أهلاً '+me.name+'، من هنا تدير نتائج طلابك وموقعك'}
+function head(){const x=applySubject(me.subject);shell(badge(x?x.k:'cap')+'<span>'+esc(me.name)+'</span>','<a class="navlink" href="/">الرئيسية</a><a class="navlink" href="/t/'+esc(me.slug)+'" target="_blank">موقع الطلاب</a>','<a class="hbtn on" href="/dashboard" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent=me.subject;G('hi').textContent='أهلاً '+me.name+'، من هنا تدير نتائج طلابك وموقعك'}
 function tab(n){[1,2,3,4,5].forEach(i=>G('t'+i).classList.toggle('hide',i!=n));document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t==n))}
 G('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b)tab(+b.dataset.t)};
 function fill(S){F.forEach(f=>G('f_'+f[0]).value=S[f[0]]||'');G('ns').checked=S.nameSearch!==false;faqs=(S.faq||[]).map(x=>({...x}));drawQ()}
@@ -57,7 +55,7 @@ function addQ(){faqs.push({q:'',a:''});drawQ()}
 async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
 async function saveMe(){try{me=await api('/api/me','PUT',{name:G('sn').value,subject:G('sjs').value});head();toast('تم الحفظ وتغيّر الثيم')}catch(x){toast(x.message)}}
 api('/api/me').then(m=>{me=m;head();if(m.imp)G('imp').innerHTML='<div class="card" style="border-color:var(--acc)"><div class="row" style="justify-content:space-between"><b>أنت تتصفح هذا الحساب بصلاحية المدير</b><button class="btn sm" onclick="back()">العودة للوحة الأدمن</button></div></div>';G('lnk').value=location.origin+'/t/'+m.slug;G('pl').href='/t/'+m.slug;
-if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load();loadPlans();initColor()}).catch(x=>{if(x.status===401)return location='/login';
+if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load();loadPlans()}).catch(x=>{if(x.status===401)return location='/login';
  if(x.status===403){shell(badge('cap')+'<span>TeacherM</span>','<a class="navlink" href="/">الرئيسية</a>','<button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent='حسابك قيد المراجعة';G('hi').textContent='سيتم تفعيل حسابك من الإدارة، وتستطيع استخدام اللوحة فور التفعيل.';
   document.querySelectorAll('main>.card,main>.atabs,main>section').forEach(e=>e.classList.add('hide'));
   G('imp').innerHTML='<div class="card" style="text-align:center"><h2>الحساب غير مفعّل بعد</h2><p class="mut">إن تأخر التفعيل تواصل مع الإدارة عبر واتساب.</p><button class="btn" onclick="logout()">تسجيل الخروج</button></div>';return}
@@ -156,16 +154,6 @@ G('bxb').onclick=async()=>{const id=G('se').value;if(!id)return toast('أضف ا
 G('g_bxb').onclick=async()=>{if(!GS)return;const rows=parseBulk(G('g_bx').value);if(!rows.length)return toast('اكتب الطلاب بصيغة: رقم، اسم (مثال: 1, محمد)');
  try{const r=await api('/api/groups/'+GS+'/students/bulk','POST',{rows});toast('تمت إضافة '+r.added+' طالب جديد'+(r.count>r.added?' وتحديث '+(r.count-r.added):'')+' ✔');G('g_bx').value='';G('g_bxp').textContent='';await load();loadGS()}catch(x){toast(x.message)}};
 
-/* ===== لون موقع المدرس ===== */
-const cur=()=>({pri:G('c_pri').value,acc:G('c_acc').value});
-function markSw(){const c=cur();document.querySelectorAll('#c_sw .sw').forEach((b,i)=>b.classList.toggle('on',TPAL[i].pri===c.pri&&TPAL[i].acc===c.acc))}
-function initColor(){const c=me.site&&me.site.color;G('c_sw').innerHTML=TPAL.map((p,i)=>'<button type="button" class="sw" data-i="'+i+'" style="--a:'+p.pri+';--b:'+p.acc+'"><i></i>'+p.n+'</button>').join('');
- if(c){G('c_pri').value=c.pri;G('c_acc').value=c.acc;G('c_note').textContent='لون موقعك الحالي مفعّل.'}else G('c_note').textContent='موقعك يستخدم حالياً ثيم المادة.';markSw();
- api('/api/theme').then(t=>{if(t.allowTeacher===false&&!me.imp)G('clc').innerHTML='<h2>لون موقعك</h2><p class="mut">تغيير الألوان متوقف حالياً من الإدارة.</p>'}).catch(()=>{})}
-G('c_sw').onclick=e=>{const b=e.target.closest('.sw');if(!b)return;const p=TPAL[+b.dataset.i];G('c_pri').value=p.pri;G('c_acc').value=p.acc;applyColors(cur(),'t');markSw()};
-['c_pri','c_acc'].forEach(id=>G(id).oninput=()=>{applyColors(cur(),'t');markSw()});
-async function saveColor(){try{const r=await api('/api/site/color','PUT',cur());me.site={...(me.site||{}),color:r.color};G('c_note').textContent='تم الحفظ — اللون ظاهر الآن لطلابك.';toast('تم حفظ لون الموقع')}catch(x){toast(x.message)}}
-async function resetColor(){try{await api('/api/site/color','PUT',{});me.site={...(me.site||{}),color:null};applyColors(null,'t');G('c_note').textContent='عاد موقعك لثيم المادة.';toast('تمت العودة لثيم المادة');markSw()}catch(x){toast(x.message)}}
 function back(){api('/api/admin/stop','POST').then(()=>location='/admin').catch(x=>toast(x.message))}
 G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة المدرس',links:[['/','الرئيسية']],copy:'جميع الحقوق محفوظة'});reveal();
 </script></body></html>
