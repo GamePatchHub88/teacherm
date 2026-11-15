@@ -134,8 +134,9 @@ app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await o
  await Result.deleteOne({exam:e._id,seat:norm(q.params.seat)});s.json({ok:1})}));
 
 app.get('/api/public/:slug',wrap(async(q,s)=>{
+ const u=await User.findOne({slug:q.params.slug,active:true});
+ if(!u){s.set('Cache-Control','no-store');return s.status(404).json({error:'الصفحة غير موجودة'})}
  s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');
- const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'الصفحة غير موجودة'});
  const [ex,gs,cfg]=await Promise.all([Exam.find({teacher:u.id}).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean(),getS()]);
  const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};if(cfg.allowTeacherColor===false)delete site.color;
  s.json({name:u.name,subject:u.subject,site,exams:ex.map(e=>({_id:e._id,title:e.title,groupName:e.group?gm[String(e.group)]||'':''}))})}));
@@ -185,7 +186,7 @@ app.post('/api/admin/users/:id/plan',auth,admin,wrap(async(q,s)=>{
   const base=old.expiresAt&&+new Date(old.expiresAt)>now?+new Date(old.expiresAt):now;
   if(t==='month')p.expiresAt=new Date(base+30*d);if(t==='year')p.expiresAt=new Date(base+365*d);
   if(t==='exam')p.examsLeft=(old.type==='exam'?old.examsLeft||0:0)+1;
-  u.plan=p}
+  u.plan=p;u.active=true}
  u.markModified('plan');await u.save();s.json({ok:1})}));
 app.put('/api/site',auth,wrap(async(q,s)=>{
  const b=q.body||{},o={};
