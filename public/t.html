@@ -1,6 +1,6 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>نتائج الطلاب</title><meta name="description" content=""><meta name="robots" content="index, follow"></head><body><div id="nav"></div>
 <main class="wrap" id="top">
-<section class="hero"><div class="bismillah" id="hg"></div><h1 id="ht">...</h1><div class="exam" id="he"></div><div class="sub" id="hs"></div></section>
+<section class="hero"><div class="bismillah" id="hg"></div><h1 id="ht">...</h1><div class="exam" id="he"></div><div class="sub" id="hs"></div><a class="btn cta" href="#q">ابدأ الاستعلام عن نتيجتك</a></section>
 <p class="intro" id="hn"></p>
 
 <section class="card" id="q" aria-labelledby="qt"><h2 class="sx-title" id="qt">الاستعلام عن النتيجة</h2><div class="sx-bar" aria-hidden="true"></div>
@@ -78,29 +78,46 @@ function pick(id,silent){CUR=D.exams.find(e=>e._id===id);if(!CUR)return;
  if(!silent)setTimeout(()=>{G('sb').scrollIntoView({behavior:'smooth',block:'center'});G('sx').focus({preventScroll:true})},50)}
 G('chg').onclick=()=>{G('sb').classList.add('hide');G('xg').classList.remove('hide');G('xg').scrollIntoView({behavior:'smooth',block:'center'})};
 
+/* حالة الطالب (ناجح/راسب) من أي عمود حالة */
+function statusOf(E){for(const[k,v]of E){const c=vcls(k,v);if(c)return{c,v:String(v)}}return null}
+let REQ=0;
+
 /* البحث بالاسم */
-async function byName(v){if(v.length<3)return;try{const r=await api('/api/public/'+slug+'/search','POST',{examId:CUR._id,q:v});
- G('out').innerHTML=r.length?'<div class="sh-list">'+r.map((x,i)=>'<button style="--i:'+i+'" class="sh-item" data-seat="'+esc(x.seat)+'" onclick="show(this.dataset.seat)"><span>'+hl(x.name,v)+'</span><b>'+esc(x.seat)+'</b></button>').join('')+'</div>':'<p class="mut">'+esc(S.notFound)+'</p>'}
- catch(x){G('out').innerHTML='<p class="mut">'+esc(x.message)+'</p>'}}
+async function byName(v){if(v.length<3){G('out').innerHTML='';return}const t=++REQ;
+ G('out').innerHTML='<div class="skel" style="margin-top:12px;height:64px"></div>';
+ try{const r=await api('/api/public/'+slug+'/search','POST',{examId:CUR._id,q:v});if(t!==REQ)return;
+  G('out').innerHTML=r.length?'<p class="mut sh-cnt">'+r.length+' نتيجة — اضغط على اسمك لعرض النتيجة</p><div class="sh-list">'+r.map((x,i)=>'<button style="--i:'+i+'" class="sh-item" data-seat="'+esc(x.seat)+'" onclick="show(this.dataset.seat)"><span>'+hl(x.name,v)+'</span><b>'+esc(x.seat)+'</b></button>').join('')+'</div>'
+  :'<div class="empty">'+svg('search',34)+'<p>'+esc(S.notFound)+'</p></div>'}
+ catch(x){if(t===REQ)G('out').innerHTML='<div class="empty">'+svg('help',34)+'<p>'+esc(x.message)+'</p></div>'}}
 
 /* عرض النتيجة */
-async function show(seat){try{const r=await api('/api/public/'+slug+'/lookup','POST',{examId:CUR._id,seat});LAST={r,seat};
- G('out').innerHTML='<div class="rcard" id="rc"><div class="rh"><h2>'+esc(r.name||'الطالب')+'</h2><span class="tag">رقم الجلوس '+esc(seat)+'</span></div><div class="rb"><div class="res">'+
- Object.entries(r.data).map(([k,v])=>'<div class="'+vcls(k,v)+'"><span class="mut">'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('')+'</div>'+
- '<div class="row noprint" style="margin-top:14px"><button class="btn sm" onclick="share()">'+svg('share',16)+'مشاركة البطاقة</button><button class="btn ghost sm" onclick="dl()">'+svg('dl',16)+'تحميل كصورة</button><button class="btn ghost sm" onclick="print()">'+svg('print',16)+'طباعة</button></div></div></div>';
- G('rc').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(x){toast(x.message)}}
+async function show(seat){const t=++REQ;G('out').innerHTML='<div class="skel" style="margin-top:16px;height:190px"></div>';
+ try{const r=await api('/api/public/'+slug+'/lookup','POST',{examId:CUR._id,seat});if(t!==REQ)return;LAST={r,seat};
+  const E=Object.entries(r.data),st=statusOf(E),nm=(r.name||'الطالب').trim();
+  G('out').innerHTML='<div class="rcard" id="rc"><div class="rh"><div class="who"><span class="av" aria-hidden="true">'+esc(nm.charAt(0))+'</span><div><small>'+esc(CUR.title)+(CUR.groupName?' — '+esc(CUR.groupName):'')+'</small><h2>'+esc(nm)+'</h2></div></div><span class="tag">رقم الجلوس '+esc(seat)+'</span></div>'+
+  (st?'<div class="rstat '+st.c+'" role="status"><i aria-hidden="true">'+(st.c==='ok'?'✓':'✕')+'</i><span>'+esc(st.v)+'</span></div>':'')+
+  '<div class="rb"><div class="res">'+E.map(([k,v])=>'<div class="'+vcls(k,v)+'"><span class="mut">'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('')+'</div>'+
+  '<div class="row noprint" style="margin-top:14px"><button class="btn sm" onclick="share()">'+svg('share',16)+'مشاركة البطاقة</button><button class="btn ghost sm" onclick="dl()">'+svg('dl',16)+'تحميل كصورة</button><button class="btn ghost sm" onclick="print()">'+svg('print',16)+'طباعة</button></div></div></div>';
+  G('rc').scrollIntoView({behavior:'smooth',block:'nearest'})}
+ catch(x){if(t!==REQ)return;G('out').innerHTML='<div class="empty">'+svg('help',34)+'<p>'+esc(x.message)+'</p></div>';toast(x.message)}}
 
-/* بطاقة النتيجة كصورة */
-async function png(){const{r,seat}=LAST;try{await document.fonts.load('800 40px Cairo')}catch{}
- const rows=Object.entries(r.data),W=1080,H=520+rows.length*96,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),cs=getComputedStyle(document.documentElement),
- pri=cs.getPropertyValue('--pri').trim()||'#0f766e',acc=cs.getPropertyValue('--acc').trim()||'#d9a21b';
- x.direction='rtl';x.fillStyle='#fffdf7';x.fillRect(0,0,W,H);x.fillStyle=pri;x.fillRect(0,0,W,340);x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,0,W,340);
- x.fillStyle=acc;x.fillRect(0,340,W,10);x.fillStyle='#fff';x.textAlign='center';
- x.font='700 34px Cairo';x.fillText(S.greet,W/2,70);x.font='800 62px Cairo';x.fillText(S.title,W/2,150);x.font='700 38px Cairo';x.fillText(S.examTitle+' — '+CUR.title,W/2,215);
- x.font='800 50px Cairo';x.fillText(r.name||'',W/2,295);
- x.fillStyle=pri;x.font='800 44px Cairo';x.fillText('رقم الجلوس: '+seat,W/2,425);
- let y=520;rows.forEach(([k,v],i)=>{x.fillStyle=i%2?'#fffdf7':'#f3efe3';x.fillRect(50,y-62,W-100,90);x.textAlign='right';x.fillStyle='#62766f';x.font='700 36px Cairo';x.fillText(k,W-80,y);x.textAlign='left';x.fillStyle='#13302b';x.font='800 42px Cairo';x.fillText(String(v),80,y);y+=96});
- x.textAlign='center';x.fillStyle='#62766f';x.font='600 26px Cairo';x.fillText(location.host+'/t/'+slug,W/2,H-28);return c}
+/* بطاقة النتيجة كصورة: بهوية المادة (لون + رموز + خط) وشارة الحالة */
+async function png(){const{r,seat}=LAST,R=document.documentElement,cs=getComputedStyle(R),hf=(cs.getPropertyValue('--hf').trim()||'Cairo'),F=hf+',Cairo,sans-serif';
+ try{await document.fonts.load('800 40px Cairo');await document.fonts.load('800 40px '+hf);await document.fonts.load('800 90px Amiri')}catch{}
+ const pri=cs.getPropertyValue('--pri').trim()||'#0f766e',acc=cs.getPropertyValue('--acc').trim()||'#d9a21b',rows=Object.entries(r.data),st=statusOf(rows),
+  W=1080,HH=390,y0=HH+(st?170:70),H=y0+rows.length*96+96,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const rr=(a,b,w,h,q)=>{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,q):x.rect(a,b,w,h);x.fill()};
+ x.direction='rtl';x.fillStyle='#fffdf7';x.fillRect(0,0,W,H);
+ const g=x.createLinearGradient(0,0,W,HH);g.addColorStop(0,pri);g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,W,HH);x.fillStyle='rgba(0,0,0,.22)';x.fillRect(0,0,W,HH);
+ const sy=SYM[R.dataset.subject]||['✦','✦','✦','✦'];x.save();x.globalAlpha=.14;x.fillStyle='#fff';x.textAlign='center';x.font='800 96px Amiri,Cairo,serif';
+ sy.slice(0,8).forEach((s,i)=>x.fillText(s,100+(i%4)*290+(i>3?120:0),130+(i>3?200:0)));x.restore();
+ x.fillStyle=acc;x.fillRect(0,HH,W,10);x.fillStyle='#fff';x.textAlign='center';
+ x.font='700 32px Cairo';x.fillText(S.greet,W/2,62);x.font='800 62px '+F;x.fillText(S.title,W/2,140);x.font='700 36px Cairo';x.fillText(S.examTitle+' — '+CUR.title,W/2,203);
+ x.font='800 56px '+F;x.fillText(r.name||'',W/2,296);x.font='700 34px Cairo';x.fillText('رقم الجلوس: '+seat,W/2,352);
+ if(st){x.fillStyle=st.c==='ok'?'#16a34a':'#c2410c';rr(W/2-230,HH+44,460,86,43);x.fillStyle='#fff';x.font='800 46px Cairo';x.fillText((st.c==='ok'?'✓  ':'✕  ')+st.v,W/2,HH+104)}
+ let y=y0;rows.forEach(([k,v],i)=>{x.fillStyle=i%2?'#fffdf7':'#f3efe3';x.fillRect(50,y-62,W-100,90);x.fillStyle=pri;x.fillRect(W-54,y-62,4,90);
+  x.textAlign='right';x.fillStyle='#62766f';x.font='700 36px Cairo';x.fillText(k,W-80,y);x.textAlign='left';x.fillStyle=/^(راسب|رسب)/.test(String(v))?'#c2410c':'#13302b';x.font='800 42px Cairo';x.fillText(String(v),80,y);y+=96});
+ x.textAlign='center';x.fillStyle='#62766f';x.font='600 26px Cairo';x.fillText(location.host+'/t/'+slug,W/2,H-34);return c}
 async function dl(){try{const c=await png();c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='result-'+LAST.seat+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)})}catch{toast('تعذر إنشاء الصورة')}}
 async function share(){try{const c=await png();c.toBlob(async b=>{const f=new File([b],'result-'+LAST.seat+'.png',{type:'image/png'});
  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:document.title})}catch{}}
@@ -108,5 +125,5 @@ async function share(){try{const c=await png();c.toBlob(async b=>{const f=new Fi
 
 function run(){const v=G('sx').value.trim();if(!v||!CUR)return;isNum(v)?show(v):byName(v)}
 G('go').onclick=run;G('sx').onkeydown=e=>e.key==='Enter'&&run();
-G('sx').oninput=()=>{clearTimeout(tm);const v=G('sx').value.trim();G('out').innerHTML='';if(v&&!isNum(v))tm=setTimeout(()=>byName(v),350)};
+G('sx').oninput=()=>{clearTimeout(tm);REQ++;const v=G('sx').value.trim();G('out').innerHTML='';if(v&&!isNum(v))tm=setTimeout(()=>byName(v),350)};
 </script></body></html>

@@ -360,3 +360,98 @@ img,svg,video,canvas{max-width:100%}
  #lnk{flex:1 1 100%!important}
  .row>.btn,.row>a.btn{min-width:0}
 }
+
+/* =====================================================================
+   v5 — تحسين الثيم: الصفحات الرئيسية + الاستعلام عن النتيجة لكل مادة
+   ===================================================================== */
+html{scroll-behavior:smooth;scroll-padding-top:78px;-webkit-text-size-adjust:100%}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2{text-wrap:balance}p{text-wrap:pretty}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:8px}
+.btn:not(.sm),.xc,.sh-item{min-height:44px}
+.btn.ghost:hover{border-color:var(--pri);color:var(--pri);box-shadow:none}
+.card{box-shadow:0 14px 34px -24px color-mix(in srgb,var(--pri) 55%,#000)}
+section>h2.c{font-size:clamp(1.5rem,4.5vw,2.1rem)}
+.mainnav a.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--pri)}
+
+/* ---- الواجهة العلوية لصفحة الطالب ---- */
+.hero .cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--acc);color:#1a1a1a;box-shadow:0 12px 24px -12px #0008}
+.hero .cta:hover{filter:brightness(1.06)}
+.hero h1{text-shadow:0 4px 18px rgba(0,0,0,.28)}
+
+/* ---- شريط البحث ---- */
+#srch{display:flex;flex-wrap:nowrap;gap:8px;padding:6px;border:2px solid var(--line);border-radius:calc(var(--rad) + 2px);background:var(--bg);transition:border-color .2s,box-shadow .2s}
+#srch:focus-within{border-color:var(--pri);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 18%,transparent)}
+#srch input{flex:1 1 auto;min-width:0;margin:0;border:0;background:transparent;box-shadow:none!important;padding:10px 12px;font-size:1.08rem}
+#srch .btn{flex:0 0 auto;padding:10px 26px;border-radius:calc(var(--rad) - 4px)}
+@media(max-width:760px){#srch input{flex:1 1 auto}#srch .btn{flex:0 0 auto;padding:10px 18px}}
+
+/* ---- بطاقات الامتحانات ---- */
+.xc{padding:20px 14px;gap:8px;min-height:124px}
+.xc .ib{width:46px;height:46px;border-radius:14px}
+.xc span.s{display:inline-flex;align-items:center;gap:4px;color:var(--pri);font-weight:700}
+
+/* ---- نتائج البحث بالاسم ---- */
+.sh-cnt{margin:12px 0 0;font-size:.88rem;text-align:center}
+.sh-item{gap:12px;text-align:start;padding:13px 16px;transition:transform .2s,border-color .2s,background .2s}
+.sh-item span{flex:1;font-weight:700}
+.sh-item b{padding:2px 14px;border-radius:99px;background:color-mix(in srgb,var(--pri) 13%,transparent);direction:ltr;font-variant-numeric:tabular-nums}
+.sh-item::after{content:"‹";color:var(--pri);font-size:1.5rem;line-height:1}
+.sh-item:hover{transform:translateX(-4px);background:color-mix(in srgb,var(--pri) 7%,var(--bg))}
+.empty{text-align:center;padding:22px 10px;color:var(--mut)}
+.empty svg{display:block;margin:0 auto 6px;color:var(--pri);opacity:.7}.empty p{margin:0}
+
+/* ---- بطاقة النتيجة ---- */
+.rcard{background:var(--card);box-shadow:0 26px 54px -32px var(--pri)}
+.rcard .rh{padding:20px 20px 18px}
+.rcard .rh .who{display:flex;gap:14px;align-items:center;min-width:0}
+.rcard .rh .av{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font:800 1.5rem var(--hf),Cairo;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.5)}
+.rcard .rh small{display:block;opacity:.85;font-weight:600;font-size:.82rem}
+.rcard .rh h2{font-size:1.3rem;line-height:1.35;overflow-wrap:anywhere}
+.rstat{display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;font-weight:800;font-size:1.2rem}
+.rstat i{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1rem}
+.rstat.ok{background:color-mix(in srgb,#16a34a 15%,var(--card));color:#15803d}.rstat.ok i{background:#16a34a}
+.rstat.no{background:color-mix(in srgb,var(--bad) 15%,var(--card));color:var(--bad)}.rstat.no i{background:var(--bad)}
+[data-theme=dark] .rstat.ok{color:#4ade80}
+.res{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.res div{border:1px solid var(--line);border-top:3px solid var(--acc);padding:14px 10px}
+.res div span{display:block;font-size:.82rem}
+.res b{font-size:1.5rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.res .ok{border-top-color:#16a34a}.res .no{border-top-color:var(--bad)}
+
+/* هوية بطاقة النتيجة لكل مادة */
+[data-subject=ar] .rcard{border:3px double var(--acc)}
+[data-subject=ar] .rcard .rh h2,[data-subject=ar] .res b{font-family:Amiri,Cairo,serif}
+[data-subject=ar] .res div{border-radius:16px 16px 4px 16px}
+[data-subject=math] .rcard{border:2px solid var(--pri)}
+[data-subject=math] .rcard .rb{background-image:linear-gradient(color-mix(in srgb,var(--pri) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--pri) 7%,transparent) 1px,transparent 1px);background-size:22px 22px}
+[data-subject=math] .res div{border-radius:4px;border-top-width:4px}
+[data-subject=math] .rcard .rh .av{border-radius:6px}
+[data-subject=en] .rcard .rb{background-image:repeating-linear-gradient(transparent 0 35px,color-mix(in srgb,var(--pri) 9%,transparent) 35px 36px)}
+[data-subject=en] .res div{border-radius:22px 22px 22px 4px}
+[data-subject=sci] .rcard{border-left:5px solid var(--acc)}
+[data-subject=sci] .res div{border-style:dashed;border-top-style:solid;border-radius:14px}
+[data-subject=sci] .rcard .rh .av{border-radius:0;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
+[data-subject=soc] .rcard{border-bottom:6px solid var(--acc)}
+[data-subject=soc] .res div{border-radius:10px;border-top-style:dashed}
+[data-subject=isl] .rcard .rh{border-radius:0 0 50% 50%/0 0 22px 22px;padding-bottom:26px}
+[data-subject=isl] .rcard .rh h2,[data-subject=isl] .res b{font-family:Amiri,Cairo,serif}
+[data-subject=isl] .rcard .rh .av{border-radius:0;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+@media print{.rcard{box-shadow:none;break-inside:avoid}}
+
+/* ---- الصفحة الرئيسية: معاينة الثيم على البطاقة ---- */
+.mock .mh{position:relative;overflow:hidden;justify-content:space-between;padding:10px 14px;margin-bottom:10px;border-radius:14px;color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 62%,#000),color-mix(in srgb,var(--pri) 32%,#000))}
+.mock .mh::before{content:"";position:absolute;inset:0;background-image:var(--pat);background-size:var(--ps)}.mock .mh>*{position:relative}
+.mock .mh .tag{background:var(--acc);color:#1a1a1a;font-weight:800}
+.mock,.mock .mh,.mock .res b,.mock .tag{transition:background .5s,color .5s,border-radius .5s}
+.sc{cursor:pointer;transition:transform .3s,box-shadow .3s}.sc:hover{transform:translateY(-6px);box-shadow:0 24px 44px -24px var(--pri)}
+.sc.on{outline:3px solid var(--acc);outline-offset:3px}
+[data-theme=dark] .mock[data-subject]{--bg:color-mix(in srgb,var(--pri) 10%,#090d0d);--card:color-mix(in srgb,var(--pri) 14%,#0c1111);--line:color-mix(in srgb,var(--pri) 26%,#141a1a);--mut:#9fb0ac;--on:#06120f}
+[data-theme=dark] .mock[data-subject=ar]{--pri:#fb7185;--acc:#f2c14e}
+[data-theme=dark] .mock[data-subject=math]{--pri:#60a5fa;--acc:#fb923c}
+[data-theme=dark] .mock[data-subject=en]{--pri:#a78bfa;--acc:#f472b6}
+[data-theme=dark] .mock[data-subject=sci]{--pri:#4ade80;--acc:#22d3ee}
+[data-theme=dark] .mock[data-subject=soc]{--pri:#fbbf24;--acc:#2dd4bf}
+[data-theme=dark] .mock[data-subject=isl]{--pri:#34d399;--acc:#f2c14e}
+.mock[data-subject=ar]{border:3px double var(--acc)}.mock[data-subject=math]{border-radius:10px}.mock[data-subject=en]{border-radius:30px 30px 30px 6px}
+.mock[data-subject=sci]{border-style:dashed}.mock[data-subject=soc]{border-bottom:6px solid var(--acc)}.mock[data-subject=isl]{border-radius:70px 70px 22px 22px/48px 48px 22px 22px}

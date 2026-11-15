@@ -1,13 +1,39 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>تسجيل الدخول | TeacherM</title></head><body><div id="nav"></div><div class="wrap" style="max-width:460px">
-<div class="card"><h2 style="text-align:center">أهلاً بك في Teacher<b style="color:var(--acc)">M</b></h2><div class="tabs"><button class="btn" id="b1" onclick="tab(1)">دخول</button><button class="btn ghost" id="b2" onclick="tab(2)">حساب جديد</button></div>
-<form id="f1"><label>البريد</label><input name="email" type="email" required><label>كلمة المرور</label><input name="password" type="password" required><button class="btn" style="width:100%">دخول</button></form>
-<form id="f2" class="hide"><label>الاسم</label><input name="name" required><label>المادة</label><select name="subject" id="sj" required></select><label>الهاتف</label><input name="phone">
-<label>البريد</label><input name="email" type="email" required><label>كلمة المرور (8+)</label><input name="password" type="password" minlength="8" required>
-<label>رابطك (إنجليزي): teacherm.com/t/<b>slug</b></label><input name="slug" pattern="[a-z0-9-]{3,30}" dir="ltr" required><button class="btn" style="width:100%">إنشاء الحساب</button></form>
-<p style="text-align:center"><a href="/" class="mut">← العودة للرئيسية</a></p></div></div><div id="toast"></div>
-<script src="/app.js"></script><script>nav();sj.innerHTML=subjOpts();
-const go=m=>location.replace(m.role==='admin'?'/admin':'/dashboard');
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><title>تسجيل الدخول | TeacherM</title><meta name="robots" content="noindex">
+<style>
+.auth{max-width:470px;margin:18px auto 44px}.auth .card{padding:28px 22px;overflow:hidden}.auth .card:hover{translate:none}
+.auth .em{display:grid;width:68px;height:68px;margin:0 auto 10px;border-radius:21px}
+.auth h2{text-align:center;font-size:1.5rem;margin:0}.auth .sub{text-align:center;color:var(--mut);margin:.2em 0 0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:18px 0;border-radius:15px;background:var(--bg);border:1px solid var(--line)}
+.seg button{border:0;padding:10px;border-radius:11px;background:transparent;color:var(--mut);font:700 .95rem Cairo;cursor:pointer;transition:background .2s,color .2s}
+.seg button.on{color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 78%,#000),color-mix(in srgb,var(--pri) 42%,#000));box-shadow:0 8px 16px -8px var(--pri)}
+.pw{position:relative}.pw input{padding-inline-end:48px}
+.pw button{position:absolute;inset-inline-end:6px;top:6px;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:var(--mut);cursor:pointer;display:grid;place-items:center}.pw button:hover{color:var(--pri)}
+.spv{display:flex;align-items:center;gap:8px;padding:8px 12px;margin:-4px 0 12px;border-radius:12px;border:1px dashed var(--acc);background:var(--bg);font-size:.85rem;color:var(--mut)}.spv svg{color:var(--pri);flex:none}
+.url{direction:ltr;text-align:left}.hint{display:block;margin:-6px 0 12px;font-size:.8rem;color:var(--mut)}.hint b{color:var(--pri);direction:ltr;unicode-bidi:embed}
+.auth form .btn{width:100%;padding:13px;font-size:1rem}.auth form .btn[disabled]{opacity:.7;cursor:wait}
+.err{display:none;margin:0 0 12px;padding:10px 14px;border-radius:12px;font-size:.9rem;color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--card));border:1px solid color-mix(in srgb,var(--bad) 35%,transparent)}.err.on{display:block}
+</style></head><body><div id="nav"></div><main class="wrap auth">
+<div class="card"><span class="ib em" id="em"></span><h2>أهلاً بك في Teacher<b style="color:var(--acc)">M</b></h2><p class="sub">انشر نتائج طلابك برابط واحد خاص بك</p>
+<div class="seg" role="tablist"><button type="button" id="b1" class="on" role="tab" onclick="tab(1)">دخول</button><button type="button" id="b2" role="tab" onclick="tab(2)">حساب جديد</button></div>
+<div class="err" id="er" role="alert"></div>
+<form id="f1"><label for="e1">البريد الإلكتروني</label><input id="e1" name="email" type="email" autocomplete="email" required><label for="p1">كلمة المرور</label><div class="pw"><input id="p1" name="password" type="password" autocomplete="current-password" required><button type="button" class="eye" aria-label="إظهار كلمة المرور"></button></div><button class="btn">دخول</button></form>
+<form id="f2" class="hide"><label for="n2">الاسم</label><input id="n2" name="name" autocomplete="name" required><label for="sj">المادة</label><select name="subject" id="sj" required></select>
+<div class="spv" id="spv" aria-live="polite"></div>
+<label for="ph">الهاتف</label><input id="ph" name="phone" type="tel" inputmode="tel" autocomplete="tel"><label for="e2">البريد الإلكتروني</label><input id="e2" name="email" type="email" autocomplete="email" required>
+<label for="p2">كلمة المرور (8 أحرف على الأقل)</label><div class="pw"><input id="p2" name="password" type="password" minlength="8" autocomplete="new-password" required><button type="button" class="eye" aria-label="إظهار كلمة المرور"></button></div>
+<label for="sl">رابطك (إنجليزي وأرقام وشرطة)</label><input id="sl" class="url" name="slug" pattern="[a-z0-9\-]{3,30}" placeholder="ahmed-math" dir="ltr" required><span class="hint">سيكون رابط طلابك: <b id="slp">teacherm.com/t/…</b></span><button class="btn">إنشاء الحساب</button></form>
+<p style="text-align:center;margin-bottom:0"><a href="/" class="mut">← العودة للرئيسية</a></p></div></main><div id="toast"></div>
+<script src="/app.js"></script><script>
+nav();sj.innerHTML=subjOpts();em.innerHTML=svg('cap',32);
+const go=m=>location.replace(m.role==='admin'?'/admin':'/dashboard'),showErr=m=>{er.textContent=m||'';er.classList.toggle('on',!!m)};
 api('/api/me').then(go).catch(()=>{});
-function tab(n){f1.classList.toggle('hide',n!=1);f2.classList.toggle('hide',n!=2);b1.className='btn'+(n==1?'':' ghost');b2.className='btn'+(n==2?'':' ghost')}
+/* المادة المختارة تطبّق ثيمها على الصفحة فوراً كمعاينة */
+function theme2(){const x=applySubject(sj.value);spv.innerHTML=x?svg(x.k,20)+'<span>سيظهر موقعك بثيم <b>'+x.n+'</b>: رموز وزخارف وألوان خاصة بالمادة.</span>':''}
+function tab(n){showErr('');f1.classList.toggle('hide',n!=1);f2.classList.toggle('hide',n!=2);b1.classList.toggle('on',n==1);b2.classList.toggle('on',n==2);b1.setAttribute('aria-selected',n==1);b2.setAttribute('aria-selected',n==2);if(n==2)theme2();else applySubject('')}
+sj.onchange=theme2;
+document.querySelectorAll('.eye').forEach(b=>{b.innerHTML=svg('lock',18);b.onclick=()=>{const i=b.previousElementSibling,h=i.type==='password';i.type=h?'text':'password';b.setAttribute('aria-label',h?'إخفاء كلمة المرور':'إظهار كلمة المرور')}});
+sl.oninput=()=>{sl.value=sl.value.toLowerCase().replace(/[^a-z0-9-]/g,'');slp.textContent=location.host+'/t/'+(sl.value||'…')};
 if(location.hash==='#register')tab(2);
-for(const [f,u] of [[f1,'/api/login'],[f2,'/api/register']])f.onsubmit=async e=>{e.preventDefault();try{go(await api(u,'POST',Object.fromEntries(new FormData(f))))}catch(x){toast(x.message)}};</script></body></html>
+for(const [f,u] of [[f1,'/api/login'],[f2,'/api/register']])f.onsubmit=async e=>{e.preventDefault();showErr('');const bt=f.querySelector('.btn'),t=bt.textContent;bt.disabled=true;bt.textContent='جارٍ المعالجة...';
+ try{go(await api(u,'POST',Object.fromEntries(new FormData(f))))}catch(x){showErr(x.message);bt.disabled=false;bt.textContent=t}};
+</script></body></html>
