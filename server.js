@@ -146,6 +146,17 @@ app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s
  const ex=await Exam.findOne({_id:q.body.examId,teacher:u._id}).select('maxScore').lean();
  s.json({name:r.name,data:withPct(r.data,ex&&ex.maxScore)})}));
 
+const certKey=s=>{let a=0x811c9dc5,b=0x1b873593;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,16777619);b=Math.imul(b+c,2246822519)^(b>>>13)}
+ return 'CERT-'+((a>>>0).toString(16).padStart(8,'0')+(b>>>0).toString(16).padStart(8,'0')).slice(0,12).toUpperCase()};
+app.post('/api/public/:slug/verify',rate({windowMs:6e4,limit:15}),wrap(async(q,s)=>{
+ const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'غير موجود'});
+ const k=String(q.body.key||'').trim().toUpperCase();if(!/^CERT-[0-9A-F]{12}$/.test(k))return s.status(400).json({error:'مفتاح الشهادة غير صحيح (مثال: CERT-92E4E7CAC849)'});
+ const exs=await Exam.find({teacher:u._id}).select('title maxScore').lean(),em=Object.fromEntries(exs.map(e=>[String(e._id),e]));
+ const rs=await Result.find({teacher:u._id}).select('exam seat name data').lean();
+ const r=rs.find(x=>certKey(q.params.slug+'|'+x.exam+'|'+x.seat)===k);
+ if(!r)return s.status(404).json({error:'لا توجد شهادة بهذا المفتاح'});
+ const e=em[String(r.exam)];s.json({name:r.name,exam:e?e.title:'',data:withPct(r.data,e&&e.maxScore)})}));
+
 app.post('/api/admin/impersonate/:id',auth,admin,wrap(async(q,s)=>{
  const u=await User.findOne({_id:q.params.id,role:'teacher'});if(!u)return s.status(404).json({error:'غير موجود'});
  const o={httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:864e5};

@@ -11,6 +11,11 @@
 <div class="sh-in2" id="srch"><input id="sx" class="qbig" placeholder="اكتب اسمك أو رقم جلوسك" autocomplete="off" enterkeyhint="search"><button class="btn" id="go" type="button">بحث</button></div>
 <div id="out" aria-live="polite"></div></div></section>
 
+<section class="card" id="vf" aria-labelledby="vt"><h2 class="sx-title" id="vt">التحقق من الشهادة</h2><div class="sx-bar" aria-hidden="true"></div>
+<p class="mut" style="text-align:center;margin:0 0 8px">اكتب مفتاح الشهادة المطبوع في أسفلها للتأكد من صحتها</p>
+<div class="sh-in2" id="vsrch"><input id="vk" class="qbig" dir="ltr" placeholder="CERT-XXXXXXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn" id="vgo" type="button">تحقق</button></div>
+<div id="vout" aria-live="polite"></div></section>
+
 <section class="card" id="ins" aria-labelledby="it"><h2 class="sx-title" id="it"></h2><div class="sx-bar" aria-hidden="true"></div><ol class="sh-ol" id="il"></ol></section>
 
 <section class="card sx-about" aria-labelledby="seo-about"><div class="sx-moon" aria-hidden="true" id="abi"></div><h2 id="seo-about" class="sx-title"></h2><div class="sx-bar" aria-hidden="true"></div><p id="ab1"></p><p id="ab2"></p>
@@ -32,7 +37,7 @@ const vcls=(k,v)=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راس
 (window.PRE||api('/api/public/'+slug)).then(d=>{D=d;const x=SUBJECTS.find(v=>v.n===d.subject);IC_=x?x.k:'cap';S=SITE(d.name,d.subject,d.site);if(S.color&&S.color.pri)applyColors(S.color,'t');
  document.title=S.title+' | '+S.examTitle;
  document.querySelector('meta[name=description]').content=S.title+' — '+S.examTitle+': ابحث بالاسم عن رقم جلوسك واستعلم عن نتيجتك.';
- shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a><a href="#q" class="navlink">الاستعلام عن النتيجة</a>'+(S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'','#top');
+ shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a><a href="#q" class="navlink">الاستعلام عن النتيجة</a><a href="#vf" class="navlink">التحقق من الشهادة</a>'+(S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'','#top');
  /* زر لوحة المدرس يظهر لصاحب الصفحة فقط (بعد التحقق من الجلسة)، ولا يظهر للطلاب أو الزوار */
  setTimeout(()=>api('/api/me').then(m=>{if(m.role==='teacher'&&m.slug===slug){const t=document.querySelector('.tools');if(t)t.insertAdjacentHTML('afterbegin','<a href="/dashboard" class="hbtn" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a>')}}).catch(()=>{}),1500);
 
@@ -66,7 +71,7 @@ const vcls=(k,v)=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راس
  else{const j=document.createElement('script');j.type='application/ld+json';j.textContent=JSON.stringify({'@context':'https://schema.org','@type':'FAQPage',inLanguage:'ar',mainEntity:S.faq.map(f=>({'@type':'Question',name:f.q,acceptedAnswer:{'@type':'Answer',text:f.a}}))});document.head.appendChild(j)}
 
  /* الفوتر */
- G('ft').innerHTML=foot({title:S.title,sub:S.examTitle,links:[['#top','الرئيسية'],['#q','الاستعلام عن النتيجة']].concat(L.length?[['#ins',S.instructionsTitle]]:[],S.faq.length?[['#faq','أسئلة شائعة']]:[]),wa:S.whatsapp,copy:S.footer,icon:IC_});
+ G('ft').innerHTML=foot({title:S.title,sub:S.examTitle,links:[['#top','الرئيسية'],['#q','الاستعلام عن النتيجة'],['#vf','التحقق من الشهادة']].concat(L.length?[['#ins',S.instructionsTitle]]:[],S.faq.length?[['#faq','أسئلة شائعة']]:[]),wa:S.whatsapp,copy:S.footer,icon:IC_});
 }).catch(()=>{tx('ht','الصفحة غير موجودة');tx('hg','');document.querySelectorAll('main>.card,.intro').forEach(e=>e.remove());G('ft').innerHTML=foot({title:'TeacherM',links:[['/','الصفحة الرئيسية']],copy:'جميع الحقوق محفوظة'})});
 
 /* اختيار الامتحان */
@@ -168,7 +173,8 @@ async function cert(){const{r,seat}=LAST,E=Object.entries(r.data),st=statusOf(E)
  {let f=17;x.font='800 '+f+'px Cairo';while(x.measureText(D.name).width>140&&f>10){f--;x.font='800 '+f+'px Cairo'}T(D.name,277.5,352,'800 '+f+'px Cairo',INK,'center')}
  T('مدرس '+D.subject,277.5,371,'400 8.5px Cairo','#8b8fa8','center');
  T('مفتاح الشهادة',119,343,'400 9px Cairo','#8b8fa8','center');
- T(certKey(slug+'|'+CUR._id+'|'+seat),119,366,'700 11.5px Cairo',INK,'center','ltr');
+ T(certKey(slug+'|'+CUR._id+'|'+String(seat).trim().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d))),119,366,'700 11.5px Cairo',INK,'center','ltr');
+ T(location.host+'/t/'+slug,40,403,'400 8px Cairo','#8b8fa8','left','ltr');T('تطوير: محمد أحمد حلمي',R,403,'400 8px Cairo','#8b8fa8','right');
  return c}
 async function mkCert(t){try{const c=await cert(),b=await new Promise(res=>c.toBlob(res,'image/png'));if(t!==REQ||!G('cb'))return;
  if(LAST.certUrl)URL.revokeObjectURL(LAST.certUrl);LAST.cert=c;LAST.certBlob=b;LAST.certUrl=URL.createObjectURL(b);
@@ -186,6 +192,12 @@ async function share(){try{const c=await png();c.toBlob(async b=>{const f=new Fi
  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:document.title})}catch{}}
  else{const t=G('rc').innerText;navigator.share?navigator.share({title:document.title,text:t}).catch(()=>{}):navigator.clipboard.writeText(t).then(()=>toast('تم نسخ النتيجة'))}})}catch{toast('تعذرت المشاركة')}}
 
+async function verify(){const k=G('vk').value.trim();if(!k)return;G('vout').innerHTML='<div class="skel" style="margin-top:12px;height:90px"></div>';
+ try{const r=await api('/api/public/'+slug+'/verify','POST',{key:k});
+  G('vout').innerHTML='<div class="rcard" style="margin-top:14px"><div class="rstat ok" role="status"><i aria-hidden="true">✓</i><span>شهادة صحيحة</span></div><div class="rb"><div class="res"><div><span class="mut">اسم الطالب</span><b>'+esc(r.name||'')+'</b></div><div><span class="mut">الامتحان</span><b>'+esc(r.exam)+'</b></div>'+Object.entries(r.data).map(([a,b])=>'<div><span class="mut">'+esc(a)+'</span><b>'+esc(b)+'</b></div>').join('')+'</div></div></div>'}
+ catch(x){G('vout').innerHTML='<div class="empty">'+svg('help',34)+'<p>'+esc(x.message)+'</p></div>'}}
+G('vgo').onclick=verify;G('vk').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();verify()}};
+{const c=new URLSearchParams(location.search).get('cert');if(c){G('vk').value=c;verify()}}
 function run(){const v=G('sx').value.trim();if(!v||!CUR)return;isNum(v)?show(v):byName(v)}
 G('go').onclick=run;G('sx').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();run()}};
 G('sx').oninput=()=>{clearTimeout(tm);REQ++;const v=G('sx').value.trim();G('out').innerHTML='';if(v&&!isNum(v))tm=setTimeout(()=>byName(v),350)};
