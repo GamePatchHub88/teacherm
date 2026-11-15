@@ -85,9 +85,9 @@ function plansHTML(d,o={}){const by=Object.fromEntries(d.plans.map(p=>[p.key,p])
 const faqHTML=l=>l.map((f,i)=>'<details class="sx-q"><summary><span class="sx-qn" aria-hidden="true">'+(i+1)+'</span><span class="sx-qt">'+esc(f.q)+'</span></summary><p>'+esc(f.a)+'</p></details>').join('');
 const fmtWa=n=>'+'+String(n).replace(/^(20)(\d{2})(\d+)$/,'$1 $2 $3');
 function foot(o){const k=document.documentElement.dataset.subject,L=(o.links||[]).map(l=>'<a href="'+l[0]+'">'+esc(l[1])+'</a>').join('');
- return '<div class="foot-orn" aria-hidden="true"></div><div class="foot-in"><div class="foot-top"><div class="foot-brand">'+badge(o.icon||k||'cap',26)+'<div><div class="foot-title">'+esc(o.title)+'</div>'+(o.sub?'<div class="foot-sub">'+esc(o.sub)+'</div>':'')+'</div></div>'+
- (o.wa?'<a class="wa" href="https://wa.me/'+esc(o.wa)+'" target="_blank" rel="noopener noreferrer">'+svg('wa',22)+'<span>'+esc(o.waText||'تواصل عبر واتساب')+'</span><bdi dir="ltr" class="wa-num">'+esc(fmtWa(o.wa))+'</bdi></a>':'')+'</div>'+
- (L?'<nav class="foot-links" aria-label="روابط الموقع">'+L+'</nav>':'')+
+ return '<div class="foot-orn" aria-hidden="true"></div><div class="foot-in"><div class="foot-grid"><div class="foot-brand">'+badge(o.icon||k||'cap',26)+'<div><div class="foot-title">'+esc(o.title)+'</div>'+(o.sub?'<div class="foot-sub">'+esc(o.sub)+'</div>':'')+'</div></div>'+
+ (L?'<nav class="foot-links" aria-label="روابط الموقع"><div class="foot-h">روابط سريعة</div>'+L+'</nav>':'')+
+ (o.wa?'<div class="foot-contact"><div class="foot-h">تواصل معنا</div><a class="wa" href="https://wa.me/'+esc(o.wa)+'" target="_blank" rel="noopener noreferrer">'+svg('wa',22)+'<span>'+esc(o.waText||'تواصل عبر واتساب')+'</span><bdi dir="ltr" class="wa-num">'+esc(fmtWa(o.wa))+'</bdi></a></div>':'')+'</div>'+
  '<div class="foot-bot"><div class="foot-copy">© '+new Date().getFullYear()+' '+esc(o.copy||'')+'</div><div class="foot-dev"><span>تطوير</span><a href="https://mohamedahmedhelmi.vercel.app/" target="_blank" rel="noopener noreferrer">محمد أحمد حلمي</a></div>'+
  '<button class="totop" type="button" onclick="scrollTo({top:0,behavior:\'smooth\'})" aria-label="العودة للأعلى" title="العودة للأعلى">'+svg('top',18)+'</button></div></div>'}
 

@@ -544,7 +544,7 @@ input[type=file]::file-selector-button{margin-inline-end:12px;padding:6px 14px;b
 [data-theme=dark] .btn.bad{background:var(--bad);color:#2a1204}
 [data-theme=dark] .rp{background:rgba(255,255,255,.35)}
 
-[data-theme=dark] :is(.ib,.sh-btn,.hbtn,.sx-ico,.sx-moon,.totop,.atabs button.on,.seg button.on){background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 88%,#000));color:var(--on)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+[data-theme=dark] :is(.ib,.sh-btn,.sx-ico,.sx-moon,.totop,.atabs button.on,.seg button.on){background:linear-gradient(135deg,var(--pri),color-mix(in srgb,var(--pri) 88%,#000));color:var(--on)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 [data-theme=dark] .p-lifetime .ib{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 80%,#000));color:#1a1a1a!important}
 [data-theme=dark] .sx-qn,[data-theme=dark] .av2,[data-theme=dark] .sh-ol li::before,[data-theme=dark] .traits li::before{color:var(--on)}
 [data-theme=dark] .rstat.no i{background:#c2410c}
@@ -560,8 +560,6 @@ input[type=file]::file-selector-button{margin-inline-end:12px;padding:6px 14px;b
 [data-theme=dark] .hl{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--pri) 30%,transparent) 0)}
 
 /* شريط الزخرفة في الفوتر: كان تدرجاً ساطعاً برموز بيضاء */
-[data-theme=dark] .foot-orn{background:color-mix(in srgb,var(--pri) 12%,var(--card));color:color-mix(in srgb,var(--pri) 75%,var(--card));border-block:1px solid var(--line)}
-[data-theme=dark] .foot{background:linear-gradient(180deg,color-mix(in srgb,var(--pri) 5%,var(--card)),var(--bg))}
 
 /* ظلال محايدة بدل التوهج الملوّن (تعطي مظهراً نيونياً في الداكن) */
 [data-theme=dark] .card,[data-theme=dark] .sform,[data-theme=dark] .stat{box-shadow:0 14px 34px -24px rgba(0,0,0,.85)}
@@ -570,3 +568,57 @@ input[type=file]::file-selector-button{margin-inline-end:12px;padding:6px 14px;b
 [data-theme=dark] .card:hover,[data-theme=dark] .ft:hover,[data-theme=dark] .st:hover,[data-theme=dark] .xc:hover,[data-theme=dark] .xc.on,[data-theme=dark] .gchip:hover,[data-theme=dark] .gchip.on,[data-theme=dark] .stat:hover{box-shadow:0 18px 36px -22px rgba(0,0,0,.9)}
 [data-theme=dark] .plan.hot,[data-theme=dark] .plan.mine{box-shadow:0 20px 40px -28px rgba(0,0,0,.9)}
 [data-theme=dark] .topbar.sc{box-shadow:0 12px 30px -22px #000}
+
+
+/* =====================================================================
+   v9 — هيدر وفوتر عصريان
+   ===================================================================== */
+
+/* ---------- الهيدر: زجاجي، قائمة على شكل كبسولة، أزرار هادئة ---------- */
+.topbar{background:color-mix(in srgb,var(--card) 80%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-bottom:1px solid color-mix(in srgb,var(--line) 80%,transparent)}
+.topin{max-width:1080px;padding:10px 18px;gap:14px}
+.topbar .brand{font-size:1.18rem;letter-spacing:-.01em}
+.topbar .brand .ib{width:40px;height:40px;border-radius:13px}
+.topbar .mainnav{flex:none;margin-inline:auto;gap:2px;padding:4px;border-radius:99px;background:color-mix(in srgb,var(--ink) 6%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.topbar .mainnav a{padding:7px 15px;border-radius:99px;color:var(--mut);font-weight:700;font-size:.88rem}
+.topbar .mainnav a:hover{background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink)}
+.topbar .mainnav a.on{background:var(--card);color:var(--pri);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 14px -8px rgba(0,0,0,.35)}
+.topbar .tools{margin-inline-start:0;gap:8px}
+.topbar .hbtn{width:40px;height:40px;border-radius:13px;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:none;outline:0}
+.topbar .hbtn:hover{transform:none;background:color-mix(in srgb,var(--pri) 14%,transparent);color:var(--pri);border-color:color-mix(in srgb,var(--pri) 40%,transparent)}
+.topbar .hbtn.on{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--pri);border-color:color-mix(in srgb,var(--pri) 45%,transparent)}
+.topbar .btn.sm{border-radius:99px;padding:8px 18px;gap:6px}
+.mobmenu.open{animation:mmIn .22s ease}
+@keyframes mmIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.mobmenu a,.mobmenu button{border-radius:12px;padding:12px 14px;font-weight:700}
+@media(max-width:860px){.topin{padding:8px 14px}.topbar .tools{margin-inline-start:auto}}
+@media(max-width:420px){.topbar .btn.sm span{display:none}.topbar .btn.sm{padding:9px 12px}}
+
+/* ---------- الفوتر: أعمدة، شارة زخرفة على الحد، شريط سفلي ---------- */
+.foot{position:relative;margin-top:68px;border-top:1px solid var(--line);overflow:visible;background:linear-gradient(180deg,color-mix(in srgb,var(--card) 55%,var(--bg)),var(--bg))}
+.foot .foot-orn{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:170px;height:24px;line-height:1;display:flex;justify-content:center;align-items:center;overflow:hidden;white-space:nowrap;padding:0;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--acc);font-size:.72rem;letter-spacing:.4em}
+.foot .foot-in{max-width:1080px;margin:auto;padding:48px 20px 22px;display:grid;gap:34px;text-align:right;justify-items:stretch}
+.foot .foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:30px 36px;align-items:start}
+.foot .foot-brand{display:flex;flex-direction:row;align-items:center;gap:14px}
+.foot .foot-brand .ib{width:54px;height:54px;border-radius:16px;flex:none}
+.foot .foot-title{font-size:1.35rem;line-height:1.25}
+.foot .foot-sub{margin-top:2px}
+.foot .foot-h{font-size:.78rem;font-weight:800;letter-spacing:.05em;color:var(--mut);margin-bottom:12px}
+.foot .foot-links{display:grid;gap:2px;padding:0;margin:0;border:0;justify-content:stretch}
+.foot .foot-links .foot-h{margin-bottom:8px}
+.foot .foot-links a{display:flex;align-items:center;gap:10px;padding:6px 0;background:none;border-radius:0;color:var(--ink);font-weight:600;font-size:.93rem;transform:none;transition:color .2s,padding .2s}
+.foot .foot-links a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc);opacity:.7;transition:transform .2s}
+.foot .foot-links a:hover{background:none;color:var(--pri);padding-inline-start:6px;transform:none}
+.foot .foot-links a:hover::before{transform:scale(1.5)}
+.foot .foot-contact .wa{display:inline-flex;align-items:center;gap:9px;max-width:100%;border-radius:99px;padding:11px 18px;font-size:.9rem;white-space:nowrap}
+.foot .foot-contact .wa-num{font-size:.85rem;opacity:.92}
+.foot .foot-bot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding-top:18px;border-top:1px solid var(--line)}
+.foot .foot-copy{order:1}.foot .foot-dev{order:2}.foot .totop{order:3;border-radius:50%;width:40px;height:40px}
+@media(max-width:640px){
+ .foot .foot-in{padding:44px 18px 20px;gap:26px}
+ .foot .foot-grid{grid-template-columns:1fr;gap:24px}
+ .foot .foot-links{grid-template-columns:1fr 1fr;column-gap:14px}.foot .foot-links .foot-h{grid-column:1/-1}
+ .foot .foot-bot{justify-content:center;text-align:center;flex-direction:column}
+ .foot .foot-copy,.foot .foot-dev,.foot .totop{order:0}
+}
+@media print{.foot{display:none!important}}
