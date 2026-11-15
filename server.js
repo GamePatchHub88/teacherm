@@ -6,7 +6,7 @@ app.use(helmet({contentSecurityPolicy:false}),express.json({limit:'8mb'}),cookie
 let conn;
 function db(){return conn||(conn=(async()=>{
  if(!/^mongodb/.test(process.env.MONGODB_URI||''))throw new Error('MONGODB_URI missing');
- await mongoose.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:8000});
+ await mongoose.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:8000,maxPoolSize:10});
  const{ADMIN_EMAIL:e,ADMIN_PASSWORD:p}=process.env;
  if(e&&p&&!await User.findOne({role:'admin'}))await User.create({name:'مدير المنصة',email:e,password:await bcrypt.hash(p,10),role:'admin'});
 
@@ -134,6 +134,7 @@ app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await o
  await Result.deleteOne({exam:e._id,seat:norm(q.params.seat)});s.json({ok:1})}));
 
 app.get('/api/public/:slug',wrap(async(q,s)=>{
+ s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'الصفحة غير موجودة'});
  const [ex,gs,cfg]=await Promise.all([Exam.find({teacher:u.id}).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean(),getS()]);
  const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};if(cfg.allowTeacherColor===false)delete site.color;
@@ -153,7 +154,7 @@ app.post('/api/admin/stop',wrap(async(q,s)=>{
  let a;try{const d=jwt.verify(q.cookies.adm,process.env.JWT_SECRET);if(d.adm===1)a=await User.findById(d.id)}catch{}
  if(!a||a.role!=='admin')return s.status(401).json({error:'لا توجد جلسة مدير'});
  s.clearCookie('adm');setC(s,a);s.json({ok:1})}));
-app.get('/api/plans',wrap(async(q,s)=>{const c=await getS();s.json({plans:await Plan.find({active:true}).sort('order').lean(),whatsapp:c.whatsapp,currency:c.currency})}));
+app.get('/api/plans',wrap(async(q,s)=>{s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');const c=await getS();s.json({plans:await Plan.find({active:true}).sort('order').lean(),whatsapp:c.whatsapp,currency:c.currency})}));
 app.get('/api/admin/settings',auth,admin,wrap(async(q,s)=>s.json({...await getS(),plans:await Plan.find().sort('order').lean()})));
 app.put('/api/admin/settings',auth,admin,wrap(async(q,s)=>{const b=q.body||{};
  const o={whatsapp:String(b.whatsapp||'').replace(/\D/g,'').slice(0,15),currency:String(b.currency||'ج.م').slice(0,10),enforce:!!b.enforce};
@@ -195,7 +196,7 @@ app.delete('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{const u=await Use
 
 
 /* ===== ألوان المنصة (المدير) وألوان موقع المدرس ===== */
-app.get('/api/theme',wrap(async(q,s)=>{const c=await getS();s.json({...DEFT,...(c.theme||{}),allowTeacher:c.allowTeacherColor!==false})}));
+app.get('/api/theme',wrap(async(q,s)=>{s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');const c=await getS();s.json({...DEFT,...(c.theme||{}),allowTeacher:c.allowTeacherColor!==false})}));
 app.put('/api/admin/theme',auth,admin,wrap(async(q,s)=>{const b=q.body||{},mode=['green','red','both','custom'].includes(b.mode)?b.mode:'custom';let pri,acc;
  if(mode==='custom'){pri=hex(b.pri);acc=hex(b.acc);if(!pri||!acc)return s.status(400).json({error:'اختر لونين صحيحين'})}else[pri,acc]=PALS[mode];
  const v={mode,pri,acc},at=b.allowTeacher!==false;await Setting.updateOne({k:'theme'},{v},{upsert:true});await Setting.updateOne({k:'allowTeacherColor'},{v:at},{upsert:true});s.json({...v,allowTeacher:at})}));

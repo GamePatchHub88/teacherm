@@ -29,8 +29,7 @@ function spy(){if(!('IntersectionObserver' in window))return;const L=[...documen
  const M=new Map(L.map(a=>[a.getAttribute('href').slice(1),a])),io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;L.forEach(a=>a.classList.remove('on'));const a=M.get(e.target.id);if(a)a.classList.add('on')}),{rootMargin:'-35% 0px -55% 0px'});
  M.forEach((a,id)=>{const t=document.getElementById(id);if(t)io.observe(t)})}
 function mm(v){const m=$('#mobmenu');if(!m)return;const o=v===undefined?!m.classList.contains('open'):!!v;m.classList.toggle('open',o);const b=$('.burger');if(b)b.setAttribute('aria-expanded',o)}
-function splash(i,n,s,b='بسم الله الرحمن الرحيم'){try{if(sessionStorage.sp)return;sessionStorage.sp=1}catch{}const d=document.createElement('div');d.className='splash';d.setAttribute('aria-hidden','true');
-d.innerHTML=`<div class="sp-core"><div class="sp-emblem"><svg viewBox="0 0 200 200" fill="none"><circle class="sp-ring" cx="100" cy="100" r="92" pathLength="1"/><rect class="sp-sq" x="48" y="48" width="104" height="104" rx="4" pathLength="1"/><rect class="sp-sq b" x="48" y="48" width="104" height="104" rx="4" pathLength="1" transform="rotate(45 100 100)"/><g transform="translate(59 59) scale(3.4)" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${IC[i]||IC.cap}</g></svg></div>${b?`<div class="sp-bism">${esc(b)}</div>`:''}<h1 class="sp-name">${esc(n)}</h1><div class="sp-sub">${esc(s)}</div></div><div class="sp-bar"><b></b></div>`;document.body.appendChild(d);setTimeout(()=>d.remove(),2000)}
+function splash(){}
 
 const IC={cap:'<path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>',
 ar:'<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
@@ -99,12 +98,3 @@ function applyColors(c,scope='g'){const g=scope==='g',at=g?'data-g':'data-tc',id
  if(g){const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P}}
 if(!/^\/(t\/|dashboard)/.test(location.pathname)){try{const c=JSON.parse(localStorage.cg||'null');if(c)applyColors(c,'g')}catch{}
  api('/api/theme').then(t=>{try{localStorage.cg=JSON.stringify(t)}catch{}applyColors(t,'g')}).catch(()=>{})}
-
-/* ===== حركة عامة: شريط التقدم، شريط علوي، تموّج الأزرار، إضاءة تتبع المؤشر ===== */
-(function(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- const pr=document.createElement('div');pr.className='sp-prog';pr.setAttribute('aria-hidden','true');document.body.appendChild(pr);let tk=0;
- const upd=()=>{tk=0;const h=document.documentElement.scrollHeight-innerHeight;pr.style.transform='scaleX('+(h>0?Math.min(1,scrollY/h):0)+')';const t=document.querySelector('.topbar');if(t)t.classList.toggle('sc',scrollY>10)};
- addEventListener('scroll',()=>{if(!tk)tk=requestAnimationFrame(upd)},{passive:true});upd();
- document.addEventListener('pointerdown',e=>{const b=e.target.closest('.btn');if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height)*2,s=document.createElement('span');s.className='rp';s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';b.appendChild(s);setTimeout(()=>s.remove(),650)});
- document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.ft,.sc,.plan,.cta2,.gchip');if(!c)return;const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')},{passive:true});
-})();
