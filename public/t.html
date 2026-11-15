@@ -97,8 +97,8 @@ async function show(seat){const t=++REQ;G('out').innerHTML='<div class="skel" st
   G('out').innerHTML='<div class="rcard" id="rc"><div class="rh"><div class="who"><span class="av" aria-hidden="true">'+esc(nm.charAt(0))+'</span><div><small>'+esc(CUR.title)+(CUR.groupName?' — '+esc(CUR.groupName):'')+'</small><h2>'+esc(nm)+'</h2></div></div><span class="tag">رقم الجلوس '+esc(seat)+'</span></div>'+
   (st?'<div class="rstat '+st.c+'" role="status"><i aria-hidden="true">'+(st.c==='ok'?'✓':'✕')+'</i><span>'+esc(st.v)+'</span></div>':'')+
   '<div class="rb"><div class="res">'+E.map(([k,v])=>'<div class="'+vcls(k,v)+'"><span class="mut">'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('')+'</div>'+
-  '<div class="row noprint" style="margin-top:14px"><button class="btn sm" onclick="share()">'+svg('share',16)+'مشاركة البطاقة</button><button class="btn ghost sm" onclick="dl()">'+svg('dl',16)+'تحميل كصورة</button><button class="btn ghost sm" onclick="print()">'+svg('print',16)+'طباعة</button></div></div></div>';
-  G('rc').scrollIntoView({behavior:'smooth',block:'nearest'})}
+  '<div class="row noprint" style="margin-top:14px"><button class="btn sm" onclick="share()">'+svg('share',16)+'مشاركة البطاقة</button><button class="btn ghost sm" onclick="dl()">'+svg('dl',16)+'تحميل كصورة</button><button class="btn ghost sm" onclick="print()">'+svg('print',16)+'طباعة</button></div></div></div><div class="certbox" id="cb"><div class="skel" style="height:220px"></div></div>';
+  G('rc').scrollIntoView({behavior:'smooth',block:'nearest'});mkCert(t)}
  catch(x){if(t!==REQ)return;G('out').innerHTML='<div class="empty">'+svg('help',34)+'<p>'+esc(x.message)+'</p></div>';toast(x.message)}}
 
 /* بطاقة النتيجة كصورة: بهوية المادة (لون + رموز + خط) وشارة الحالة */
@@ -118,6 +118,54 @@ async function png(){const{r,seat}=LAST,R=document.documentElement,cs=getCompute
  let y=y0;rows.forEach(([k,v],i)=>{x.fillStyle=i%2?'#fffdf7':'#f3efe3';x.fillRect(50,y-62,W-100,90);x.fillStyle=pri;x.fillRect(W-54,y-62,4,90);
   x.textAlign='right';x.fillStyle='#62766f';x.font='700 36px Cairo';x.fillText(k,W-80,y);x.textAlign='left';x.fillStyle=/^(راسب|رسب)/.test(String(v))?'#c2410c':'#13302b';x.font='800 42px Cairo';x.fillText(String(v),80,y);y+=96});
  x.textAlign='center';x.fillStyle='#62766f';x.font='600 26px Cairo';x.fillText(location.host+'/t/'+slug,W/2,H-34);return c}
+
+/* ===== شهادة التقدير التلقائية: الاسم + الدرجة + رابط الموقع، بهوية المادة ===== */
+function gradeOf(E){const g=E.find(([k,v])=>/(الدرجة|الدرجه|المجموع|النهائية)/.test(k)&&String(v).trim());if(g)return{k:g[0],v:String(g[1])};
+ const n=E.find(([k,v])=>/^[0-9٠-٩.]+(\s*\/\s*[0-9٠-٩.]+)?$/.test(String(v).trim())&&!/(جلوس|رقم)/.test(k));return n?{k:n[0],v:String(n[1])}:null}
+const pcOf=E=>{const e=E.find(([k,v])=>/(النسبة|المئوية)/.test(k)&&String(v).trim());return e?String(e[1]):''};
+async function cert(){const{r,seat}=LAST,R=document.documentElement,cs=getComputedStyle(R),sub=R.dataset.subject,pri=cs.getPropertyValue('--pri').trim()||'#0f766e',acc=cs.getPropertyValue('--acc').trim()||'#d9a21b',
+ E=Object.entries(r.data),st=statusOf(E),gr=gradeOf(E),pc=pcOf(E),ok=!st||st.c==='ok',sy=SYM[sub]||['✦','✦','✦'],nm=(r.name||'الطالب').trim();
+ try{await document.fonts.load('700 60px Amiri');await document.fonts.load('800 40px Cairo');await document.fonts.load('700 40px Cairo')}catch{}
+ const W=1600,H=1131,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.direction='rtl';x.textAlign='center';
+ const rr=(a,b,w,h,q)=>{x.beginPath();x.roundRect?x.roundRect(a,b,w,h,q):x.rect(a,b,w,h)};
+ x.fillStyle='#fffdf7';x.fillRect(0,0,W,H);
+ x.save();x.globalAlpha=.06;x.fillStyle=pri;x.font='700 70px Amiri,Cairo,serif';for(let i=0;i<5;i++)for(let j=0;j<7;j++)x.fillText(sy[(i*7+j)%sy.length],130+j*220+(i%2?110:0),190+i*215);x.restore();
+ /* الإطار: يختلف باختلاف المادة */
+ x.strokeStyle=pri;x.lineWidth=18;x.strokeRect(40,40,W-80,H-80);x.strokeStyle=acc;x.lineWidth=4;
+ if(sub==='soc'||sub==='sci')x.setLineDash([18,10]);x.strokeRect(70,70,W-140,H-140);x.setLineDash([]);
+ if(sub==='ar'){x.lineWidth=2;x.strokeRect(84,84,W-168,H-168)}
+ if(sub==='math'){x.lineWidth=2;for(let i=0;i<=W-140;i+=40){x.beginPath();x.moveTo(70+i,70);x.lineTo(70+i,84);x.stroke()}}
+ x.fillStyle=acc;x.font='700 54px Amiri,Cairo,serif';[[110,150],[W-110,150],[110,H-90],[W-110,H-90]].forEach(([a,b])=>x.fillText(sy[0],a,b));
+ /* الختم */
+ x.fillStyle=pri;x.beginPath();x.arc(W/2,185,72,0,7);x.fill();x.strokeStyle=acc;x.lineWidth=6;x.beginPath();x.arc(W/2,185,84,0,7);x.stroke();
+ x.fillStyle='#fff';x.font='700 64px Amiri,Cairo,serif';x.fillText(sy[0],W/2,208);
+ /* العنوان والنص */
+ x.fillStyle=pri;x.font='700 118px Amiri,Cairo,serif';x.fillText(ok?'شهادة تقدير':'شهادة مشاركة',W/2,385);
+ x.fillStyle='#62766f';x.font='600 36px Cairo';x.fillText(ok?'تُمنح هذه الشهادة تقديراً لجهد وتفوّق الطالب/ـة':'تُمنح هذه الشهادة تقديراً لمشاركة وجهد الطالب/ـة',W/2,462);
+ let fs=104;do{x.font='700 '+fs+'px Amiri,Cairo,serif';fs-=4}while(x.measureText(nm).width>W-360&&fs>44);
+ x.fillStyle='#13302b';x.fillText(nm,W/2,590);const nw=Math.min(W-360,x.measureText(nm).width+160);x.fillStyle=acc;x.fillRect(W/2-nw/2,614,nw,5);
+ x.fillStyle='#13302b';x.font='700 40px Cairo';x.fillText((S.examTitle||'')+' — '+CUR.title,W/2,690);
+ /* الدرجة */
+ if(gr){x.fillStyle='color-mix(in srgb,'+pri+' 10%,#fff)';x.fillStyle=pri+'18';rr(W/2-300,725,600,128,28);x.fill();x.strokeStyle=pri;x.lineWidth=3;x.stroke();
+  x.fillStyle='#62766f';x.font='700 30px Cairo';x.fillText(gr.k+(pc?'  •  '+pc:''),W/2,768);x.fillStyle=pri;x.direction='ltr';x.font='800 70px Cairo';x.fillText(gr.v,W/2,833);x.direction='rtl'}
+ if(st){x.fillStyle=st.c==='ok'?'#16a34a':'#c2410c';rr(W/2-120,872,240,58,29);x.fill();x.fillStyle='#fff';x.font='800 32px Cairo';x.fillText(st.v,W/2,912)}
+ /* التوقيع والتاريخ */
+ x.strokeStyle='#9aa8a4';x.lineWidth=2;x.beginPath();x.moveTo(W-470,985);x.lineTo(W-170,985);x.moveTo(170,985);x.lineTo(470,985);x.stroke();
+ x.fillStyle='#13302b';x.font='800 34px Cairo';x.fillText(D.name,W-320,1030);x.fillText(new Date().toLocaleDateString('ar-EG'),320,1030);
+ x.fillStyle='#62766f';x.font='600 26px Cairo';x.fillText('مدرس '+D.subject,W-320,1066);x.fillText('تاريخ الإصدار — رقم الجلوس '+seat,320,1066);
+ /* رابط الموقع */
+ x.fillStyle='#62766f';x.font='600 26px Cairo';x.fillText('رابط الموقع للتحقق من النتيجة',W/2,1000);x.fillStyle=pri;x.direction='ltr';x.font='800 36px Cairo';x.fillText(location.host+'/t/'+slug,W/2,1050);x.direction='rtl';
+ return c}
+async function mkCert(t){try{const c=await cert();if(t!==REQ||!G('cb'))return;LAST.cert=c;
+ G('cb').innerHTML='<div class="cert-h">'+svg('award',26)+'<div><h3>شهادتك جاهزة</h3><p class="mut">أُنشئت تلقائياً بالاسم والدرجة ورابط الموقع</p></div></div><img class="cert-img" alt="شهادة تقدير" src="'+c.toDataURL('image/png')+'">'+
+ '<div class="row noprint"><button class="btn sm" onclick="dlCert()">'+svg('dl',16)+'تحميل الشهادة</button><button class="btn ghost sm" onclick="shCert()">'+svg('share',16)+'مشاركة</button><button class="btn ghost sm" onclick="prCert()">'+svg('print',16)+'طباعة</button></div>'}
+ catch{const b=G('cb');if(b)b.remove()}}
+const cBlob=cb=>LAST.cert.toBlob(cb);
+function dlCert(){cBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='certificate-'+LAST.seat+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)})}
+function shCert(){cBlob(async b=>{const f=new File([b],'certificate-'+LAST.seat+'.png',{type:'image/png'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:document.title})}catch{}}else dlCert()})}
+function prCert(){let d=G('pcert');if(!d){d=document.createElement('div');d.id='pcert';document.body.appendChild(d)}d.innerHTML='<img alt="" src="'+LAST.cert.toDataURL('image/png')+'">';
+ document.body.classList.add('pc');setTimeout(()=>{print();setTimeout(()=>document.body.classList.remove('pc'),500)},60)}
 async function dl(){try{const c=await png();c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='result-'+LAST.seat+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)})}catch{toast('تعذر إنشاء الصورة')}}
 async function share(){try{const c=await png();c.toBlob(async b=>{const f=new File([b],'result-'+LAST.seat+'.png',{type:'image/png'});
  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:document.title})}catch{}}
