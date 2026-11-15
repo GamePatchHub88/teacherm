@@ -134,11 +134,12 @@ app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await o
  await Result.deleteOne({exam:e._id,seat:norm(q.params.seat)});s.json({ok:1})}));
 
 app.get('/api/public/:slug',wrap(async(q,s)=>{
- const u=await User.findOne({slug:q.params.slug,active:true});
+ const u=await User.findOne({slug:q.params.slug});
  if(!u){s.set('Cache-Control','no-store');return s.status(404).json({error:'الصفحة غير موجودة'})}
+ if(!u.active){s.set('Cache-Control','no-store');return s.status(403).json({error:'هذا الموقع غير مفعّل حالياً (الحساب موقوف أو بانتظار التفعيل من الإدارة)'})}
  s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');
  const [ex,gs,cfg]=await Promise.all([Exam.find({teacher:u.id}).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean(),getS()]);
- const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};if(cfg.allowTeacherColor===false)delete site.color;
+ const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};delete site.color;
  s.json({name:u.name,subject:u.subject,site,exams:ex.map(e=>({_id:e._id,title:e.title,groupName:e.group?gm[String(e.group)]||'':''}))})}));
 app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
@@ -191,7 +192,7 @@ app.post('/api/admin/users/:id/plan',auth,admin,wrap(async(q,s)=>{
 app.put('/api/site',auth,wrap(async(q,s)=>{
  const b=q.body||{},o={};
  ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
- o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;o.color=(q.user.site&&q.user.site.color)||null;
+ o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;o.color=null;
  o.faq=(Array.isArray(b.faq)?b.faq:[]).slice(0,20).map(f=>({q:String(f.q||'').slice(0,300),a:String(f.a||'').slice(0,1500)})).filter(f=>f.q&&f.a);
  q.user.site=o;q.user.markModified('site');await q.user.save();s.json(o)}));
 app.post('/api/public/:slug/search',rate({windowMs:6e4,limit:30}),wrap(async(q,s)=>{
@@ -212,11 +213,6 @@ app.get('/api/theme',wrap(async(q,s)=>{s.set('Cache-Control','public, s-maxage=3
 app.put('/api/admin/theme',auth,admin,wrap(async(q,s)=>{const b=q.body||{},mode=['green','red','both','custom'].includes(b.mode)?b.mode:'custom';let pri,acc;
  if(mode==='custom'){pri=hex(b.pri);acc=hex(b.acc);if(!pri||!acc)return s.status(400).json({error:'اختر لونين صحيحين'})}else[pri,acc]=PALS[mode];
  const v={mode,pri,acc},at=b.allowTeacher!==false;await Setting.updateOne({k:'theme'},{v},{upsert:true});await Setting.updateOne({k:'allowTeacherColor'},{v:at},{upsert:true});s.json({...v,allowTeacher:at})}));
-app.put('/api/site/color',auth,wrap(async(q,s)=>{
- if(!q.imp&&(await getS()).allowTeacherColor===false)return s.status(403).json({error:'تغيير الألوان متوقف من الإدارة'});
- const b=q.body||{};let c=null;if(b.pri||b.acc){const pri=hex(b.pri),acc=hex(b.acc);if(!pri||!acc)return s.status(400).json({error:'لون غير صحيح'});c={pri,acc}}
- q.user.site={...(q.user.site||{}),color:c};q.user.markModified('site');await q.user.save();s.json({color:c})}));
-
 /* ===== المجموعات والطلاب ===== */
 const ownG=q=>T.isValid(q.params.id)?Group.findOne({_id:q.params.id,teacher:q.user._id}):null;
 const gName=v=>String(v||'').trim().slice(0,60);
