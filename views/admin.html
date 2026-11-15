@@ -46,18 +46,13 @@
 <section class="ap hide" id="ap_settings"><div class="card"><h2>إعدادات الاشتراك</h2><div class="row"><div style="flex:1;min-width:200px"><label>رقم واتساب الإدارة (بصيغة دولية)</label><input id="wa" dir="ltr"></div><div style="width:120px"><label>العملة</label><input id="cu"></div></div>
 <label><input type="checkbox" id="en2" style="width:auto;margin:0 0 0 8px">إلزام المدرسين بالاشتراك لإضافة امتحانات جديدة (اتركه مغلقاً أثناء التجربة)</label><button class="btn" onclick="ss()">حفظ الإعدادات</button></div></section>
 
-<section class="ap hide" id="ap_theme"><div class="card" id="thc"><h2>ألوان المنصة</h2><p class="mut">غيّر لون المنصة (الصفحة الرئيسية وتسجيل الدخول ولوحة الإدارة) من الأخضر إلى الأحمر، أو أبقِ الاثنين معاً، أو اختر ألواناً مخصصة. المعاينة فورية ولا تُطبّق على الزوار إلا بعد الحفظ.</p>
-<div class="swatches" id="th_sw"></div><div class="cpick"><div><label>اللون الأساسي</label><input type="color" id="th_pri" value="#0f766e"></div><div><label>اللون الثانوي</label><input type="color" id="th_acc" value="#d9a21b"></div></div>
-<div class="cprev"><span class="mut">معاينة:</span><button class="btn sm" type="button">زر أساسي</button><span class="tag">وسم</span><span class="hl">نص مميز</span></div>
-<label><input type="checkbox" id="th_at" checked style="width:auto;margin:0 0 0 8px">السماح للمدرسين بتغيير لون موقعهم من لوحتهم</label><p class="mut" style="font-size:.85rem;margin:0 0 10px">ملاحظة: مواقع المدرسين تبقى بثيم مادتها الخاص إلا إذا اختار المدرس لوناً لموقعه.</p>
-<button class="btn" onclick="saveTheme()">حفظ ألوان المنصة</button></div></section>
 </main><footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>
 const G=id=>document.getElementById(id);let PLANS=[],U=[],SEL=new Set();
 api('/api/me').then(m=>{if(m.role!=='admin')location='/dashboard';shell(badge('cap')+'<span>Teacher<b style="color:var(--acc)">M</b></span>','<a class="navlink" href="/">الرئيسية</a>','<a class="hbtn on" href="/admin" aria-label="لوحة المدير" title="لوحة المدير">'+svg('shield',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة الإدارة',icon:'shield',links:[['/','الرئيسية'],['/admin','لوحة الإدارة']],copy:'جميع الحقوق محفوظة'})}).catch(x=>x.status===401?location='/login':toast(x.message));
 
 /* ===== التبويبات ===== */
-const TABS=[['home','نظرة عامة','dash'],['teachers','المدرسون','users'],['plans','الباقات','award'],['settings','الإعدادات','lock'],['theme','المظهر','palette']];
+const TABS=[['home','نظرة عامة','dash'],['teachers','المدرسون','users'],['plans','الباقات','award'],['settings','الإعدادات','lock']];
 G('tabs').innerHTML=TABS.map(t=>'<button data-t="'+t[0]+'">'+svg(t[2],16)+t[1]+'</button>').join('');
 function tab(k){if(!TABS.some(t=>t[0]===k))k='home';document.querySelectorAll('.ap').forEach(e=>e.classList.toggle('hide',e.id!=='ap_'+k));document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===k));history.replaceState(null,'','#'+k);scrollTo({top:0})}
 G('tabs').onclick=e=>{const b=e.target.closest('button');if(b)tab(b.dataset.t)};
@@ -138,14 +133,5 @@ G('pl').innerHTML=PLANS.map(p=>'<div class="card"><div class="row" style="margin
 async function ss(){try{await api('/api/admin/settings','PUT',{whatsapp:G('wa').value,currency:G('cu').value,enforce:G('en2').checked});toast('تم حفظ الإعدادات')}catch(x){toast(x.message)}}
 async function sp(k){try{await api('/api/admin/plans/'+k,'PUT',{name:G('pn_'+k).value,price:G('pp_'+k).value,desc:G('pd_'+k).value,features:G('pf_'+k).value,active:G('pa_'+k).checked});toast('تم حفظ الباقة')}catch(x){toast(x.message)}}
 
-let TH={mode:'green'};const TM=[['green','أخضر'],['red','أحمر'],['both','أخضر + أحمر'],['custom','مخصص']];
-function drawTh(){G('th_sw').innerHTML=TM.map(([k,n])=>{const p=k==='custom'?{pri:G('th_pri').value,acc:G('th_acc').value}:PAL[k];return '<button type="button" class="sw'+(TH.mode===k?' on':'')+'" data-m="'+k+'" style="--a:'+p.pri+';--b:'+p.acc+'"><i></i>'+n+'</button>'}).join('')}
-function prevTh(){applyColors({pri:G('th_pri').value,acc:G('th_acc').value},'g');drawTh()}
-G('th_sw').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;TH.mode=b.dataset.m;if(TH.mode!=='custom'){G('th_pri').value=PAL[TH.mode].pri;G('th_acc').value=PAL[TH.mode].acc}prevTh()};
-['th_pri','th_acc'].forEach(id=>G(id).oninput=()=>{TH.mode='custom';prevTh()});
-async function loadTh(){try{const t=await api('/api/theme');TH={mode:t.mode||'green'};G('th_pri').value=t.pri;G('th_acc').value=t.acc;G('th_at').checked=t.allowTeacher!==false;drawTh()}catch(x){drawTh()}}
-async function saveTheme(){try{const r=await api('/api/admin/theme','PUT',{mode:TH.mode,pri:G('th_pri').value,acc:G('th_acc').value,allowTeacher:G('th_at').checked});try{localStorage.cg=JSON.stringify(r)}catch{}TH.mode=r.mode;drawTh();toast('تم حفظ ألوان المنصة')}catch(x){toast(x.message)}}
-
-loadTh();
 tab((location.hash||'#home').slice(1));
 loadS().then(load).then(reveal).catch(x=>toast(x.message));</script></body></html>
