@@ -2,27 +2,33 @@
 <div class="card"><p class="mut" id="stat" style="margin:0 0 8px"></p><label>رابط موقع طلابك</label><div class="row"><input id="lnk" readonly dir="ltr" style="flex:1;margin:0"><button class="btn" onclick="navigator.clipboard.writeText(lnk.value);toast('تم النسخ')">نسخ الرابط</button><a class="btn ghost" id="pl" target="_blank">معاينة الموقع</a></div></div>
 <div class="atabs" id="tabs" role="tablist"></div>
 
-<section id="t1"><div class="card"><h2>الامتحانات</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان" style="flex:1;min-width:160px;margin:0" required><select id="ng" aria-label="المجموعة" style="flex:1;min-width:170px;margin:0"></select><button class="btn">إضافة</button></form><p class="mut" style="font-size:.85rem;margin:6px 0 0">اختر مجموعة ليُنشأ الامتحان لها وتُضاف أسماء طلابها تلقائياً — أو اتركه بدون مجموعة.</p><div style="overflow:auto"><table id="ex"></table></div></div>
+<section id="t1"><div class="card"><h2>الامتحانات</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان" style="flex:1;min-width:160px;margin:0" required><select id="ng" aria-label="المجموعة" style="flex:1;min-width:170px;margin:0"></select><input id="nmax" type="number" min="1" step="any" inputmode="decimal" placeholder="الدرجة النهائية" aria-label="الدرجة النهائية" style="flex:0 1 150px;min-width:130px;margin:0" required><button class="btn">إضافة</button></form><p class="mut" style="font-size:.85rem;margin:6px 0 0">اختر مجموعة ليُنشأ الامتحان لها وتُضاف أسماء طلابها تلقائياً — أو اتركه بدون مجموعة. <b>النسبة المئوية تُحسب تلقائياً</b> من الدرجة ÷ الدرجة النهائية لكل امتحان.</p><div style="overflow:auto"><table id="ex"></table></div></div>
 
 <div class="card" id="stc"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">الطلاب <span class="tag" id="stn">0</span></h2><button class="btn" id="addb" type="button"></button></div>
 <div class="row"><div style="flex:1;min-width:180px"><label>الامتحان</label><select id="se"></select></div><div style="flex:1;min-width:180px"><label>بحث في الطلاب</label><input id="sq" placeholder="الاسم أو رقم الجلوس"></div></div>
 <form id="sf" class="sform hide"><h3 id="sft" style="margin:0 0 8px"></h3><div class="row"><div style="flex:1;min-width:160px"><label>رقم الجلوس *</label><input id="ss" dir="ltr" required></div><div style="flex:2;min-width:200px"><label>اسم الطالب *</label><input id="sname" required minlength="2"></div></div>
-<label>بيانات الطالب (الدرجة والنسبة وغيرها — اسم الحقل وقيمته)</label><div id="sfd"></div>
+<label>بيانات الطالب (الدرجة وغيرها — اسم الحقل وقيمته، والنسبة المئوية تُحسب تلقائياً)</label><div id="sfd"></div><p class="mut" id="spc" style="margin:6px 0 0;font-weight:700"></p>
 <div class="row"><button class="btn ghost sm" type="button" id="addf"></button></div>
 <div class="row" style="margin-top:12px"><button class="btn">حفظ الطالب</button><button class="btn ghost" type="button" id="sc2">إلغاء</button></div></form>
+<details class="bulk" id="bxd" open style="margin:10px 0"><summary style="cursor:pointer;font-weight:700">إضافة عدة طلاب دفعة واحدة (رقم الطالب ثم الاسم)</summary>
+<p class="mut" style="font-size:.85rem;margin:8px 0 4px">اكتب كل طالب بصيغة <b dir="ltr">1, محمد</b> — مثال: <span dir="ltr">1, محمد 2, أحمد 3, علي</span> أو كل طالب في سطر مستقل. يمكنك أيضاً لصق عمودين من Excel.</p>
+<textarea id="bx" rows="4" placeholder="1, محمد&#10;2, أحمد&#10;3, علي" style="width:100%"></textarea><p class="mut" id="bxp" style="margin:4px 0 8px"></p><button class="btn" type="button" id="bxb">إضافة الطلاب للامتحان</button></details>
 <div style="overflow:auto"><table id="stt"></table></div><p class="mut" style="font-size:.85rem;margin:8px 0 0" id="stm"></p></div>
 
-<div class="card"><h2>رفع النتائج (Excel / CSV)</h2><label>الامتحان</label><select id="es"></select><input type="file" id="fl" accept=".xlsx,.xls,.csv">
+<div class="card"><h2>رفع النتائج (Excel / CSV)</h2><p class="mut" style="margin:0 0 6px;font-size:.85rem">لا حاجة لعمود النسبة المئوية — تُحسب تلقائياً من الدرجة النهائية للامتحان.</p><label>الامتحان</label><select id="es"></select><input type="file" id="fl" accept=".xlsx,.xls,.csv">
 <div id="map" class="hide"><label>عمود رقم الجلوس</label><select id="cs"></select><label>عمود اسم الطالب</label><select id="cn"></select><p class="mut" id="pv"></p><label style="display:block;margin:6px 0 10px"><input type="checkbox" id="mg" style="width:auto;margin:0 0 0 8px">دمج الدرجات مع الطلاب الموجودين (لا يحذف من ليس في الملف) — يُنصح به لامتحانات المجموعات</label><button class="btn" id="up">نشر النتائج</button></div></div></section>
 
 <section id="t5" class="hide"><div class="card"><h2>المجموعات</h2><p class="mut" style="margin:0">أنشئ مجموعة (فصل / سنتر / دفعة)، أضف طلابك إليها مرة واحدة، ثم أعطِ أي امتحان لهذه المجموعة.</p>
 <div class="flow"><span>١. أنشئ مجموعة</span><b>←</b><span>٢. أضف الطلاب</span><b>←</b><span>٣. أنشئ امتحاناً للمجموعة</span><b>←</b><span>٤. أدخل الدرجات</span></div>
 <form class="row" id="g_form" style="margin-top:12px"><input id="g_name" placeholder="اسم المجموعة (مثال: 3/أ — سنتر النور)" style="flex:1;min-width:200px;margin:0" required maxlength="60"><button class="btn">إنشاء مجموعة</button></form><div class="gchips" id="g_list"></div></div>
 <div class="card gpanel hide" id="g_panel"><div class="row between"><h2 style="margin:0" id="g_title"></h2><div class="row"><button class="btn ghost sm" type="button" onclick="renG()">تعديل الاسم</button><button class="btn bad sm" type="button" onclick="delG()">حذف المجموعة</button></div></div>
-<h3 style="margin:16px 0 6px">إعطاء امتحان لهذه المجموعة</h3><form class="row" id="g_exf"><input id="g_ext" placeholder="اسم الامتحان (مثال: امتحان الشهر الأول)" style="flex:1;min-width:200px;margin:0" required><button class="btn">إنشاء الامتحان للمجموعة</button></form>
+<h3 style="margin:16px 0 6px">إعطاء امتحان لهذه المجموعة</h3><form class="row" id="g_exf"><input id="g_ext" placeholder="اسم الامتحان (مثال: امتحان الشهر الأول)" style="flex:1;min-width:200px;margin:0" required><input id="g_exmax" type="number" min="1" step="any" inputmode="decimal" placeholder="الدرجة النهائية" aria-label="الدرجة النهائية" style="flex:0 1 150px;min-width:130px;margin:0" required><button class="btn">إنشاء الامتحان للمجموعة</button></form>
 <div class="gx" id="g_exams"></div>
 <h3 style="margin:16px 0 6px">طلاب المجموعة <span class="tag" id="g_cnt">0</span></h3>
 <form class="sform" id="g_addf"><div class="row"><div style="flex:1;min-width:140px"><label>رقم الجلوس *</label><input id="g_seat" dir="ltr" required></div><div style="flex:2;min-width:200px"><label>اسم الطالب *</label><input id="g_sname" required minlength="2"></div></div><button class="btn">إضافة طالب للمجموعة</button></form>
+<details class="bulk" open style="margin:10px 0"><summary style="cursor:pointer;font-weight:700">إضافة عدة طلاب دفعة واحدة (رقم الطالب ثم الاسم)</summary>
+<p class="mut" style="font-size:.85rem;margin:8px 0 4px">اكتب كل طالب بصيغة <b dir="ltr">1, محمد</b> — مثال: <span dir="ltr">1, محمد 2, أحمد 3, علي</span> أو كل طالب في سطر مستقل. يمكنك أيضاً لصق عمودين من Excel.</p>
+<textarea id="g_bx" rows="4" placeholder="1, محمد&#10;2, أحمد&#10;3, علي" style="width:100%"></textarea><p class="mut" id="g_bxp" style="margin:4px 0 8px"></p><button class="btn" type="button" id="g_bxb">إضافة الطلاب للمجموعة</button></details>
 <div class="row" style="margin-bottom:6px"><input id="g_q" placeholder="بحث في طلاب المجموعة" style="flex:1;min-width:180px;margin:0"></div>
 <div style="overflow:auto"><table id="g_tbl"></table></div>
 <details style="margin-top:12px"><summary>استيراد طلاب المجموعة من Excel / CSV</summary><input type="file" id="g_file" accept=".xlsx,.xls,.csv"><div id="g_map" class="hide"><label>عمود رقم الجلوس</label><select id="g_cs"></select><label>عمود اسم الطالب</label><select id="g_cn"></select><p class="mut" id="g_pv"></p><button class="btn" id="g_imp" type="button">استيراد الطلاب</button></div></details></div></section>
@@ -37,7 +43,7 @@
 <section id="t4" class="hide"><div class="card" id="sub"></div><div class="g3" id="pg" style="margin-top:18px"></div></section></main>
 <footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>
-const DFK=['الدرجة','النسبة','الحالة'];let me,faqs=[],rows=[],cols=[],SR=[],FK=DFK,ED=null,sqt;const G=id=>document.getElementById(id);
+const DFK=['الدرجة','الحالة'],AUX=/(النسبة|المئوية)|^الدرجة النهائية$/;let me,faqs=[],rows=[],cols=[],SR=[],FK=DFK,ED=null,sqt;const G=id=>document.getElementById(id);
 const F=[['greet','العبارة الافتتاحية'],['title','عنوان الموقع'],['examTitle','عنوان النتائج'],['tagline','الوصف تحت العنوان'],['intro','نص تعريفي','t'],['searchHint','تلميح خانة البحث'],['instructionsTitle','عنوان قسم التعليمات'],['instructions','التعليمات (كل سطر بند مستقل)','t'],['footer','نص الحقوق أسفل الموقع'],['notFound','رسالة عدم العثور على الاسم'],['whatsapp','رقم واتساب بصيغة دولية (مثال 201001234567)']];
 G('ff').innerHTML=F.map(f=>'<label>'+f[1]+'</label>'+(f[2]?'<textarea id="f_'+f[0]+'"></textarea>':'<input id="f_'+f[0]+'">')).join('');
 G('tabs').innerHTML=[[1,'chart','النتائج والطلاب'],[5,'users','المجموعات'],[2,'pen','نصوص الموقع'],[4,'star','الباقات'],[3,'palette','الإعدادات']].map((t,i)=>'<button data-t="'+t[0]+'" class="'+(i?'':'on')+'" role="tab">'+svg(t[1],18)+t[2]+'</button>').join('');
@@ -61,25 +67,32 @@ if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').
 async function load(){try{GR=await api('/api/groups')}catch{}
  const e=await api('/api/exams');EX=e;const a=G('es').value,b=G('se').value,o=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+(x.groupName?' — '+esc(x.groupName):'')+'</option>').join('');
  G('es').innerHTML=o;G('se').innerHTML=o;if(e.some(x=>x._id===a))G('es').value=a;if(e.some(x=>x._id===b))G('se').value=b;
- G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><select onchange="setG(\''+x._id+'\',this.value)" style="margin:0;width:auto;min-width:140px" aria-label="مجموعة الامتحان">'+gopts(x.group)+'</select></td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>';
+ G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><select onchange="setG(\''+x._id+'\',this.value)" style="margin:0;width:auto;min-width:140px" aria-label="مجموعة الامتحان">'+gopts(x.group)+'</select></td><td style="white-space:nowrap"><span class="mut" style="font-size:.85rem">الدرجة النهائية</span> <input type="number" min="1" step="any" inputmode="decimal" value="'+(x.maxScore||'')+'" placeholder="حدّدها" aria-label="الدرجة النهائية" onchange="setMax(\''+x._id+'\',this.value)" style="width:92px;margin:0;display:inline-block'+(x.maxScore?'':';border-color:var(--acc)')+'"></td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>';
  drawG();mgDef();loadSt()}
-G('nf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('nt').value,group:G('ng').value||null});G('nt').value='';toast(r.added?'تم إنشاء الامتحان وإضافة '+r.added+' طالب من المجموعة':'تمت إضافة الامتحان');load()}catch(x){toast(x.message)}};
+G('nf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('nt').value,group:G('ng').value||null,maxScore:G('nmax').value});G('nt').value='';G('nmax').value='';toast(r.added?'تم إنشاء الامتحان وإضافة '+r.added+' طالب من المجموعة':'تمت إضافة الامتحان');load()}catch(x){toast(x.message)}};
+async function setMax(id,v){try{await api('/api/exams/'+id,'PUT',{maxScore:v});toast('تم حفظ الدرجة النهائية — النسب المئوية تُحسب تلقائياً');load()}catch(x){toast(x.message);load()}}
 async function del(id){if(confirm('حذف الامتحان وكل نتائجه؟')){await api('/api/exams/'+id,'DELETE');closeF();load()}}
 
 /* الطلاب: عرض / إضافة يدوية / تعديل / حذف */
 async function loadSt(){const id=G('se').value;
  if(!id){SR=[];G('stn').textContent='0';G('stt').innerHTML='<tr><td class="mut">أضف امتحاناً أولاً ثم أضف طلابك</td></tr>';G('stm').textContent='';return}
  try{const r=await api('/api/exams/'+id+'/results?q='+encodeURIComponent(G('sq').value.trim()));SR=r.rows;G('stn').textContent=r.total+' طالب';
- const ks=[];SR.forEach(x=>Object.keys(x.data||{}).forEach(k=>{if(!ks.includes(k))ks.push(k)}));FK=ks.length?ks.slice(0,8):DFK;
+ const ks=[];SR.forEach(x=>Object.keys(x.data||{}).forEach(k=>{if(!AUX.test(k)&&!ks.includes(k))ks.push(k)}));FK=ks.length?ks.slice(0,8):DFK;
  G('stt').innerHTML=SR.length?'<tr><th>رقم الجلوس</th><th>الاسم</th><th>البيانات</th><th></th></tr>'+SR.map((x,i)=>'<tr><td><b>'+esc(x.seat)+'</b></td><td>'+esc(x.name)+'</td><td class="mut" style="font-size:.82rem">'+esc(Object.entries(x.data||{}).map(([k,v])=>k+': '+v).join(' • '))+'</td><td class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" onclick="openF('+i+')">تعديل</button><button class="btn bad sm" onclick="delSt('+i+')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">'+(G('sq').value.trim()?'لا توجد نتائج مطابقة':'لا يوجد طلاب في هذا الامتحان بعد — أضف طالباً يدوياً أو ارفع ملف Excel')+'</td></tr>';
  G('stm').textContent=r.total>SR.length&&!G('sq').value.trim()?'يعرض أحدث '+SR.length+' طالب فقط — استخدم البحث للوصول لأي طالب.':''}catch(x){toast(x.message)}}
 G('se').onchange=()=>{closeF();loadSt()};G('sq').oninput=()=>{clearTimeout(sqt);sqt=setTimeout(loadSt,300)};
 const frow=(k='',v='')=>'<div class="frow"><input class="fk" value="'+esc(k)+'" placeholder="اسم الحقل (مثال: الدرجة)"><input class="fv" value="'+esc(v)+'" placeholder="القيمة"></div>';
-function drawF(v={}){const keys=[...FK];Object.keys(v).forEach(k=>{if(!keys.includes(k))keys.push(k)});G('sfd').innerHTML=keys.map(k=>frow(k,v[k]??'')).join('')}
+function drawF(v={}){const keys=FK.filter(k=>!AUX.test(k));Object.keys(v).forEach(k=>{if(!AUX.test(k)&&!keys.includes(k))keys.push(k)});G('sfd').innerHTML=keys.map(k=>frow(k,v[k]??'')).join('');updPct()}
+const numOf=v=>{const m=String(v??'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/٫/g,'.').match(/\d+(\.\d+)?/);return m?parseFloat(m[0]):NaN};
+function updPct(){const e=EX.find(x=>x._id===G('se').value),mx=e&&e.maxScore,el=G('spc');if(!el)return;
+ if(!mx){el.textContent='حدّد الدرجة النهائية لهذا الامتحان (من جدول الامتحانات) لتُحسب النسبة المئوية تلقائياً.';return}
+ let g=NaN;document.querySelectorAll('#sfd .frow').forEach(r=>{const k=r.querySelector('.fk').value.trim(),v=r.querySelector('.fv').value;if(isNaN(g)&&/(الدرجة|الدرجه|المجموع)/.test(k)&&!AUX.test(k))g=numOf(v)});
+ el.textContent=isNaN(g)?'الدرجة النهائية للامتحان: '+mx+' — اكتب الدرجة لتظهر النسبة المئوية تلقائياً.':'النسبة المئوية: '+(Math.round(g/mx*1000)/10)+'%  (من '+mx+')'+(g>mx?' — ⚠ الدرجة أكبر من الدرجة النهائية':'')}
+G('sfd').addEventListener('input',updPct);
 function openF(i){if(!G('se').value)return toast('أضف امتحاناً أولاً');ED=i==null?null:SR[i];G('sf').classList.remove('hide');G('sft').textContent=ED?'تعديل بيانات الطالب':'إضافة طالب جديد';
  G('ss').value=ED?ED.seat:'';G('ss').readOnly=!!ED;G('sname').value=ED?ED.name:'';drawF(ED?ED.data:{});G('sf').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>G(ED?'sname':'ss').focus({preventScroll:true}),250)}
 function closeF(){G('sf').classList.add('hide');ED=null}
-G('addb').onclick=()=>openF();G('sc2').onclick=closeF;G('addf').onclick=()=>G('sfd').insertAdjacentHTML('beforeend',frow());
+G('addb').onclick=()=>openF();G('sc2').onclick=closeF;G('addf').onclick=()=>{G('sfd').insertAdjacentHTML('beforeend',frow());updPct()};
 G('sf').onsubmit=async e=>{e.preventDefault();const data={};document.querySelectorAll('#sfd .frow').forEach(r=>{const k=r.querySelector('.fk').value.trim(),v=r.querySelector('.fv').value.trim();if(k&&v)data[k]=v});
  try{const r=await api('/api/exams/'+G('se').value+'/student','POST',{seat:G('ss').value,name:G('sname').value,data});toast(r.added?'تمت إضافة الطالب ✔':'تم تحديث بيانات الطالب ✔');
  if(r.added){G('ss').value='';G('sname').value='';drawF({});G('ss').focus()}else closeF();ED=null;G('ss').readOnly=false;load()}catch(x){toast(x.message)}};
@@ -110,18 +123,38 @@ function drawG(){const cur=G('ng').value;G('ng').innerHTML=gopts(cur);
  if(GS&&!GR.some(g=>g._id===GS))GS=null;G('g_panel').classList.toggle('hide',!GS);if(!GS)return;
  const g=GR.find(x=>x._id===GS);G('g_title').textContent=g.name;G('g_cnt').textContent=g.students+' طالب';
  const ex=EX.filter(x=>x.group===GS);G('g_exams').innerHTML=ex.length?'<span class="mut" style="font-size:.85rem">امتحانات المجموعة:</span>'+ex.map(x=>'<span class="tag g">'+esc(x.title)+'</span>').join(''):'<span class="mut" style="font-size:.85rem">لا توجد امتحانات لهذه المجموعة بعد.</span>'}
-async function loadGS(){if(!GS)return;try{const r=await api('/api/groups/'+GS+'/students?q='+encodeURIComponent(G('g_q').value.trim()));GSR=r.rows;G('g_cnt').textContent=r.total+' طالب';
- G('g_tbl').innerHTML=GSR.length?'<tr><th>رقم الجلوس</th><th>الاسم</th><th></th></tr>'+GSR.map((x,i)=>'<tr><td><b>'+esc(x.seat)+'</b></td><td>'+esc(x.name)+'</td><td><button class="btn bad sm" onclick="delGS('+i+')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">'+(G('g_q').value.trim()?'لا توجد نتائج مطابقة':'لا يوجد طلاب في المجموعة — أضف طالباً أو استورد من Excel')+'</td></tr>'}catch(x){toast(x.message)}}
+let GE=-1;
+function drawGS(){const q=G('g_q').value.trim();
+ G('g_tbl').innerHTML=GSR.length?'<tr><th>رقم الجلوس</th><th>الاسم</th><th></th></tr>'+GSR.map((x,i)=>i===GE?
+  '<tr><td><input id="ge_seat" dir="ltr" value="'+esc(x.seat)+'" style="margin:0;min-width:90px"></td><td><input id="ge_name" value="'+esc(x.name)+'" style="margin:0;min-width:160px"></td><td class="row" style="flex-wrap:nowrap"><button class="btn sm" type="button" onclick="saveGS('+i+')">حفظ</button><button class="btn ghost sm" type="button" onclick="GE=-1;drawGS()">إلغاء</button></td></tr>':
+  '<tr><td><b>'+esc(x.seat)+'</b></td><td>'+esc(x.name)+'</td><td class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" type="button" onclick="editGS('+i+')">تعديل</button><button class="btn bad sm" onclick="delGS('+i+')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">'+(q?'لا توجد نتائج مطابقة':'لا يوجد طلاب في المجموعة — أضف طالباً أو استورد من Excel')+'</td></tr>';
+ if(GE>=0&&G('ge_name'))G('ge_name').focus()}
+function editGS(i){GE=i;drawGS()}
+async function saveGS(i){const x=GSR[i];try{const r=await api('/api/groups/'+GS+'/students/'+encodeURIComponent(x.seat),'PUT',{seat:G('ge_seat').value,name:G('ge_name').value});GE=-1;toast('تم تعديل الطالب ✔'+(r.exams?' وتحديثه في '+r.exams+' امتحان':''));await load();loadGS();loadSt()}catch(e){toast(e.message)}}
+async function loadGS(){if(!GS)return;try{const r=await api('/api/groups/'+GS+'/students?q='+encodeURIComponent(G('g_q').value.trim()));GSR=r.rows;GE=-1;G('g_cnt').textContent=r.total+' طالب';drawGS()}catch(x){toast(x.message)}}
 G('g_form').onsubmit=async e=>{e.preventDefault();try{const g=await api('/api/groups','POST',{name:G('g_name').value});G('g_name').value='';GS=g._id;await load();loadGS();toast('تم إنشاء المجموعة — أضف طلابك الآن')}catch(x){toast(x.message)}};
 G('g_list').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;GS=b.dataset.g;G('g_q').value='';drawG();loadGS();G('g_panel').scrollIntoView({behavior:'smooth',block:'start'})};
 async function renG(){const g=GR.find(x=>x._id===GS),n=prompt('اسم المجموعة',g.name);if(n&&n.trim().length>1){try{await api('/api/groups/'+GS,'PUT',{name:n});toast('تم التعديل');load()}catch(x){toast(x.message)}}}
 async function delG(){const g=GR.find(x=>x._id===GS);if(confirm('حذف المجموعة "'+g.name+'" وقائمة طلابها؟ (الامتحانات ونتائجها تبقى كما هي)')){try{await api('/api/groups/'+GS,'DELETE');GS=null;toast('تم حذف المجموعة');load()}catch(x){toast(x.message)}}}
-G('g_exf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('g_ext').value,group:GS});G('g_ext').value='';await load();G('se').value=r._id;G('es').value=r._id;mgDef();loadSt();tab(1);toast('تم إنشاء الامتحان للمجموعة ('+(r.added||0)+' طالب) — أدخل الدرجات الآن')}catch(x){toast(x.message)}};
+G('g_exf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('g_ext').value,group:GS,maxScore:G('g_exmax').value});G('g_ext').value='';G('g_exmax').value='';await load();G('se').value=r._id;G('es').value=r._id;mgDef();loadSt();tab(1);toast('تم إنشاء الامتحان للمجموعة ('+(r.added||0)+' طالب) — أدخل الدرجات الآن')}catch(x){toast(x.message)}};
 G('g_addf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/groups/'+GS+'/students','POST',{seat:G('g_seat').value,name:G('g_sname').value});toast(r.added?'تمت إضافة الطالب ✔':'تم تحديث الطالب ✔');G('g_seat').value='';G('g_sname').value='';G('g_seat').focus();await load();loadGS()}catch(x){toast(x.message)}};
 G('g_q').oninput=()=>{clearTimeout(gqt);gqt=setTimeout(loadGS,300)};
 async function delGS(i){const x=GSR[i];if(confirm('حذف "'+x.name+'" من المجموعة؟ (لا تُحذف نتائجه من الامتحانات القديمة)')){try{await api('/api/groups/'+GS+'/students/'+encodeURIComponent(x.seat),'DELETE');toast('تم الحذف');await load();loadGS()}catch(e){toast(e.message)}}}
 G('g_file').onchange=async()=>{const f=G('g_file').files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());grows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});if(!grows.length)return toast('الملف فارغ');gcols=Object.keys(grows[0]);const o=gcols.map(c=>'<option>'+esc(c)+'</option>').join('');G('g_cs').innerHTML=o;G('g_cn').innerHTML=o;if(gcols[1])G('g_cn').selectedIndex=1;G('g_map').classList.remove('hide');G('g_pv').textContent='تم قراءة '+grows.length+' صف'};
 G('g_imp').onclick=async()=>{const cs=G('g_cs').value,cn=G('g_cn').value;try{const r=await api('/api/groups/'+GS+'/students/bulk','POST',{rows:grows.map(r=>({seat:r[cs],name:r[cn]}))});toast('تم استيراد '+r.count+' طالب ('+r.added+' جديد)');G('g_file').value='';G('g_map').classList.add('hide');await load();loadGS()}catch(x){toast(x.message)}};
+
+/* ===== إضافة عدة طلاب: "1, محمد 2, أحمد" أو سطر لكل طالب ===== */
+function parseBulk(t){t=String(t||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[\u200e\u200f\u061c]/g,'');const m=new Map();
+ const re=/(\d+)[ \t]*[,،;:\t|-][ \t]*([^\n]+?)(?=\s+\d+[ \t]*[,،;:\t|-]|\s*(?:\n|$))/g;let r;
+ while((r=re.exec(t))){const name=r[2].trim().replace(/[,،;]+$/,'').trim();if(name.length>=2)m.set(r[1],name)}
+ if(!m.size)t.split('\n').forEach(l=>{const x=l.match(/^\s*(\d+)\s+(\S.*?)\s*$/);if(x&&x[2].length>=2)m.set(x[1],x[2])});
+ return[...m].slice(0,2000).map(([seat,name])=>({seat,name}))}
+function bulkPrev(ta,pv){const n=parseBulk(G(ta).value).length;G(pv).textContent=G(ta).value.trim()?(n?'تم التعرف على '+n+' طالب':'لم يتم التعرف على أي طالب — اكتب الرقم ثم فاصلة ثم الاسم، مثل: 1, محمد'):''}
+G('bx').oninput=()=>bulkPrev('bx','bxp');G('g_bx').oninput=()=>bulkPrev('g_bx','g_bxp');
+G('bxb').onclick=async()=>{const id=G('se').value;if(!id)return toast('أضف امتحاناً أولاً');const rows=parseBulk(G('bx').value);if(!rows.length)return toast('اكتب الطلاب بصيغة: رقم، اسم (مثال: 1, محمد)');
+ try{const r=await api('/api/exams/'+id+'/students/bulk','POST',{rows});toast('تمت إضافة '+r.added+' طالب جديد'+(r.count>r.added?' وتحديث '+(r.count-r.added):'')+' ✔');G('bx').value='';G('bxp').textContent='';load()}catch(x){toast(x.message)}};
+G('g_bxb').onclick=async()=>{if(!GS)return;const rows=parseBulk(G('g_bx').value);if(!rows.length)return toast('اكتب الطلاب بصيغة: رقم، اسم (مثال: 1, محمد)');
+ try{const r=await api('/api/groups/'+GS+'/students/bulk','POST',{rows});toast('تمت إضافة '+r.added+' طالب جديد'+(r.count>r.added?' وتحديث '+(r.count-r.added):'')+' ✔');G('g_bx').value='';G('g_bxp').textContent='';await load();loadGS()}catch(x){toast(x.message)}};
 
 /* ===== لون موقع المدرس ===== */
 const cur=()=>({pri:G('c_pri').value,acc:G('c_acc').value});
