@@ -1,30 +1,143 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css">
-<title>لوحة الإدارة | TeacherM</title><meta name="robots" content="noindex, nofollow, nocache"></head><body><div id="nav"></div><main class="wrap"><section class="hero"><div class="bismillah">بسم الله الرحمن الرحيم</div><h1>لوحة الإدارة</h1><div class="exam">TeacherM</div><div class="sub">إدارة المدرسين والباقات والاشتراكات</div></section>
-<div class="card"><h2>إعدادات الاشتراك</h2><div class="row"><div style="flex:1;min-width:200px"><label>رقم واتساب الإدارة (بصيغة دولية)</label><input id="wa" dir="ltr"></div><div style="width:120px"><label>العملة</label><input id="cu"></div></div>
-<label><input type="checkbox" id="en2" style="width:auto;margin:0 0 0 8px">إلزام المدرسين بالاشتراك لإضافة امتحانات جديدة (اتركه مغلقاً أثناء التجربة)</label><button class="btn" onclick="ss()">حفظ الإعدادات</button></div>
-<div class="card" id="thc"><h2>ألوان المنصة</h2><p class="mut">غيّر لون المنصة (الصفحة الرئيسية وتسجيل الدخول ولوحة الإدارة) من الأخضر إلى الأحمر، أو أبقِ الاثنين معاً، أو اختر ألواناً مخصصة. المعاينة فورية ولا تُطبّق على الزوار إلا بعد الحفظ.</p>
+<title>لوحة الإدارة | TeacherM</title><meta name="robots" content="noindex, nofollow, nocache">
+<style>
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:14px 0}
+.stat{display:flex;gap:12px;align-items:center;padding:16px;border-radius:var(--rad);background:var(--card);border:1px solid var(--line);cursor:pointer;text-align:start;font:inherit;color:inherit;transition:transform .2s,border-color .2s,box-shadow .2s}
+.stat:hover{transform:translateY(-3px);border-color:var(--pri);box-shadow:0 14px 28px -20px var(--pri)}
+.stat b{display:block;font-size:1.8rem;line-height:1.1;font-variant-numeric:tabular-nums}.stat span{color:var(--mut);font-size:.85rem}
+.bars{display:grid;gap:10px}.bar{display:grid;grid-template-columns:150px 1fr 34px;gap:10px;align-items:center;font-size:.9rem}
+.bar i{display:block;height:12px;border-radius:9px;background:var(--line);overflow:hidden}.bar i s{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--pri),var(--acc))}
+.al{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;margin:8px 0;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.ah{margin:14px 0 4px;font-size:1rem}.al small{color:var(--mut)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tb{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:8px}.tb input,.tb select{margin:0}
+@media(max-width:860px){.two{grid-template-columns:1fr}.bar{grid-template-columns:100px 1fr 30px}.tb{grid-template-columns:1fr 1fr}.tb input{grid-column:1/-1}}
+.bulk{position:sticky;bottom:12px;z-index:6;display:none;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;margin:10px 0;border-radius:16px;background:var(--card);border:2px solid var(--pri);box-shadow:0 18px 40px -16px #000a}.bulk.on{display:flex}.bulk select{width:auto;margin:0}
+.tg{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.tg.ok{background:color-mix(in srgb,#16a34a 18%,transparent);color:#15803d}.tg.exp,.tg.off{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}.tg.none{background:var(--line);color:var(--mut)}
+[data-theme=dark] .tg.ok{color:#4ade80}
+#t td{vertical-align:middle}#t .nm b{display:block}#t .nm small{color:var(--mut)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ib2{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);display:grid;place-items:center;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s}.ib2:hover{border-color:var(--pri);color:var(--pri)}.ib2.bad:hover{border-color:var(--bad);color:var(--bad)}
+.pl2{display:flex;gap:6px;align-items:center}.pl2 select{margin:0;width:auto;padding:6px 8px;font-size:.82rem}
+.empty2{text-align:center;padding:28px;color:var(--mut)}
+.atabs{position:sticky;top:56px;z-index:8;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px)}
+</style></head><body><div id="nav"></div><main class="wrap"><section class="hero"><div class="bismillah">بسم الله الرحمن الرحيم</div><h1>لوحة الإدارة</h1><div class="exam">TeacherM</div><div class="sub">إدارة المدرسين والباقات والاشتراكات</div></section>
+<div class="atabs" id="tabs"></div>
+
+<section class="ap" id="ap_home">
+<div class="stats" id="stats"></div>
+<div class="two"><div class="card"><h2>المدرسون حسب المادة</h2><div class="bars" id="bars"></div></div><div class="card"><h2>تنبيهات تحتاج إجراء</h2><div id="alerts"></div></div></div>
+<div class="card"><h2>إجراءات سريعة</h2><div class="row"><button class="btn" onclick="tab('teachers')" id="q1"></button><button class="btn ghost" onclick="csv(U)" id="q2"></button><a class="btn ghost" href="/" target="_blank" id="q3"></a></div></div>
+</section>
+
+<section class="ap hide" id="ap_teachers"><div class="card"><h2>المدرسون <span class="tag" id="n"></span></h2>
+<div class="tb"><input id="fq" placeholder="ابحث بالاسم أو الرابط أو الهاتف أو البريد" type="search">
+<select id="fs"><option value="">كل الحسابات</option><option value="on">مفعّل</option><option value="off">موقوف / قيد المراجعة</option></select>
+<select id="fp"><option value="">كل الاشتراكات</option><option value="ok">ساري</option><option value="soon">ينتهي قريباً</option><option value="exp">منتهي</option><option value="none">بدون باقة</option></select>
+<select id="fb"><option value="">كل المواد</option></select>
+<select id="fo"><option value="new">الأحدث أولاً</option><option value="old">الأقدم أولاً</option><option value="name">الاسم (أبجدي)</option></select></div>
+<div class="row between" style="margin:12px 0 4px"><span class="mut" id="cnt"></span><div class="row"><button class="btn ghost sm" id="rs">إعادة ضبط</button><button class="btn ghost sm" id="ex"></button></div></div>
+<div class="bulk" id="bk"><b id="bn"></b><button class="btn sm" data-b="on">تفعيل الحسابات</button><button class="btn sm" data-b="off">إيقاف الحسابات</button><select id="bp"></select><button class="btn sm" data-b="plan">تطبيق الباقة</button><button class="btn sm" data-b="csv">تصدير المحدد</button><button class="btn ghost sm" data-b="clr">إلغاء التحديد</button></div>
+<div style="overflow:auto"><table id="t"></table></div></div></section>
+
+<section class="ap hide" id="ap_plans"><h2 class="sx-title" style="text-align:right;margin-top:6px">الباقات</h2><p class="mut">عدّل الاسم والسعر والمميزات، أو أخفِ الباقة عن المدرسين.</p><div class="g3" id="pl" style="margin-top:12px"></div></section>
+
+<section class="ap hide" id="ap_settings"><div class="card"><h2>إعدادات الاشتراك</h2><div class="row"><div style="flex:1;min-width:200px"><label>رقم واتساب الإدارة (بصيغة دولية)</label><input id="wa" dir="ltr"></div><div style="width:120px"><label>العملة</label><input id="cu"></div></div>
+<label><input type="checkbox" id="en2" style="width:auto;margin:0 0 0 8px">إلزام المدرسين بالاشتراك لإضافة امتحانات جديدة (اتركه مغلقاً أثناء التجربة)</label><button class="btn" onclick="ss()">حفظ الإعدادات</button></div></section>
+
+<section class="ap hide" id="ap_theme"><div class="card" id="thc"><h2>ألوان المنصة</h2><p class="mut">غيّر لون المنصة (الصفحة الرئيسية وتسجيل الدخول ولوحة الإدارة) من الأخضر إلى الأحمر، أو أبقِ الاثنين معاً، أو اختر ألواناً مخصصة. المعاينة فورية ولا تُطبّق على الزوار إلا بعد الحفظ.</p>
 <div class="swatches" id="th_sw"></div><div class="cpick"><div><label>اللون الأساسي</label><input type="color" id="th_pri" value="#0f766e"></div><div><label>اللون الثانوي</label><input type="color" id="th_acc" value="#d9a21b"></div></div>
 <div class="cprev"><span class="mut">معاينة:</span><button class="btn sm" type="button">زر أساسي</button><span class="tag">وسم</span><span class="hl">نص مميز</span></div>
 <label><input type="checkbox" id="th_at" checked style="width:auto;margin:0 0 0 8px">السماح للمدرسين بتغيير لون موقعهم من لوحتهم</label><p class="mut" style="font-size:.85rem;margin:0 0 10px">ملاحظة: مواقع المدرسين تبقى بثيم مادتها الخاص إلا إذا اختار المدرس لوناً لموقعه.</p>
-<button class="btn" onclick="saveTheme()">حفظ ألوان المنصة</button></div>
-<h2 class="sx-title" style="text-align:right;margin-top:18px">الباقات</h2><div class="g3" id="pl" style="margin-top:12px"></div>
-<div class="card"><h2>المدرسون <span class="tag" id="n"></span></h2><div style="overflow:auto"><table id="t"></table></div></div></main><footer class="foot" id="ft"></footer><div id="toast"></div>
-<script src="/app.js"></script><script>const G=id=>document.getElementById(id);let PLANS=[];
+<button class="btn" onclick="saveTheme()">حفظ ألوان المنصة</button></div></section>
+</main><footer class="foot" id="ft"></footer><div id="toast"></div>
+<script src="/app.js"></script><script>
+const G=id=>document.getElementById(id);let PLANS=[],U=[],SEL=new Set();
 api('/api/me').then(m=>{if(m.role!=='admin')location='/dashboard';shell(badge('cap')+'<span>Teacher<b style="color:var(--acc)">M</b></span>','<a class="navlink" href="/">الرئيسية</a>','<a class="hbtn on" href="/admin" aria-label="لوحة المدير" title="لوحة المدير">'+svg('shield',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة الإدارة',icon:'shield',links:[['/','الرئيسية'],['/admin','لوحة الإدارة']],copy:'جميع الحقوق محفوظة'})}).catch(x=>x.status===401?location='/login':toast(x.message));
+
+/* ===== التبويبات ===== */
+const TABS=[['home','نظرة عامة','dash'],['teachers','المدرسون','users'],['plans','الباقات','award'],['settings','الإعدادات','lock'],['theme','المظهر','palette']];
+G('tabs').innerHTML=TABS.map(t=>'<button data-t="'+t[0]+'">'+svg(t[2],16)+t[1]+'</button>').join('');
+function tab(k){if(!TABS.some(t=>t[0]===k))k='home';document.querySelectorAll('.ap').forEach(e=>e.classList.toggle('hide',e.id!=='ap_'+k));document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===k));history.replaceState(null,'','#'+k);scrollTo({top:0})}
+G('tabs').onclick=e=>{const b=e.target.closest('button');if(b)tab(b.dataset.t)};
+G('q1').innerHTML=svg('users',16)+'إدارة المدرسين';G('q2').innerHTML=svg('dl',16)+'تصدير المدرسين (CSV)';G('q3').innerHTML=svg('link',16)+'فتح الصفحة الرئيسية';G('ex').innerHTML=svg('dl',14)+'تصدير CSV';
+
+/* ===== أدوات ===== */
+const wanum=p=>{p=String(p||'').replace(/\D/g,'');if(p.startsWith('00'))p=p.slice(2);else if(p.startsWith('0'))p='20'+p.slice(1);return p};
+const tlink=u=>location.origin+'/t/'+u.slug;
+function pinfo(u){const p=u.plan;if(!p||!p.type)return{s:'none',t:'بدون باقة'};const n=PNAME[p.type];if(p.type==='lifetime')return{s:'ok',t:n};
+ if(p.type==='exam'){const l=p.examsLeft||0;return{s:l>0?'ok':'exp',t:n+' — متبقي '+l}}
+ const d=Math.ceil((new Date(p.expiresAt)-Date.now())/864e5);return d>0?{s:'ok',d,t:n+' — متبقي '+d+' يوم'}:{s:'exp',t:n+' — منتهية'}}
+function csv(list){const H=['الاسم','المادة','الهاتف','البريد','الرابط','الحساب','الباقة','تاريخ التسجيل'],q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',
+ rows=list.map(u=>[u.name,u.subject,u.phone,u.email,tlink(u),u.active?'مفعّل':'موقوف',pinfo(u).t,u.createdAt?new Date(u.createdAt).toLocaleDateString('ar-EG'):'']),
+ b=new Blob(['\ufeff'+[H,...rows].map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='teachers-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+const waMsg=(u,t)=>'https://wa.me/'+wanum(u.phone)+'?text='+encodeURIComponent(t);
+
+/* ===== نظرة عامة ===== */
+function overview(){const P=U.map(pinfo),n=U.length,on=U.filter(u=>u.active).length,wk=U.filter(u=>Date.now()-new Date(u.createdAt)<7*864e5).length,
+ ok=P.filter(p=>p.s==='ok').length,ex=P.filter(p=>p.s==='exp').length,no=P.filter(p=>p.s==='none').length;
+ const S=[['users',n,'إجمالي المدرسين',''],['check',on,'حسابات مفعّلة','on'],['lock',n-on,'موقوف / قيد المراجعة','off'],['award',ok,'اشتراك ساري','ok'],['cal',ex,'اشتراك منتهي','exp'],['help',no,'بدون باقة','none'],['useradd',wk,'جدد آخر 7 أيام','new']];
+ G('stats').innerHTML=S.map(s=>'<button class="stat" data-f="'+s[3]+'">'+badge(s[0],22)+'<div><b>'+s[1]+'</b><span>'+s[2]+'</span></div></button>').join('');
+ const subs=SUBJECTS.map(x=>[x.n,U.filter(u=>u.subject===x.n).length]),mx=Math.max(1,...subs.map(s=>s[1]));
+ G('bars').innerHTML=subs.map(s=>'<div class="bar"><span>'+s[0]+'</span><i><s style="width:'+(s[1]/mx*100)+'%"></s></i><b>'+s[1]+'</b></div>').join('');
+ const pend=U.filter(u=>!u.active),soon=U.filter(u=>{const p=pinfo(u);return p.s==='ok'&&p.d!==undefined&&p.d<=7}),exp=U.filter(u=>pinfo(u).s==='exp');
+ const row=(u,btn)=>'<div class="al"><div><b>'+esc(u.name)+'</b> <small>'+esc(u.subject)+' — '+esc(pinfo(u).t)+'</small></div>'+btn+'</div>';
+ let h='';
+ if(pend.length)h+='<h3 class="ah">بانتظار التفعيل ('+pend.length+')</h3>'+pend.slice(0,5).map(u=>row(u,'<button class="btn sm" data-act="tog" data-id="'+u._id+'" data-v="1">تفعيل الآن</button>')).join('');
+ if(soon.length)h+='<h3 class="ah">تنتهي خلال 7 أيام ('+soon.length+')</h3>'+soon.slice(0,5).map(u=>row(u,u.phone?'<a class="btn ghost sm" target="_blank" rel="noopener" href="'+waMsg(u,'مرحباً أ/ '+u.name+'، اشتراكك في TeacherM ينتهي قريباً. هل ترغب في التجديد؟')+'">'+svg('wa',14)+'تذكير</a>':'')).join('');
+ if(exp.length)h+='<h3 class="ah">اشتراكات منتهية ('+exp.length+')</h3>'+exp.slice(0,5).map(u=>row(u,u.phone?'<a class="btn ghost sm" target="_blank" rel="noopener" href="'+waMsg(u,'مرحباً أ/ '+u.name+'، انتهى اشتراكك في TeacherM. يسعدنا تجديده لتستمر في نشر النتائج.')+'">'+svg('wa',14)+'تجديد</a>':'')).join('');
+ G('alerts').innerHTML=h||'<p class="empty2">لا توجد تنبيهات حالياً ✓</p>'}
+G('stats').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;const f=b.dataset.f;G('fq').value='';G('fs').value=f==='on'||f==='off'?f:'';G('fp').value=['ok','exp','none'].includes(f)?f:'';G('fb').value='';G('fo').value=f==='new'?'new':'new';tab('teachers');rows()};
+G('alerts').onclick=e=>{const b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset.id,b)};
+
+/* ===== المدرسون: بحث وتصفية وفرز ===== */
+G('fb').innerHTML+=SUBJECTS.map(x=>'<option>'+x.n+'</option>').join('');
+G('bp').innerHTML='<option value="none">بدون باقة</option>'+Object.entries(PNAME).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+const PO='<option value="none">بدون باقة</option>'+Object.entries(PNAME).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+function filt(){const q=G('fq').value.trim().toLowerCase(),st=G('fs').value,pl=G('fp').value,sb=G('fb').value,so=G('fo').value;
+ let L=U.filter(u=>{const p=pinfo(u);return(!q||[u.name,u.slug,u.phone,u.email].some(v=>String(v||'').toLowerCase().includes(q)))&&(!st||(st==='on')===!!u.active)&&(!pl||(pl==='soon'?p.s==='ok'&&p.d!==undefined&&p.d<=7:p.s===pl))&&(!sb||u.subject===sb)});
+ if(so==='name')L.sort((a,b)=>String(a.name).localeCompare(b.name,'ar'));else if(so==='old')L.reverse();return L}
+function rows(){const L=filt();G('n').textContent=U.length;G('cnt').textContent='يعرض '+L.length+' من '+U.length;
+ G('t').innerHTML=L.length?'<tr><th><input type="checkbox" id="all" style="width:auto;margin:0" aria-label="تحديد الكل"></th><th>المدرس</th><th>المادة</th><th>الحساب</th><th>الاشتراك</th><th>إجراءات</th></tr>'+L.map(u=>{const p=pinfo(u),i=u._id;
+ return '<tr><td><input type="checkbox" class="ck" data-id="'+i+'" '+(SEL.has(i)?'checked':'')+' style="width:auto;margin:0"></td>'+
+ '<td class="nm"><b>'+esc(u.name)+'</b><small>'+esc(u.email||'')+(u.phone?' • <bdi dir="ltr">'+esc(u.phone)+'</bdi>':'')+'</small><small><a href="/t/'+esc(u.slug)+'" target="_blank" rel="noopener">/t/'+esc(u.slug)+'</a></small></td><td>'+esc(u.subject)+'</td>'+
+ '<td><span class="tg '+(u.active?'ok':'off')+'">'+(u.active?'مفعّل':'موقوف')+'</span></td>'+
+ '<td><span class="tg '+p.s+'">'+esc(p.t)+'</span><div class="pl2" style="margin-top:6px"><select id="as_'+i+'">'+PO+'</select><button class="btn sm" data-act="plan" data-id="'+i+'">تفعيل</button></div></td>'+
+ '<td><div class="acts"><button class="ib2" title="دخول للحساب" aria-label="دخول للحساب" data-act="login" data-id="'+i+'">'+svg('login',16)+'</button>'+
+ (u.phone?'<a class="ib2" title="واتساب" aria-label="واتساب" target="_blank" rel="noopener" href="https://wa.me/'+wanum(u.phone)+'">'+svg('wa',16)+'</a>':'')+
+ '<button class="ib2" title="نسخ رابط الطلاب" aria-label="نسخ الرابط" data-act="copy" data-id="'+i+'">'+svg('link',16)+'</button>'+
+ '<button class="ib2" title="'+(u.active?'إيقاف':'تفعيل')+'" aria-label="'+(u.active?'إيقاف':'تفعيل')+'" data-act="tog" data-id="'+i+'" data-v="'+(u.active?0:1)+'">'+svg(u.active?'lock':'check',16)+'</button>'+
+ '<button class="ib2 bad" title="حذف" aria-label="حذف" data-act="del" data-id="'+i+'">'+svg('trash',16)+'</button></div></td></tr>'}).join(''):'<tr><td class="empty2">لا يوجد مدرسون مطابقون للبحث</td></tr>';
+ bulkUI()}
+function bulkUI(){const n=SEL.size;G('bk').classList.toggle('on',n>0);G('bn').textContent=n+' محدد'}
+['fq','fs','fp','fb','fo'].forEach(id=>G(id).oninput=rows);
+G('rs').onclick=()=>{G('fq').value=G('fs').value=G('fp').value=G('fb').value='';G('fo').value='new';rows()};
+G('ex').onclick=()=>csv(filt());
+G('t').onchange=e=>{const c=e.target;if(c.id==='all'){filt().forEach(u=>c.checked?SEL.add(u._id):SEL.delete(u._id));rows()}else if(c.classList.contains('ck')){c.checked?SEL.add(c.dataset.id):SEL.delete(c.dataset.id);bulkUI()}};
+G('t').onclick=e=>{const b=e.target.closest('[data-act]');if(b)act(b.dataset.act,b.dataset.id,b)};
+
+async function act(a,i,b){const u=U.find(x=>x._id===i);try{
+ if(a==='plan'){await api('/api/admin/users/'+i+'/plan','POST',{type:G('as_'+i).value});toast('تم تحديث الباقة')}
+ else if(a==='login'){await api('/api/admin/impersonate/'+i,'POST');return location='/dashboard'}
+ else if(a==='copy'){await navigator.clipboard.writeText(tlink(u));return toast('تم نسخ رابط الطلاب')}
+ else if(a==='tog'){await api('/api/admin/users/'+i,'PATCH',{active:b.dataset.v==='1'});toast('تم تحديث الحساب')}
+ else if(a==='del'){if(!confirm('حذف المدرس «'+u.name+'» وكل بياناته نهائياً؟'))return;await api('/api/admin/users/'+i,'DELETE');SEL.delete(i);toast('تم الحذف')}
+ await load()}catch(x){toast(x.message)}}
+
+/* ===== إجراءات جماعية ===== */
+G('bk').onclick=async e=>{const b=e.target.closest('[data-b]');if(!b)return;const k=b.dataset.b,ids=[...SEL],L=U.filter(u=>SEL.has(u._id));
+ if(k==='clr'){SEL.clear();return rows()}if(k==='csv')return csv(L);
+ if(k==='off'&&!confirm('إيقاف '+ids.length+' حساب؟'))return;
+ const f=k==='plan'?i=>api('/api/admin/users/'+i+'/plan','POST',{type:G('bp').value}):i=>api('/api/admin/users/'+i,'PATCH',{active:k==='on'});
+ const r=await Promise.allSettled(ids.map(f)),bad=r.filter(x=>x.status==='rejected').length;toast(bad?'تم مع '+bad+' أخطاء':'تم تنفيذ الإجراء على '+ids.length+' مدرس');SEL.clear();await load()};
+
+async function load(){U=await api('/api/admin/users');overview();rows()}
 async function loadS(){const d=await api('/api/admin/settings');PLANS=d.plans;G('wa').value=d.whatsapp;G('cu').value=d.currency;G('en2').checked=d.enforce;
 G('pl').innerHTML=PLANS.map(p=>'<div class="card"><div class="row" style="margin-bottom:8px">'+badge(PICON[p.key]||'cap',20)+'<h3 style="margin:0">'+PNAME[p.key]+'</h3>'+(p.active?'':'<span class="tag">مخفية</span>')+'</div><label>اسم الباقة</label><input id="pn_'+p.key+'" value="'+esc(p.name)+'"><label>السعر (فارغ = تواصل لمعرفة السعر)</label><input id="pp_'+p.key+'" type="number" min="0" value="'+(p.price??'')+'"><label>وصف قصير</label><input id="pd_'+p.key+'" value="'+esc(p.desc)+'"><label>المميزات (سطر لكل ميزة)</label><textarea id="pf_'+p.key+'">'+esc((p.features||[]).join('\n'))+'</textarea><label><input type="checkbox" id="pa_'+p.key+'" '+(p.active?'checked':'')+' style="width:auto;margin:0 0 0 8px">ظاهرة للمدرسين</label><button class="btn sm" onclick="sp(\''+p.key+'\')">حفظ الباقة</button></div>').join('')}
 async function ss(){try{await api('/api/admin/settings','PUT',{whatsapp:G('wa').value,currency:G('cu').value,enforce:G('en2').checked});toast('تم حفظ الإعدادات')}catch(x){toast(x.message)}}
 async function sp(k){try{await api('/api/admin/plans/'+k,'PUT',{name:G('pn_'+k).value,price:G('pp_'+k).value,desc:G('pd_'+k).value,features:G('pf_'+k).value,active:G('pa_'+k).checked});toast('تم حفظ الباقة')}catch(x){toast(x.message)}}
-function ps(u){const p=u.plan;if(!p||!p.type)return'بدون باقة';const n=PNAME[p.type];
-if(p.type==='lifetime')return n;if(p.type==='exam')return n+' — متبقي '+(p.examsLeft||0);const e=new Date(p.expiresAt);return n+(e>new Date()?' — حتى '+e.toLocaleDateString('ar-EG'):' — منتهية')}
-async function load(){const u=await api('/api/admin/users');G('n').textContent=u.length;const opts='<option value="none">بدون باقة</option>'+Object.entries(PNAME).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
-G('t').innerHTML='<tr><th>الاسم</th><th>المادة</th><th>الهاتف</th><th>الرابط</th><th>الحالة</th><th>الباقة</th><th></th></tr>'+u.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.subject)+'</td><td>'+esc(x.phone)+'</td><td><a href="/t/'+esc(x.slug)+'" target="_blank">'+esc(x.slug)+'</a></td><td><span class="tag">'+(x.active?'مفعّل':'موقوف')+'</span></td>'+
-'<td><div class="mut" style="font-size:.82rem">'+esc(ps(x))+'</div><div class="row"><select id="as_'+x._id+'" style="margin:4px 0;width:auto">'+opts+'</select><button class="btn sm" onclick="ap(\''+x._id+'\')">تفعيل</button></div></td>'+
-'<td class="row"><button class="btn sm" onclick="en(\''+x._id+'\')">'+svg('login',16)+'دخول للحساب</button><button class="btn ghost sm" onclick="tg(\''+x._id+'\','+!x.active+')">'+(x.active?'إيقاف':'تفعيل')+'</button><button class="btn bad sm" onclick="rm(\''+x._id+'\')">حذف</button></td></tr>').join('')}
-async function ap(i){try{await api('/api/admin/users/'+i+'/plan','POST',{type:G('as_'+i).value});toast('تم تحديث الباقة');load()}catch(x){toast(x.message)}}
-async function en(i){try{await api('/api/admin/impersonate/'+i,'POST');location='/dashboard'}catch(x){toast(x.message)}}
-async function tg(i,a){await api('/api/admin/users/'+i,'PATCH',{active:a});load()}
-async function rm(i){if(confirm('حذف المدرس وكل بياناته نهائياً؟')){await api('/api/admin/users/'+i,'DELETE');load()}}
+
 let TH={mode:'green'};const TM=[['green','أخضر'],['red','أحمر'],['both','أخضر + أحمر'],['custom','مخصص']];
 function drawTh(){G('th_sw').innerHTML=TM.map(([k,n])=>{const p=k==='custom'?{pri:G('th_pri').value,acc:G('th_acc').value}:PAL[k];return '<button type="button" class="sw'+(TH.mode===k?' on':'')+'" data-m="'+k+'" style="--a:'+p.pri+';--b:'+p.acc+'"><i></i>'+n+'</button>'}).join('')}
 function prevTh(){applyColors({pri:G('th_pri').value,acc:G('th_acc').value},'g');drawTh()}
@@ -32,5 +145,7 @@ G('th_sw').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;TH.mode
 ['th_pri','th_acc'].forEach(id=>G(id).oninput=()=>{TH.mode='custom';prevTh()});
 async function loadTh(){try{const t=await api('/api/theme');TH={mode:t.mode||'green'};G('th_pri').value=t.pri;G('th_acc').value=t.acc;G('th_at').checked=t.allowTeacher!==false;drawTh()}catch(x){drawTh()}}
 async function saveTheme(){try{const r=await api('/api/admin/theme','PUT',{mode:TH.mode,pri:G('th_pri').value,acc:G('th_acc').value,allowTeacher:G('th_at').checked});try{localStorage.cg=JSON.stringify(r)}catch{}TH.mode=r.mode;drawTh();toast('تم حفظ ألوان المنصة')}catch(x){toast(x.message)}}
+
 loadTh();
+tab((location.hash||'#home').slice(1));
 loadS().then(load).then(reveal).catch(x=>toast(x.message));</script></body></html>
