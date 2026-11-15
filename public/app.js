@@ -2,7 +2,8 @@ const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']
 async function api(u,m='GET',b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});
  const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||'حدث خطأ'),{status:r.status});return d}
 document.documentElement.dataset.theme=localStorage.t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
-function theme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=localStorage.t=t;$('#tg').innerHTML=svg(t==='dark'?'sun':'moon',18)}
+function syncMeta(){const m=document.querySelector('meta[name=theme-color]');if(!m)return;const c=getComputedStyle(document.documentElement).getPropertyValue('--card').trim();if(/^#[0-9a-f]{3,8}$/i.test(c))m.content=c}
+function theme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=localStorage.t=t;syncMeta();$('#tg').innerHTML=svg(t==='dark'?'sun':'moon',18)}
 function toast(m){const t=$('#toast');t.setAttribute('role','status');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)}
 function nav(extra=''){$('#nav').innerHTML=`<nav><a class="logo" href="/">Teacher<b>M</b></a><div class="row">${extra}<button id="tg" class="sh-btn" onclick="theme()">${svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',18)}</button></div></nav>`}
 async function logout(){await api('/api/logout','POST');location='/'}
@@ -33,7 +34,7 @@ instructionsTitle:'تعليمات الامتحانات',instructions:'احضر �
 footer:`جميع الحقوق محفوظة — ${n}، مدرس ${j}`,whatsapp:'',nameSearch:true,notFound:'لم نجد هذا الاسم، جرّب كتابة جزء منه فقط',
 faq:[{q:'كيف أعرف رقم جلوسي؟',a:'اكتب اسمك أو جزءاً منه في خانة البحث وسيظهر رقم جلوسك بجوار اسمك.'},{q:'كيف أستعلم عن نتيجتي؟',a:'اختر الامتحان ثم اكتب رقم جلوسك وستظهر نتيجتك فوراً.'},{q:'ماذا أفعل إن لم أجد اسمي؟',a:'تأكد من كتابة الاسم بشكل صحيح أو جرّب جزءاً منه، وإن لم يظهر فتواصل مع المدرس.'}]});
 const SITE=(n,j,s)=>({...DEF(n,j),...Object.fromEntries(Object.entries(s||{}).filter(([k,v])=>v!==''&&v!=null))});
-function shell(brand,links,right='',home='/'){$('#nav').innerHTML=`<header class="topbar"><div class="topin"><a class="brand" href="${home}">${brand}</a><nav class="mainnav" aria-label="التنقل الرئيسي">${links}</nav><div class="tools">${right}<button id="tg" class="hbtn" onclick="theme()" aria-label="تبديل الثيم">${svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',18)}</button><button class="hbtn burger" onclick="mm()" aria-label="فتح القائمة" aria-expanded="false">${svg('menu',20)}</button></div></div><nav class="mobmenu" id="mobmenu" aria-label="القائمة">${links}</nav></header>`;$('#mobmenu').onclick=e=>{if(e.target.closest('a,button'))mm(0)};setTimeout(spy,0)}
+function shell(brand,links,right='',home='/'){$('#nav').innerHTML=`<header class="topbar"><div class="topin"><a class="brand" href="${home}">${brand}</a><nav class="mainnav" aria-label="التنقل الرئيسي">${links}</nav><div class="tools">${right}<button id="tg" class="hbtn" onclick="theme()" aria-label="تبديل الثيم">${svg(document.documentElement.dataset.theme==='dark'?'sun':'moon',18)}</button><button class="hbtn burger" onclick="mm()" aria-label="فتح القائمة" aria-expanded="false">${svg('menu',20)}</button></div></div><nav class="mobmenu" id="mobmenu" aria-label="القائمة">${links}</nav></header>`;$('#mobmenu').onclick=e=>{if(e.target.closest('a,button'))mm(0)};setTimeout(spy,0);syncMeta()}
 
 /* تمييز رابط القسم الظاهر حالياً في القائمة العلوية */
 function spy(){if(!('IntersectionObserver' in window))return;const L=[...document.querySelectorAll('.mainnav a[href^="#"]')];if(!L.length)return;
@@ -106,5 +107,6 @@ function applyColors(c,scope='g'){const g=scope==='g',at=g?'data-g':'data-tc',id
  const sel='html['+at+']['+at+']'+(g?':not([data-subject])':''),P=c.pri,A=c.acc;
  st.textContent=sel+'{--pri:'+P+';--acc:'+A+';'+(g?'--bg:color-mix(in srgb,var(--pri) 7%,#fbf9f3);--card:color-mix(in srgb,var(--pri) 2%,#fff);--line:color-mix(in srgb,var(--pri) 18%,#e8e4da);--mut:color-mix(in srgb,var(--pri) 25%,#5f6b68);--ink:color-mix(in srgb,var(--pri) 14%,#0b1110)':'')+'}'+
  sel+'[data-theme=dark]{--pri:'+lt(P,.62)+';--acc:'+lt(A,.72)+';'+(g?'--bg:color-mix(in srgb,var(--pri) 10%,#090d0d);--card:color-mix(in srgb,var(--pri) 14%,#0c1111);--line:color-mix(in srgb,var(--pri) 26%,#141a1a);--mut:#9fb0ac;--ink:#e9f3f0':'')+'}';
- if(g){const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P}}
+ syncMeta()}
 /* ألوان المنصة العامة أُزيلت من لوحة الإدارة: الهوية ثابتة، وللمدرس لونه الخاص (scope t) فقط */
+syncMeta();
