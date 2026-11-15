@@ -1,8 +1,9 @@
 <!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="theme-color" content="#0f766e"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap"></noscript><script>document.documentElement.dataset.theme=localStorage.t||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script><link rel="stylesheet" href="/style.css"><title>لوحة المدرس | TeacherM</title><meta name="robots" content="noindex, nofollow, nocache"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head><body><div id="nav"></div><main class="wrap"><section class="hero"><div class="bismillah">بسم الله الرحمن الرحيم</div><h1>لوحة المدرس</h1><div class="exam" id="hs">...</div><div class="sub" id="hi">جاري التحميل...</div></section><div id="imp"></div>
 <div class="card"><p class="mut" id="stat" style="margin:0 0 8px"></p><label>رابط موقع طلابك</label><div class="row"><input id="lnk" readonly dir="ltr" style="flex:1;margin:0"><button class="btn" onclick="navigator.clipboard.writeText(lnk.value);toast('تم النسخ')">نسخ الرابط</button><a class="btn ghost" id="pl" target="_blank">معاينة الموقع</a></div></div>
+<div class="card" id="pz"></div>
 <div class="atabs" id="tabs" role="tablist"></div>
 
-<section id="t1"><div class="card"><h2>الامتحانات</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان" style="flex:1;min-width:160px;margin:0" required><select id="ng" aria-label="المجموعة" style="flex:1;min-width:170px;margin:0"></select><input id="nmax" type="number" min="1" step="any" inputmode="decimal" placeholder="الدرجة النهائية" aria-label="الدرجة النهائية" style="flex:0 1 150px;min-width:130px;margin:0" required><button class="btn">إضافة</button></form><p class="mut" style="font-size:.85rem;margin:6px 0 0">اختر مجموعة ليُنشأ الامتحان لها وتُضاف أسماء طلابها تلقائياً — أو اتركه بدون مجموعة. <b>النسبة المئوية تُحسب تلقائياً</b> من الدرجة ÷ الدرجة النهائية لكل امتحان.</p><div style="overflow:auto"><table id="ex"></table></div></div>
+<section id="t1"><div class="card"><h2>الامتحانات</h2><form class="row" id="nf"><input id="nt" placeholder="اسم الامتحان" style="flex:1;min-width:160px;margin:0" required><select id="ng" aria-label="المجموعة" style="flex:1;min-width:170px;margin:0"></select><input id="nmax" type="number" min="1" step="any" inputmode="decimal" placeholder="الدرجة النهائية" aria-label="الدرجة النهائية" style="flex:0 1 150px;min-width:130px;margin:0" required><button class="btn">إضافة</button></form><p class="mut" style="font-size:.85rem;margin:6px 0 0">اختر مجموعة ليُنشأ الامتحان لها وتُضاف أسماء طلابها تلقائياً — أو اتركه بدون مجموعة. <b>النسبة المئوية تُحسب تلقائياً</b> من الدرجة ÷ الدرجة النهائية لكل امتحان.</p><div class="row" style="margin:10px 0 0"><button class="btn ghost sm" type="button" onclick="visAll(false)">إظهار كل الامتحانات</button><button class="btn ghost sm" type="button" onclick="visAll(true)">إخفاء كل الامتحانات</button></div><p class="mut" style="font-size:.85rem;margin:8px 0 0">الامتحان المخفي لا يظهر لطلابك ولا يمكنهم الاستعلام عنه. استخدم «إظهار هذا فقط» لإخفاء باقي الامتحانات وإظهار امتحان واحد، أو حدّد وقتاً ليظهر الامتحان تلقائياً.</p><div style="overflow:auto"><table id="ex"></table></div></div><div class="card hide" id="exs"></div>
 
 <div class="card" id="stc"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">الطلاب <span class="tag" id="stn">0</span></h2><button class="btn" id="addb" type="button"></button></div>
 <div class="row"><div style="flex:1;min-width:180px"><label>الامتحان</label><select id="se"></select></div><div style="flex:1;min-width:180px"><label>بحث في الطلاب</label><input id="sq" placeholder="الاسم أو رقم الجلوس"></div></div>
@@ -32,6 +33,10 @@
 <div class="row" style="margin-bottom:6px"><input id="g_q" placeholder="بحث في طلاب المجموعة" style="flex:1;min-width:180px;margin:0"></div>
 <div style="overflow:auto"><table id="g_tbl"></table></div>
 <details style="margin-top:12px"><summary>استيراد طلاب المجموعة من Excel / CSV</summary><input type="file" id="g_file" accept=".xlsx,.xls,.csv"><div id="g_map" class="hide"><label>عمود رقم الجلوس</label><select id="g_cs"></select><label>عمود اسم الطالب</label><select id="g_cn"></select><p class="mut" id="g_pv"></p><button class="btn" id="g_imp" type="button">استيراد الطلاب</button></div></details></div></section>
+<section id="t6" class="hide"><div class="card"><h2>إعلانات الامتحانات</h2><p class="mut" style="margin:0">أعلن لطلابك عن مواعيد الامتحانات القادمة: ارفع صورة الإعلان (اختياري) وأضف الامتحانات بالاسم والتاريخ، وتظهر في موقع الطلاب في قسم «إعلانات الامتحانات».</p>
+<h3 style="margin:16px 0 6px">صورة الإعلان</h3><div id="an_img"></div><input type="file" id="an_file" accept="image/*"><div class="row" style="margin-top:6px"><button class="btn bad sm hide" type="button" id="an_rm">حذف الصورة</button></div>
+<h3 style="margin:16px 0 6px">إضافة امتحان للإعلان</h3><form class="row" id="an_form"><input id="an_t" placeholder="اسم الامتحان" maxlength="120" required style="flex:2;min-width:180px;margin:0"><input id="an_d" type="date" required aria-label="التاريخ" style="flex:1;min-width:150px;margin:0"><input id="an_tm" type="time" aria-label="الوقت (اختياري)" style="flex:0 1 130px;min-width:110px;margin:0"><input id="an_n" placeholder="ملاحظة (اختياري) مثل: اللجنة / القاعة" maxlength="200" style="flex:2;min-width:160px;margin:0"><button class="btn">إضافة</button></form>
+<div style="overflow:auto"><table id="an_tbl"></table></div></div></section>
 <section id="t2" class="hide"><div class="card"><h2>نصوص الموقع</h2><p class="mut">كل ما يظهر لطلابك قابل للتعديل. النصوص الحالية افتراضية، عدّلها كما تريد. ترك الحقل فارغاً يعيد النص الافتراضي.</p><div id="ff"></div>
 <label><input type="checkbox" id="ns" style="width:auto;margin:0 0 0 8px">السماح للطلاب بالبحث بالاسم (يُظهر رقم الجلوس)</label>
 <h2 style="margin-top:18px">الأسئلة الشائعة</h2><div id="fq"></div><button class="btn ghost sm" onclick="addQ()">+ سؤال</button>
@@ -42,20 +47,20 @@
 <footer class="foot" id="ft"></footer><div id="toast"></div>
 <script src="/app.js"></script><script>
 const DFK=['الدرجة','الحالة'],AUX=/(النسبة|المئوية)|^الدرجة النهائية$/;let me,faqs=[],rows=[],cols=[],SR=[],FK=DFK,ED=null,sqt;const G=id=>document.getElementById(id);
-const F=[['greet','العبارة الافتتاحية'],['title','عنوان الموقع'],['examTitle','عنوان النتائج'],['tagline','الوصف تحت العنوان'],['intro','نص تعريفي','t'],['searchHint','تلميح خانة البحث'],['instructionsTitle','عنوان قسم التعليمات'],['instructions','التعليمات (كل سطر بند مستقل)','t'],['footer','نص الحقوق أسفل الموقع'],['notFound','رسالة عدم العثور على الاسم'],['whatsapp','رقم واتساب بصيغة دولية (مثال 201001234567)']];
+const F=[['greet','العبارة الافتتاحية'],['title','عنوان الموقع'],['examTitle','عنوان النتائج'],['tagline','الوصف تحت العنوان'],['intro','نص تعريفي','t'],['searchHint','تلميح خانة البحث'],['instructionsTitle','عنوان قسم التعليمات'],['instructions','التعليمات (كل سطر بند مستقل)','t'],['footer','نص الحقوق أسفل الموقع'],['notFound','رسالة عدم العثور على الاسم'],['pauseMsg','رسالة شاشة إيقاف الموقع (اتركها فارغة للنص الافتراضي)','t'],['whatsapp','رقم واتساب بصيغة دولية (مثال 201001234567)']];
 G('ff').innerHTML=F.map(f=>'<label>'+f[1]+'</label>'+(f[2]?'<textarea id="f_'+f[0]+'"></textarea>':'<input id="f_'+f[0]+'">')).join('');
-G('tabs').innerHTML=[[1,'chart','النتائج والطلاب'],[5,'users','المجموعات'],[2,'pen','نصوص الموقع'],[4,'star','الباقات'],[3,'palette','الإعدادات']].map((t,i)=>'<button data-t="'+t[0]+'" class="'+(i?'':'on')+'" role="tab">'+svg(t[1],18)+t[2]+'</button>').join('');
+G('tabs').innerHTML=[[1,'chart','النتائج والطلاب'],[5,'users','المجموعات'],[6,'cal','إعلانات الامتحانات'],[2,'pen','نصوص الموقع'],[4,'star','الباقات'],[3,'palette','الإعدادات']].map((t,i)=>'<button data-t="'+t[0]+'" class="'+(i?'':'on')+'" role="tab">'+svg(t[1],18)+t[2]+'</button>').join('');
 G('addb').innerHTML=svg('useradd',18)+' إضافة طالب يدوياً';G('addf').innerHTML=svg('plus',16)+'حقل جديد';
 function head(){const x=applySubject(me.subject);shell(badge(x?x.k:'cap')+'<span>'+esc(me.name)+'</span>','<a class="navlink" href="/">الرئيسية</a><a class="navlink" href="/t/'+esc(me.slug)+'" target="_blank">موقع الطلاب</a>','<a class="hbtn on" href="/dashboard" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a><button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent=me.subject;G('hi').textContent='أهلاً '+me.name+'، من هنا تدير نتائج طلابك وموقعك'}
-function tab(n){[1,2,3,4,5].forEach(i=>G('t'+i).classList.toggle('hide',i!=n));document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t==n))}
+function tab(n){[1,2,3,4,5,6].forEach(i=>G('t'+i).classList.toggle('hide',i!=n));document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t==n))}
 G('tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b)tab(+b.dataset.t)};
 function fill(S){F.forEach(f=>G('f_'+f[0]).value=S[f[0]]||'');G('ns').checked=S.nameSearch!==false;faqs=(S.faq||[]).map(x=>({...x}));drawQ()}
 function drawQ(){G('fq').innerHTML=faqs.map((f,i)=>'<div class="faqrow"><input value="'+esc(f.q)+'" placeholder="السؤال" oninput="faqs['+i+'].q=this.value"><textarea placeholder="الإجابة" style="min-height:48px" oninput="faqs['+i+'].a=this.value">'+esc(f.a)+'</textarea><button class="btn bad sm" onclick="faqs.splice('+i+',1);drawQ()">حذف</button></div>').join('')}
 function addQ(){faqs.push({q:'',a:''});drawQ()}
-async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
+async function saveSite(){const b={nameSearch:G('ns').checked,faq:faqs};F.forEach(f=>b[f[0]]=G('f_'+f[0]).value);try{me.site=await api('/api/site','PUT',b);drawPz();toast('تم الحفظ، النصوص ظاهرة الآن للطلاب')}catch(x){toast(x.message)}}
 async function saveMe(){try{me=await api('/api/me','PUT',{name:G('sn').value,subject:G('sjs').value});head();toast('تم الحفظ وتغيّر الثيم')}catch(x){toast(x.message)}}
 api('/api/me').then(m=>{me=m;head();if(m.imp)G('imp').innerHTML='<div class="card" style="border-color:var(--acc)"><div class="row" style="justify-content:space-between"><b>أنت تتصفح هذا الحساب بصلاحية المدير</b><button class="btn sm" onclick="back()">العودة للوحة الأدمن</button></div></div>';G('lnk').value=location.origin+'/t/'+m.slug;G('pl').href='/t/'+m.slug;
-if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));load();loadPlans()}).catch(x=>{if(x.status===401)return location='/login';
+if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').value=m.name;G('sjs').innerHTML=subjOpts(m.subject);fill(SITE(m.name,m.subject,m.site));drawPz();load();loadPlans();loadAnn()}).catch(x=>{if(x.status===401)return location='/login';
  if(x.status===403){shell(badge('cap')+'<span>TeacherM</span>','<a class="navlink" href="/">الرئيسية</a>','<button class="hbtn" onclick="logout()" title="خروج" aria-label="خروج">'+svg('out',18)+'</button>');G('hs').textContent='حسابك قيد المراجعة';G('hi').textContent='سيتم تفعيل حسابك من الإدارة، وتستطيع استخدام اللوحة فور التفعيل.';
   document.querySelectorAll('main>.card,main>.atabs,main>section').forEach(e=>e.classList.add('hide'));
   G('imp').innerHTML='<div class="card" style="text-align:center"><h2>الحساب غير مفعّل بعد</h2><p class="mut">إن تأخر التفعيل تواصل مع الإدارة عبر واتساب.</p><button class="btn" onclick="logout()">تسجيل الخروج</button></div>';return}
@@ -63,9 +68,9 @@ if(!m.active)G('stat').textContent='حسابك قيد المراجعة';G('sn').
 
 /* الامتحانات */
 async function load(){try{GR=await api('/api/groups')}catch{}
- const e=await api('/api/exams');EX=e;const a=G('es').value,b=G('se').value,o=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+(x.groupName?' — '+esc(x.groupName):'')+'</option>').join('');
+ const e=await api('/api/exams');EX=e;const a=G('es').value,b=G('se').value,o=e.map(x=>'<option value="'+x._id+'">'+esc(x.title)+(x.groupName?' — '+esc(x.groupName):'')+(x.hidden?' (مخفي)':'')+'</option>').join('');
  G('es').innerHTML=o;G('se').innerHTML=o;if(e.some(x=>x._id===a))G('es').value=a;if(e.some(x=>x._id===b))G('se').value=b;
- G('ex').innerHTML=e.map(x=>'<tr><td>'+esc(x.title)+'</td><td><select onchange="setG(\''+x._id+'\',this.value)" style="margin:0;width:auto;min-width:140px" aria-label="مجموعة الامتحان">'+gopts(x.group)+'</select></td><td style="white-space:nowrap"><span class="mut" style="font-size:.85rem">الدرجة النهائية</span> <input type="number" min="1" step="any" inputmode="decimal" value="'+(x.maxScore||'')+'" placeholder="حدّدها" aria-label="الدرجة النهائية" onchange="setMax(\''+x._id+'\',this.value)" style="width:92px;margin:0;display:inline-block'+(x.maxScore?'':';border-color:var(--acc)')+'"></td><td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del(\''+x._id+'\')">حذف</button></td></tr>').join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>';
+ G('ex').innerHTML=e.map(exRow).join('')||'<tr><td class="mut">لا توجد امتحانات بعد</td></tr>';
  drawG();mgDef();loadSt()}
 G('nf').onsubmit=async e=>{e.preventDefault();try{const r=await api('/api/exams','POST',{title:G('nt').value,group:G('ng').value||null,maxScore:G('nmax').value});G('nt').value='';G('nmax').value='';toast(r.added?'تم إنشاء الامتحان وإضافة '+r.added+' طالب من المجموعة':'تمت إضافة الامتحان');load()}catch(x){toast(x.message)}};
 async function setMax(id,v){try{await api('/api/exams/'+id,'PUT',{maxScore:v});toast('تم حفظ الدرجة النهائية — النسب المئوية تُحسب تلقائياً');load()}catch(x){toast(x.message);load()}}
@@ -153,6 +158,64 @@ G('bxb').onclick=async()=>{const id=G('se').value;if(!id)return toast('أضف ا
  try{const r=await api('/api/exams/'+id+'/students/bulk','POST',{rows});toast('تمت إضافة '+r.added+' طالب جديد'+(r.count>r.added?' وتحديث '+(r.count-r.added):'')+' ✔');G('bx').value='';G('bxp').textContent='';load()}catch(x){toast(x.message)}};
 G('g_bxb').onclick=async()=>{if(!GS)return;const rows=parseBulk(G('g_bx').value);if(!rows.length)return toast('اكتب الطلاب بصيغة: رقم، اسم (مثال: 1, محمد)');
  try{const r=await api('/api/groups/'+GS+'/students/bulk','POST',{rows});toast('تمت إضافة '+r.added+' طالب جديد'+(r.count>r.added?' وتحديث '+(r.count-r.added):'')+' ✔');G('g_bx').value='';G('g_bxp').textContent='';await load();loadGS()}catch(x){toast(x.message)}};
+
+
+/* ===== إدارة ظهور الامتحانات ===== */
+Object.assign(IC,{eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M3 3l18 18M10.6 6.2A9.7 9.7 0 0 1 12 6c6 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.6 6.6A17 17 0 0 0 2 12s4 7 10 7a9.6 9.6 0 0 0 4.4-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>'});
+const lcl=d=>{const x=new Date(d);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,16)};
+function exRow(x){const sch=x.publishAt&&new Date(x.publishAt)>new Date(),id="'"+x._id+"'",
+ st=x.hidden?'<span class="tag" style="background:var(--bad);color:#fff">مخفي عن الطلاب</span>':sch?'<span class="tag g">مجدول: '+esc(new Date(x.publishAt).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'}))+'</span>':'<span class="tag g">ظاهر للطلاب</span>';
+ return '<tr'+(x.hidden?' class="exh"':'')+'><td style="min-width:230px"><b>'+esc(x.title)+'</b> '+st+'<div class="exa">'+
+ '<button class="btn ghost sm" type="button" onclick="togVis('+id+','+!!x.hidden+')">'+svg(x.hidden?'eye':'eyeoff',14)+(x.hidden?'إظهار':'إخفاء')+'</button>'+
+ '<button class="btn ghost sm" type="button" onclick="solo('+id+')">إظهار هذا فقط</button>'+
+ '<button class="btn ghost sm" type="button" onclick="renEx('+id+')">'+svg('pen',14)+'تعديل الاسم</button>'+
+ '<button class="btn ghost sm" type="button" onclick="stats('+id+')">'+svg('chart',14)+'إحصائيات</button>'+
+ '<button class="btn ghost sm" type="button" onclick="expEx('+id+')">'+svg('dl',14)+'تصدير Excel</button>'+
+ '<button class="btn ghost sm" type="button" onclick="rstEx('+id+')">تصفير الدرجات</button></div>'+
+ '<label class="exl">يظهر تلقائياً في <input type="datetime-local" value="'+(x.publishAt?lcl(x.publishAt):'')+'" onchange="setPub('+id+',this.value)"></label></td>'+
+ '<td><select onchange="setG('+id+',this.value)" style="margin:0;width:auto;min-width:140px" aria-label="مجموعة الامتحان">'+gopts(x.group)+'</select></td>'+
+ '<td style="white-space:nowrap"><span class="mut" style="font-size:.85rem">الدرجة النهائية</span> <input type="number" min="1" step="any" inputmode="decimal" value="'+(x.maxScore||'')+'" placeholder="حدّدها" aria-label="الدرجة النهائية" onchange="setMax('+id+',this.value)" style="width:92px;margin:0;display:inline-block'+(x.maxScore?'':';border-color:var(--acc)')+'"></td>'+
+ '<td><span class="tag">'+x.count+' طالب</span></td><td><button class="btn bad sm" onclick="del('+id+')">حذف</button></td></tr>'}
+async function exPut(id,b,m){try{await api('/api/exams/'+id,'PUT',b);toast(m);load()}catch(x){toast(x.message);load()}}
+const togVis=(id,h)=>exPut(id,{hidden:!h},h?'الامتحان ظاهر الآن للطلاب':'تم إخفاء الامتحان عن الطلاب');
+const setPub=(id,v)=>exPut(id,v?{publishAt:new Date(v).toISOString(),hidden:false}:{publishAt:null},v?'تمت جدولة ظهور الامتحان':'تم إلغاء الجدولة');
+async function solo(id){try{await api('/api/exams/'+id+'/solo','POST');toast('يظهر هذا الامتحان فقط، وتم إخفاء باقي الامتحانات');load()}catch(x){toast(x.message)}}
+async function visAll(h){if(h&&!confirm('إخفاء كل الامتحانات عن الطلاب؟'))return;try{await api('/api/exams-visibility','POST',{hidden:h});toast(h?'تم إخفاء كل الامتحانات':'تم إظهار كل الامتحانات');load()}catch(x){toast(x.message)}}
+function renEx(id){const e=EX.find(x=>x._id===id),n=prompt('اسم الامتحان',e.title);if(n&&n.trim())exPut(id,{title:n},'تم تعديل الاسم')}
+async function rstEx(id){if(confirm('مسح درجات كل الطلاب في هذا الامتحان؟ (يبقى الطلاب بأسمائهم وأرقام جلوسهم)')){try{await api('/api/exams/'+id+'/reset','POST');toast('تم تصفير الدرجات');load()}catch(x){toast(x.message)}}}
+async function expEx(id){try{const r=await api('/api/exams/'+id+'/all'),ks=[];r.rows.forEach(x=>Object.keys(x.data||{}).forEach(k=>{if(!ks.includes(k))ks.push(k)}));
+ const aoa=[['رقم الجلوس','الاسم',...ks],...r.rows.map(x=>[x.seat,x.name,...ks.map(k=>(x.data||{})[k]??'')])],wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),'النتائج');XLSX.writeFile(wb,String(r.title||'results').replace(/[\\\/:*?"<>|]/g,'-')+'.xlsx')}catch(x){toast(x.message)}}
+async function stats(id){try{const r=await api('/api/exams/'+id+'/all'),R=r.rows,nums=[];let ok=0,no=0;
+ R.forEach(x=>{const d=x.data||{},ks=Object.keys(d).filter(k=>!AUX.test(k)&&!/(جلوس|رقم)/.test(k)),g=ks.find(k=>/(الدرجة|الدرجه|المجموع)/.test(k)&&!isNaN(numOf(d[k])))||ks.find(k=>/^\s*[0-9٠-٩.]+\s*$/.test(String(d[k])));if(g)nums.push(numOf(d[g]));
+  const st=Object.entries(d).find(([k,v])=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راسب|رسب)/.test(String(v)));if(st){if(/(راسب|رسب|دور ثان)/.test(st[1]))no++;else if(/(ناجح|نجح)/.test(st[1]))ok++}});
+ const avg=nums.length?Math.round(nums.reduce((a,b)=>a+b,0)/nums.length*100)/100:null;
+ G('exs').innerHTML='<div class="row between"><h2 style="margin:0">إحصائيات: '+esc(r.title)+'</h2><button class="btn ghost sm" type="button" onclick="G(\'exs\').classList.add(\'hide\')">إغلاق</button></div><div class="xst-g">'+
+ [['عدد الطلاب',R.length],['لديهم درجات',nums.length],['المتوسط',avg??'—'],['الأعلى',nums.length?Math.max(...nums):'—'],['الأدنى',nums.length?Math.min(...nums):'—'],['ناجحون',ok],['راسبون',no]].map(a=>'<div class="xst"><b>'+a[1]+'</b><span class="mut">'+a[0]+'</span></div>').join('')+'</div>'+
+ (r.max&&avg!=null?'<p class="mut" style="margin:8px 0 0">الدرجة النهائية: '+r.max+' — متوسط النسبة '+Math.round(avg/r.max*1000)/10+'%</p>':'');
+ G('exs').classList.remove('hide');G('exs').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(x){toast(x.message)}}
+
+/* ===== إيقاف الموقع / تشغيله ===== */
+function drawPz(){const p=!!(me&&me.site&&me.site.paused);
+ G('pz').innerHTML='<div class="row between"><div><b>حالة موقع الطلاب: <span class="tag'+(p?'':' g')+'"'+(p?' style="background:var(--bad);color:#fff"':'')+'>'+(p?'متوقف':'يعمل')+'</span></b><p class="mut" style="margin:4px 0 0;font-size:.85rem">'+(p?'يرى الطلاب الآن شاشة «الموقع تم إيقافه حالياً» بدل شاشة النتائج (وتبقى إعلانات الامتحانات ظاهرة إن وُجدت). يمكنك تعديل نص الشاشة من تبويب «نصوص الموقع».':'يرى الطلاب شاشة الاستعلام عن النتائج. يمكنك إيقاف الموقع مؤقتاً لإظهار شاشة الإيقاف بدلها.')+'</p></div><button class="btn'+(p?'':' ghost')+'" type="button" onclick="togglePause()">'+(p?'تشغيل الموقع':'إيقاف الموقع مؤقتاً')+'</button></div>'}
+async function togglePause(){const p=!(me.site&&me.site.paused);if(p&&!confirm('إيقاف موقع الطلاب؟ ستظهر لهم شاشة الإيقاف بدل شاشة النتائج.'))return;
+ try{const r=await api('/api/site/pause','PUT',{paused:p});me.site={...(me.site||{}),paused:r.paused};drawPz();toast(r.paused?'تم إيقاف الموقع (تظهر شاشة الإيقاف للطلاب)':'تم تشغيل الموقع')}catch(x){toast(x.message)}}
+
+/* ===== إعلانات الامتحانات ===== */
+let AN={items:[],img:0};
+const dFmt=v=>new Date(v+'T00:00:00').toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+async function loadAnn(){try{AN=await api('/api/announcements');drawAnn()}catch(x){toast(x.message)}}
+function drawAnn(){G('an_img').innerHTML=AN.img?'<img class="ann-prev" alt="صورة الإعلان" src="/api/public/'+esc(me.slug)+'/ann-img?v='+AN.img+'">':'<p class="mut" style="margin:0 0 6px">لا توجد صورة بعد.</p>';G('an_rm').classList.toggle('hide',!AN.img);
+ G('an_tbl').innerHTML=AN.items.length?'<tr><th>التاريخ</th><th>الامتحان</th><th>الوقت</th><th>ملاحظة</th><th></th></tr>'+AN.items.map(a=>'<tr><td>'+esc(dFmt(a.date))+'</td><td><b>'+esc(a.title)+'</b></td><td>'+esc(a.time||'—')+'</td><td class="mut">'+esc(a.note||'')+'</td><td class="row" style="flex-wrap:nowrap"><button class="btn ghost sm" type="button" onclick="editAnn(\''+a._id+'\')">تعديل</button><button class="btn bad sm" type="button" onclick="delAnn(\''+a._id+'\')">'+svg('trash',14)+'</button></td></tr>').join(''):'<tr><td class="mut">لا توجد امتحانات معلنة بعد — أضف أول امتحان من الأعلى.</td></tr>'}
+G('an_form').onsubmit=async e=>{e.preventDefault();try{await api('/api/announcements','POST',{title:G('an_t').value,date:G('an_d').value,time:G('an_tm').value,note:G('an_n').value});G('an_t').value='';G('an_n').value='';G('an_tm').value='';toast('تمت إضافة الامتحان للإعلانات ✔');loadAnn()}catch(x){toast(x.message)}};
+async function editAnn(id){const a=AN.items.find(x=>x._id===id);if(!a)return;const t=prompt('اسم الامتحان',a.title);if(t===null)return;const d=prompt('التاريخ (بصيغة 2026-12-31)',a.date);if(d===null)return;
+ try{await api('/api/announcements/'+id,'PUT',{title:t,date:d});toast('تم التعديل');loadAnn()}catch(x){toast(x.message)}}
+async function delAnn(id){if(confirm('حذف هذا الإعلان؟')){try{await api('/api/announcements/'+id,'DELETE');toast('تم الحذف');loadAnn()}catch(x){toast(x.message)}}}
+G('an_rm').onclick=async()=>{if(!confirm('حذف صورة الإعلان؟'))return;try{await api('/api/announcements/image','DELETE');AN.img=0;drawAnn();toast('تم حذف الصورة')}catch(x){toast(x.message)}};
+G('an_file').onchange=async()=>{const f=G('an_file').files[0];if(!f)return;if(!/^image\//.test(f.type)){G('an_file').value='';return toast('اختر ملف صورة')}
+ try{const url=URL.createObjectURL(f),im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('تعذر قراءة الصورة، جرّب JPG أو PNG'));i.src=url});
+  const k=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);
+  const r=await api('/api/announcements/image','PUT',{data:c.toDataURL('image/jpeg',.85)});AN.img=r.img;drawAnn();toast('تم رفع الصورة وتظهر الآن لطلابك')}catch(x){toast(x.message||'تعذر رفع الصورة')}G('an_file').value=''};
 
 function back(){api('/api/admin/stop','POST').then(()=>location='/admin').catch(x=>toast(x.message))}
 G('ft').innerHTML=foot({title:'TeacherM',sub:'لوحة المدرس',links:[['/','الرئيسية']],copy:'جميع الحقوق محفوظة'});reveal();

@@ -2,6 +2,8 @@
 <main class="wrap" id="top">
 <section class="hero"><div class="bismillah" id="hg"></div><h1 id="ht">...</h1><div class="exam" id="he"></div><div class="sub" id="hs"></div><a class="btn cta" href="#q">ابدأ الاستعلام عن نتيجتك</a></section>
 <p class="intro" id="hn"></p>
+<section class="card stopped hide" id="stp" aria-live="polite"></section>
+<section class="card hide" id="an" aria-labelledby="ant"><h2 class="sx-title" id="ant">إعلانات الامتحانات</h2><div class="sx-bar" aria-hidden="true"></div><div id="anb"></div></section>
 
 <section class="card" id="q" aria-labelledby="qt"><h2 class="sx-title" id="qt">الاستعلام عن النتيجة</h2><div class="sx-bar" aria-hidden="true"></div>
 <p class="mut" id="hh" style="text-align:center;margin:0 0 6px"></p>
@@ -34,17 +36,18 @@ const fz=w=>[...w].map(c=>({'ا':'[اأإآ]','أ':'[اأإآ]','إ':'[اأإآ]
 function hl(n,q){const ws=q.trim().split(/\s+/).filter(Boolean);if(!ws.length)return esc(n);let re;try{re=new RegExp('('+ws.map(fz).join('|')+')','g')}catch{return esc(n)}return String(n).split(re).map((p,i)=>i%2?'<mark>'+esc(p)+'</mark>':esc(p)).join('')}
 const vcls=(k,v)=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راسب|رسب)/.test(String(v))?(/(راسب|رسب|دور ثان)/.test(v)?'no':/(ناجح|نجح)/.test(v)?'ok':''):'';
 
-(window.PRE||api('/api/public/'+slug)).then(d=>{D=d;const x=SUBJECTS.find(v=>v.n===d.subject);IC_=x?x.k:'cap';S=SITE(d.name,d.subject,d.site);applySubject(d.subject);
+(window.PRE||api('/api/public/'+slug)).then(d=>{D=d;const x=SUBJECTS.find(v=>v.n===d.subject);IC_=x?x.k:'cap';S=SITE(d.name,d.subject,d.site);applySubject(d.subject);const HASAN=!!((d.ann||[]).length||d.annImg);
  document.title=S.title+' | '+S.examTitle;
  document.querySelector('meta[name=description]').content=S.title+' — '+S.examTitle+': ابحث بالاسم عن رقم جلوسك واستعلم عن نتيجتك.';
- shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a><a href="#q" class="navlink">الاستعلام عن النتيجة</a><a href="#vf" class="navlink">التحقق من الشهادة</a>'+(S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'','#top');
+ shell(badge(IC_)+'<span>'+esc(S.title)+'</span>','<a href="#top" class="navlink on">الرئيسية</a>'+(HASAN?'<a href="#an" class="navlink">إعلانات الامتحانات</a>':'')+(d.stopped?'':'<a href="#q" class="navlink">الاستعلام عن النتيجة</a><a href="#vf" class="navlink">التحقق من الشهادة</a>')+(!d.stopped&&S.instructions.trim()?'<a href="#ins" class="navlink">'+esc(S.instructionsTitle)+'</a>':'')+(!d.stopped&&S.faq.length?'<a href="#faq" class="navlink">أسئلة شائعة</a>':''),'','#top');
  /* زر لوحة المدرس يظهر لصاحب الصفحة فقط (بعد التحقق من الجلسة)، ولا يظهر للطلاب أو الزوار */
  setTimeout(()=>api('/api/me').then(m=>{if(m.role==='teacher'&&m.slug===slug){const t=document.querySelector('.tools');if(t)t.insertAdjacentHTML('afterbegin','<a href="/dashboard" class="hbtn" aria-label="لوحة المدرس" title="لوحة المدرس">'+svg('dash',18)+'</a>')}}).catch(()=>{}),1500);
 
  tx('hg',S.greet);tx('ht',S.title);tx('he',S.examTitle);tx('hs',S.tagline);tx('hn',S.intro);tx('hh',S.searchHint);tx('it',S.instructionsTitle);
+ renderAnn(d);if(d.stopped){stoppedView(d,HASAN);return}
 
  /* بطاقات الامتحانات */
- if(!d.exams.length){G('xg').innerHTML='<p class="mut" style="grid-column:1/-1;text-align:center">لم يتم نشر أي امتحان بعد، تابعنا قريباً.</p>'}
+ if(!d.exams.length){G('xg').innerHTML='<p class="mut" style="grid-column:1/-1;text-align:center">لا يوجد امتحان متاح للاستعلام عنه حالياً، تابعنا قريباً.</p>'}
  else{G('xg').innerHTML=d.exams.map((e,i)=>'<button class="xc" type="button" style="--i:'+i+'" data-id="'+e._id+'">'+badge(IC_,24)+'<b>'+esc(e.title)+'</b>'+(e.groupName?'<span class="tag">'+esc(e.groupName)+'</span>':'')+'<span class="s">اضغط للاستعلام</span></button>').join('');
   if(d.exams.length===1){G('xg').classList.add('hide');pick(d.exams[0]._id,1)}}
  G('xg').onclick=e=>{const b=e.target.closest('.xc');if(b)pick(b.dataset.id)};
@@ -71,8 +74,26 @@ const vcls=(k,v)=>/(حالة|النتيجة)/.test(k)||/^(ناجح|نجح|راس
  else{const j=document.createElement('script');j.type='application/ld+json';j.textContent=JSON.stringify({'@context':'https://schema.org','@type':'FAQPage',inLanguage:'ar',mainEntity:S.faq.map(f=>({'@type':'Question',name:f.q,acceptedAnswer:{'@type':'Answer',text:f.a}}))});document.head.appendChild(j)}
 
  /* الفوتر */
- G('ft').innerHTML=foot({title:S.title,sub:S.examTitle,links:[['#top','الرئيسية'],['#q','الاستعلام عن النتيجة'],['#vf','التحقق من الشهادة']].concat(L.length?[['#ins',S.instructionsTitle]]:[],S.faq.length?[['#faq','أسئلة شائعة']]:[]),wa:S.whatsapp,copy:S.footer,icon:IC_});
+ G('ft').innerHTML=foot({title:S.title,sub:S.examTitle,links:[['#top','الرئيسية']].concat(HASAN?[['#an','إعلانات الامتحانات']]:[],[['#q','الاستعلام عن النتيجة'],['#vf','التحقق من الشهادة']]).concat(L.length?[['#ins',S.instructionsTitle]]:[],S.faq.length?[['#faq','أسئلة شائعة']]:[]),wa:S.whatsapp,copy:S.footer,icon:IC_});
 }).catch(e=>{tx('ht',e&&e.message&&e.message!=='x'?e.message:'الصفحة غير موجودة');tx('hg','');document.querySelectorAll('main>.card,.intro').forEach(e=>e.remove());G('ft').innerHTML=foot({title:'TeacherM',links:[['/','الصفحة الرئيسية']],copy:'جميع الحقوق محفوظة'})});
+
+/* ===== إعلانات الامتحانات + شاشة إيقاف الموقع ===== */
+IC.pause='<circle cx="12" cy="12" r="10"/><path d="M10 9v6M14 9v6"/>';
+function renderAnn(d){const a=d.ann||[],im=d.annImg;if(!a.length&&!im){G('an').remove();return}
+ const n=new Date(),td=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'),
+ dt=v=>new Date(v+'T00:00:00'),diff=v=>Math.round((dt(v)-dt(td))/864e5),
+ tm=v=>v?new Date('2000-01-01T'+v+':00').toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'}):'',
+ up=a.filter(x=>x.date>=td),pa=a.filter(x=>x.date<td).reverse().slice(0,5),
+ it=(x,past)=>{const k=diff(x.date),cd=past?'انتهى':k===0?'اليوم':k===1?'غداً':k===2?'بعد يومين':'بعد '+k+' يوم',D=dt(x.date);
+  return '<div class="ann-it'+(past?' past':k===0?' now':'')+'"><div class="ann-d"><b>'+D.toLocaleDateString('ar-EG',{day:'numeric'})+'</b><span>'+D.toLocaleDateString('ar-EG',{month:'short'})+'</span></div><div class="ann-i"><b>'+esc(x.title)+'</b><span class="mut">'+D.toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+(x.time?' — '+tm(x.time):'')+'</span>'+(x.note?'<span class="mut">'+esc(x.note)+'</span>':'')+'</div><span class="ann-cd">'+cd+'</span></div>'},
+ u='/api/public/'+slug+'/ann-img?v='+im;
+ G('anb').innerHTML=(im?'<a class="ann-img" href="'+u+'" target="_blank" rel="noopener"><img loading="lazy" alt="صورة إعلان الامتحانات" src="'+u+'"></a>':'')+(a.length?'<div class="ann-list">'+up.map(x=>it(x,0)).join('')+pa.map(x=>it(x,1)).join('')+'</div>':'');
+ G('an').classList.remove('hide')}
+function stoppedView(d,has){document.querySelectorAll('main>.card:not(#an):not(#stp),.intro,.hero .cta,#he,#hs').forEach(e=>e.remove());
+ const msg=(S.pauseMsg||'').trim()||(d.stopped==='paused'&&has?'الاستعلام عن النتائج متوقف حالياً، تابع مواعيد الامتحانات القادمة أدناه':'الموقع تم إيقافه حالياً ولا يوجد امتحان للإعلان عنها حالياً');
+ G('stp').innerHTML='<div class="stp-ic">'+svg('pause',48)+'</div><p class="stp-msg">'+esc(msg)+'</p>';G('stp').classList.remove('hide');
+ document.title=S.title+' | الموقع متوقف حالياً';
+ G('ft').innerHTML=foot({title:S.title,links:[['#top','الرئيسية']].concat(has?[['#an','إعلانات الامتحانات']]:[]),wa:S.whatsapp,copy:S.footer,icon:IC_})}
 
 /* اختيار الامتحان */
 function pick(id,silent){CUR=D.exams.find(e=>e._id===id);if(!CUR)return;

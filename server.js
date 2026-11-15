@@ -33,7 +33,12 @@ const Plan=mongoose.model('Plan',new S({key:{type:String,unique:true},name:Strin
 const Setting=mongoose.model('Setting',new S({k:{type:String,unique:true},v:S.Types.Mixed}));
 const getS=async()=>{const o={whatsapp:'201110742678',currency:'ج.م',enforce:false};(await Setting.find().lean()).forEach(x=>o[x.k]=x.v);return o};
 const planOk=u=>{const p=u&&u.plan;if(!p||!p.type)return false;if(p.type==='lifetime')return true;if(p.type==='exam')return (p.examsLeft||0)>0;return !!p.expiresAt&&new Date(p.expiresAt)>new Date()};
-const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String,group:{type:T,default:null},maxScore:{type:Number,default:null}},{timestamps:true}));
+const Exam=mongoose.model('Exam',new S({teacher:{type:T,index:true},title:String,group:{type:T,default:null},maxScore:{type:Number,default:null},hidden:{type:Boolean,default:false},publishAt:{type:Date,default:null}},{timestamps:true}));
+/* الامتحان الظاهر للطلاب: غير مخفي وتجاوز وقت النشر المجدول (إن وُجد) */
+const visQ=t=>({teacher:t,hidden:{$ne:true},$or:[{publishAt:null},{publishAt:{$lte:new Date()}}]});
+/* إعلانات الامتحانات: صورة واحدة + قائمة امتحانات (اسم + تاريخ) لكل مدرس */
+const Ann=mongoose.model('Ann',new S({teacher:{type:T,index:true},title:String,date:String,time:String,note:String},{timestamps:true}));
+const AnnImg=mongoose.model('AnnImg',new S({teacher:{type:T,unique:true},mime:String,data:Buffer},{timestamps:true}));
 const Result=mongoose.model('Result',new S({teacher:T,exam:{type:T,index:true},seat:String,name:String,nameN:String,data:S.Types.Mixed}));
 Result.schema.index({exam:1,seat:1},{unique:true});
 const Group=mongoose.model('Group',new S({teacher:{type:T,index:true},name:String},{timestamps:true}));
@@ -92,7 +97,9 @@ app.put('/api/exams/:id',auth,wrap(async(q,s)=>{if(!T.isValid(q.params.id))retur
  const e=await Exam.findOne({_id:q.params.id,teacher:q.user.id});if(!e)return s.status(404).json({error:'غير موجود'});
  if(q.body.title!=null){const t=String(q.body.title).trim().slice(0,120);if(!t)return s.status(400).json({error:'اكتب اسم الامتحان'});e.title=t}
  if(q.body.maxScore!=null){const ms=maxOf(q.body.maxScore);if(!ms)return s.status(400).json({error:'الدرجة النهائية رقم أكبر من صفر'});e.maxScore=ms}
- await e.save();s.json({ok:1,maxScore:e.maxScore})}));
+ if(q.body.hidden!=null)e.hidden=!!q.body.hidden;
+ if('publishAt' in q.body){const v=q.body.publishAt;if(!v)e.publishAt=null;else{const d=new Date(v);if(isNaN(d))return s.status(400).json({error:'تاريخ غير صحيح'});e.publishAt=d}}
+ await e.save();s.json({ok:1,maxScore:e.maxScore,hidden:e.hidden,publishAt:e.publishAt})}));
 app.delete('/api/exams/:id',auth,wrap(async(q,s)=>{const e=await Exam.findOneAndDelete({_id:q.params.id,teacher:q.user.id});if(e)await Result.deleteMany({exam:e.id});s.json({ok:1})}));
 app.post('/api/exams/:id/results',auth,wrap(async(q,s)=>{
  const e=await Exam.findOne({_id:q.params.id,teacher:q.user.id});if(!e)return s.status(404).json({error:'غير موجود'});
@@ -133,28 +140,75 @@ app.post('/api/exams/:id/students/bulk',auth,wrap(async(q,s)=>{const e=await own
 app.delete('/api/exams/:id/student/:seat',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
  await Result.deleteOne({exam:e._id,seat:norm(q.params.seat)});s.json({ok:1})}));
 
+/* ===== ميزات إدارة الامتحانات: إظهار هذا فقط / إخفاء الكل / تصدير / تصفير ===== */
+app.post('/api/exams/:id/solo',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ await Exam.updateMany({teacher:q.user._id,_id:{$ne:e._id}},{$set:{hidden:true}});e.hidden=false;e.publishAt=null;await e.save();s.json({ok:1})}));
+app.post('/api/exams-visibility',auth,wrap(async(q,s)=>{const h=!!q.body.hidden;
+ await Exam.updateMany({teacher:q.user._id},{$set:h?{hidden:true}:{hidden:false,publishAt:null}});s.json({ok:1})}));
+app.get('/api/exams/:id/all',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ const rows=await Result.find({exam:e._id}).sort('seat').limit(5000).select('seat name data -_id').lean();
+ s.json({title:e.title,max:e.maxScore||null,rows:rows.map(r=>({...r,data:withPct(r.data,e.maxScore)}))})}));
+app.post('/api/exams/:id/reset',auth,wrap(async(q,s)=>{const e=await own(q);if(!e)return s.status(404).json({error:'غير موجود'});
+ await Result.updateMany({exam:e._id},{$set:{data:{}}});s.json({ok:1})}));
+
+/* ===== إعلانات الامتحانات (المدرس) ===== */
+const ymd=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):null,hm=v=>/^\d{2}:\d{2}$/.test(String(v||''))?String(v):'';
+app.get('/api/announcements',auth,wrap(async(q,s)=>{
+ const[items,im]=await Promise.all([Ann.find({teacher:q.user._id}).sort('date time').lean(),AnnImg.findOne({teacher:q.user._id}).select('updatedAt').lean()]);
+ s.json({items:items.map(a=>({_id:a._id,title:a.title,date:a.date,time:a.time||'',note:a.note||''})),img:im?+new Date(im.updatedAt):0})}));
+app.post('/api/announcements',auth,wrap(async(q,s)=>{const title=String(q.body.title||'').trim().slice(0,120),date=ymd(q.body.date);
+ if(title.length<2)return s.status(400).json({error:'اكتب اسم الامتحان'});if(!date)return s.status(400).json({error:'اختر تاريخ الامتحان'});
+ if(await Ann.countDocuments({teacher:q.user._id})>=60)return s.status(400).json({error:'وصلت للحد الأقصى من الإعلانات (60)'});
+ const a=await Ann.create({teacher:q.user._id,title,date,time:hm(q.body.time),note:String(q.body.note||'').trim().slice(0,200)});s.json({_id:a._id})}));
+app.put('/api/announcements/image',auth,wrap(async(q,s)=>{
+ const m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(q.body.data||''));
+ if(!m)return s.status(400).json({error:'الصورة غير صالحة (JPG أو PNG أو WebP)'});
+ const buf=Buffer.from(m[2],'base64');if(buf.length>2.5*1024*1024)return s.status(400).json({error:'حجم الصورة كبير (الحد 2.5 ميجابايت)'});
+ await AnnImg.updateOne({teacher:q.user._id},{$set:{mime:m[1],data:buf}},{upsert:true});
+ const d=await AnnImg.findOne({teacher:q.user._id}).select('updatedAt').lean();s.json({img:+new Date(d.updatedAt)})}));
+app.delete('/api/announcements/image',auth,wrap(async(q,s)=>{await AnnImg.deleteOne({teacher:q.user._id});s.json({ok:1})}));
+app.put('/api/announcements/:id',auth,wrap(async(q,s)=>{if(!T.isValid(q.params.id))return s.status(404).json({error:'غير موجود'});
+ const a=await Ann.findOne({_id:q.params.id,teacher:q.user._id});if(!a)return s.status(404).json({error:'غير موجود'});
+ if(q.body.title!=null){const t=String(q.body.title).trim().slice(0,120);if(t.length<2)return s.status(400).json({error:'اكتب اسم الامتحان'});a.title=t}
+ if(q.body.date!=null){const d=ymd(q.body.date);if(!d)return s.status(400).json({error:'تاريخ غير صحيح'});a.date=d}
+ if(q.body.time!=null)a.time=hm(q.body.time);if(q.body.note!=null)a.note=String(q.body.note).trim().slice(0,200);
+ await a.save();s.json({ok:1})}));
+app.delete('/api/announcements/:id',auth,wrap(async(q,s)=>{if(T.isValid(q.params.id))await Ann.deleteOne({_id:q.params.id,teacher:q.user._id});s.json({ok:1})}));
+
+/* ===== الصفحة العامة للطلاب ===== */
 app.get('/api/public/:slug',wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug});
  if(!u){s.set('Cache-Control','no-store');return s.status(404).json({error:'الصفحة غير موجودة'})}
- if(!u.active){s.set('Cache-Control','no-store');return s.status(403).json({error:'هذا الموقع غير مفعّل حالياً (الحساب موقوف أو بانتظار التفعيل من الإدارة)'})}
+ /* حساب غير مفعّل: تُعرض شاشة "الموقع تم إيقافه حالياً" بدل رسالة خطأ */
+ if(!u.active){s.set('Cache-Control','no-store');return s.json({name:u.name,subject:u.subject,site:{},stopped:'inactive',exams:[],ann:[],annImg:0})}
  s.set('Cache-Control','public, s-maxage=30, stale-while-revalidate=300');
- const [ex,gs,cfg]=await Promise.all([Exam.find({teacher:u.id}).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean(),getS()]);
- const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name])),site={...(u.site||{})};delete site.color;
- s.json({name:u.name,subject:u.subject,site,exams:ex.map(e=>({_id:e._id,title:e.title,groupName:e.group?gm[String(e.group)]||'':''}))})}));
+ const site={...(u.site||{})};delete site.color;
+ const[ann,im]=await Promise.all([Ann.find({teacher:u._id}).sort('date time').limit(60).select('title date time note -_id').lean(),AnnImg.findOne({teacher:u._id}).select('updatedAt').lean()]);
+ const A={ann:ann.map(a=>({title:a.title,date:a.date,time:a.time||'',note:a.note||''})),annImg:im?+new Date(im.updatedAt):0};
+ /* المدرس أوقف الموقع: شاشة الإيقاف بدل شاشة النتائج (الإعلانات تبقى ظاهرة إن وُجدت) */
+ if(site.paused)return s.json({name:u.name,subject:u.subject,site,stopped:'paused',exams:[],...A});
+ const[ex,gs]=await Promise.all([Exam.find(visQ(u._id)).sort('-createdAt').select('title group').lean(),Group.find({teacher:u._id}).select('name').lean()]);
+ const gm=Object.fromEntries(gs.map(g=>[String(g._id),g.name]));
+ s.json({name:u.name,subject:u.subject,site,exams:ex.map(e=>({_id:e._id,title:e.title,groupName:e.group?gm[String(e.group)]||'':''})),...A})}));
+app.get('/api/public/:slug/ann-img',wrap(async(q,s)=>{
+ const u=await User.findOne({slug:q.params.slug,active:true}).select('_id');if(!u)return s.status(404).end();
+ const i=await AnnImg.findOne({teacher:u._id});if(!i)return s.status(404).end();
+ s.set({'Content-Type':i.mime,'Cache-Control':'public, max-age=300, s-maxage=300'});s.send(Buffer.from(i.data))}));
 app.post('/api/public/:slug/lookup',rate({windowMs:6e4,limit:20}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
- const r=await Result.findOne({teacher:u._id,exam:q.body.examId,seat:norm(q.body.seat)}).lean();
+ if(u.site&&u.site.paused)return s.status(403).json({error:'الاستعلام عن النتائج متوقف حالياً'});
+ const ex=await Exam.findOne({...visQ(u._id),_id:q.body.examId}).select('maxScore').lean();if(!ex)return s.status(404).json({error:'هذا الامتحان غير متاح حالياً'});
+ const r=await Result.findOne({teacher:u._id,exam:ex._id,seat:norm(q.body.seat)}).lean();
  if(!r)return s.status(404).json({error:'لا توجد نتيجة بهذا الرقم'});
- const ex=await Exam.findOne({_id:q.body.examId,teacher:u._id}).select('maxScore').lean();
- s.json({name:r.name,data:withPct(r.data,ex&&ex.maxScore)})}));
+ s.json({name:r.name,data:withPct(r.data,ex.maxScore)})}));
 
 const certKey=s=>{let a=0x811c9dc5,b=0x1b873593;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,16777619);b=Math.imul(b+c,2246822519)^(b>>>13)}
  return 'CERT-'+((a>>>0).toString(16).padStart(8,'0')+(b>>>0).toString(16).padStart(8,'0')).slice(0,12).toUpperCase()};
 app.post('/api/public/:slug/verify',rate({windowMs:6e4,limit:15}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});if(!u)return s.status(404).json({error:'غير موجود'});
- const k=String(q.body.key||'').trim().toUpperCase();if(!/^CERT-[0-9A-F]{12}$/.test(k))return s.status(400).json({error:'مفتاح الشهادة غير صحيح (مثال: CERT-92E4E7CAC849)'});
- const exs=await Exam.find({teacher:u._id}).select('title maxScore').lean(),em=Object.fromEntries(exs.map(e=>[String(e._id),e]));
- const rs=await Result.find({teacher:u._id}).select('exam seat name data').lean();
+ if(u.site&&u.site.paused)return s.status(403).json({error:'الاستعلام متوقف حالياً'});const k=String(q.body.key||'').trim().toUpperCase();if(!/^CERT-[0-9A-F]{12}$/.test(k))return s.status(400).json({error:'مفتاح الشهادة غير صحيح (مثال: CERT-92E4E7CAC849)'});
+ const exs=await Exam.find(visQ(u._id)).select('title maxScore').lean(),em=Object.fromEntries(exs.map(e=>[String(e._id),e]));
+ const rs=await Result.find({teacher:u._id,exam:{$in:exs.map(e=>e._id)}}).select('exam seat name data').lean();
  const r=rs.find(x=>certKey(q.params.slug+'|'+x.exam+'|'+x.seat)===k);
  if(!r)return s.status(404).json({error:'لا توجد شهادة بهذا المفتاح'});
  const e=em[String(r.exam)];s.json({name:r.name,exam:e?e.title:'',data:withPct(r.data,e&&e.maxScore)})}));
@@ -189,15 +243,18 @@ app.post('/api/admin/users/:id/plan',auth,admin,wrap(async(q,s)=>{
   if(t==='exam')p.examsLeft=(old.type==='exam'?old.examsLeft||0:0)+1;
   u.plan=p;u.active=true}
  u.markModified('plan');await u.save();s.json({ok:1})}));
+app.put('/api/site/pause',auth,wrap(async(q,s)=>{q.user.site={...(q.user.site||{}),paused:!!q.body.paused};q.user.markModified('site');await q.user.save();s.json({paused:!!q.body.paused})}));
 app.put('/api/site',auth,wrap(async(q,s)=>{
  const b=q.body||{},o={};
- ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
- o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;o.color=null;
+ ['greet','title','examTitle','tagline','intro','instructionsTitle','instructions','searchHint','footer','notFound','pauseMsg'].forEach(k=>{if(typeof b[k]==='string')o[k]=b[k].slice(0,3000)});
+ o.whatsapp=String(b.whatsapp||'').replace(/\D/g,'').slice(0,15);o.nameSearch=b.nameSearch!==false;o.color=null;o.paused=b.paused!=null?!!b.paused:!!(q.user.site&&q.user.site.paused);
  o.faq=(Array.isArray(b.faq)?b.faq:[]).slice(0,20).map(f=>({q:String(f.q||'').slice(0,300),a:String(f.a||'').slice(0,1500)})).filter(f=>f.q&&f.a);
  q.user.site=o;q.user.markModified('site');await q.user.save();s.json(o)}));
 app.post('/api/public/:slug/search',rate({windowMs:6e4,limit:30}),wrap(async(q,s)=>{
  const u=await User.findOne({slug:q.params.slug,active:true});
  if(!u||!T.isValid(q.body.examId))return s.status(404).json({error:'غير موجود'});
+ if(u.site&&u.site.paused)return s.status(403).json({error:'الاستعلام متوقف حالياً'});
+ if(!await Exam.exists({...visQ(u._id),_id:q.body.examId}))return s.status(404).json({error:'غير موجود'});
  if(u.site&&u.site.nameSearch===false)return s.status(403).json({error:'البحث بالاسم غير متاح، استخدم رقم الجلوس'});
  const t=an(q.body.q);if(t.length<3)return s.json([]);
  const re=new RegExp(t.split(' ').map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.*'));
@@ -205,7 +262,7 @@ app.post('/api/public/:slug/search',rate({windowMs:6e4,limit:30}),wrap(async(q,s
 app.get('/api/admin/users',auth,admin,wrap(async(q,s)=>s.json((await User.find({role:'teacher'}).sort('-createdAt').lean()).map(u=>({...u,password:undefined})))));
 app.patch('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{await User.updateOne({_id:q.params.id,role:'teacher'},{active:!!q.body.active});s.json({ok:1})}));
 app.delete('/api/admin/users/:id',auth,admin,wrap(async(q,s)=>{const u=await User.findOneAndDelete({_id:q.params.id,role:'teacher'});
- if(u){await Exam.deleteMany({teacher:u._id});await Result.deleteMany({teacher:u._id})}s.json({ok:1})}));
+ if(u){await Exam.deleteMany({teacher:u._id});await Result.deleteMany({teacher:u._id});await Ann.deleteMany({teacher:u._id});await AnnImg.deleteMany({teacher:u._id})}s.json({ok:1})}));
 
 
 /* ===== ألوان المنصة (المدير) وألوان موقع المدرس ===== */
